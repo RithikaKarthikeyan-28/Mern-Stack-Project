@@ -1,0 +1,25 @@
+# Dependencies and runtime data
+node_modules
+npm-debug.log*
+
+# Environment and secrets
+.env
+.env.*
+!.env.example
+
+# Logs and coverage
+logs
+*.log
+coverage
+.nyc_output
+
+# Testing and development scratch
+tests
+scratch
+
+# Source control and IDE configuration
+.git
+.gitignore
+.vscode
+.idea
+*.md
