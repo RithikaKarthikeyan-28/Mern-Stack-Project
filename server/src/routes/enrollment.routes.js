@@ -8,11 +8,18 @@ const router = express.Router();
 // Require authentication for all enrollment routes
 router.use(authMiddleware);
 
-// Employee self-enrollment and Admin enrollment
+// Employee self-enrollment, Admin & Trainer enrollment
 router.post(
   '/',
-  authorizeRoles('admin', 'employee'),
+  authorizeRoles('admin', 'trainer', 'employee'),
   enrollmentController.createEnrollment
+);
+
+// Admin & Trainer assign course to entire department
+router.post(
+  '/department',
+  authorizeRoles('admin', 'trainer'),
+  enrollmentController.assignDepartment
 );
 
 // Authenticated employee retrieves own enrollments (MUST precede /:id)

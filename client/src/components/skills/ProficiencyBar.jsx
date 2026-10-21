@@ -40,7 +40,7 @@ export const ProficiencyBar = ({
 
           let segColor = 'bg-slate-100 dark:bg-slate-800';
           if (isFilled) {
-            segColor = 'bg-indigo-600';
+            segColor = 'bg-teal-700';
           }
 
           return (
@@ -58,7 +58,7 @@ export const ProficiencyBar = ({
               {isCurrentTarget && !isRequiredTarget && (
                 <div
                   title={`Current: ${lvl.key}`}
-                  className="absolute -top-1 right-0 w-2 h-2 rounded-full bg-indigo-500 ring-2 ring-white transform translate-x-1"
+                  className="absolute -top-1 right-0 w-2 h-2 rounded-full bg-teal-600 ring-2 ring-white transform translate-x-1"
                 />
               )}
             </div>

@@ -93,7 +93,7 @@ export const AssessmentResultPage = () => {
       <div>
         <Link
           to={courseId ? `/courses/${courseId}` : '/assessments'}
-          className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-500 hover:text-indigo-600 transition-colors"
+          className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-500 hover:text-teal-700 transition-colors"
         >
           <ChevronLeft className="w-4 h-4" />
           <span>{courseId ? 'Back to Course' : 'Back to Assessments'}</span>

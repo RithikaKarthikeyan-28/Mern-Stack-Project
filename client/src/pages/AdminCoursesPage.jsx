@@ -10,6 +10,7 @@ import {
   Archive,
   Layers,
   Users,
+  UserCheck,
 } from 'lucide-react';
 import adminService from '../services/adminService';
 import { useToast } from '../context/ToastContext';
@@ -20,11 +21,14 @@ import ErrorState from '../components/ui/ErrorState';
 import ConfirmDialog from '../components/ui/ConfirmDialog';
 import AdminStatusBadge from '../components/admin/AdminStatusBadge';
 import TrainerCourseModal from '../components/trainer/TrainerCourseModal';
+import AssignCourseModal from '../components/admin/AssignCourseModal';
 
 export const AdminCoursesPage = () => {
   const { success, error: toastError } = useToast();
 
   const [courses, setCourses] = useState([]);
+  const [departments, setDepartments] = useState([]);
+  const [employees, setEmployees] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -38,6 +42,9 @@ export const AdminCoursesPage = () => {
   const [editingCourse, setEditingCourse] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // Course Assignment Modal
+  const [assigningCourse, setAssigningCourse] = useState(null);
+
   // Delete Dialog
   const [deleteTarget, setDeleteTarget] = useState(null);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -46,8 +53,14 @@ export const AdminCoursesPage = () => {
     setLoading(true);
     setError(null);
     try {
-      const data = await adminService.getCourses();
-      setCourses(data);
+      const [coursesData, deptsData, empsData] = await Promise.all([
+        adminService.getCourses(),
+        adminService.getDepartments(),
+        adminService.getEmployees(),
+      ]);
+      setCourses(coursesData);
+      setDepartments(deptsData);
+      setEmployees(empsData);
     } catch (err) {
       setError(err.normalizedMessage || err.message || 'Failed to load courses.');
     } finally {
@@ -140,8 +153,8 @@ export const AdminCoursesPage = () => {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-white flex items-center gap-2">
-            <BookOpen className="w-7 h-7 text-indigo-600" />
+          <h1 className="text-2xl font-bold tracking-tight text-brand-ink-primary dark:text-white flex items-center gap-2">
+            <BookOpen className="w-7 h-7 text-teal-700" />
             Course Administration
           </h1>
           <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
@@ -180,7 +193,7 @@ export const AdminCoursesPage = () => {
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             placeholder="Search by title, description, or category..."
-            className="w-full pl-9 pr-3 py-2 text-sm bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            className="w-full pl-9 pr-3 py-2 text-sm bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg text-brand-ink-primary dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-teal-600 focus:border-teal-600"
             aria-label="Search courses"
           />
         </div>
@@ -189,7 +202,7 @@ export const AdminCoursesPage = () => {
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
-            className="w-full px-3 py-2 text-sm bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            className="w-full px-3 py-2 text-sm bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg text-brand-ink-primary dark:text-white focus:outline-none focus:ring-2 focus:ring-teal-600 focus:border-teal-600"
             aria-label="Filter by status"
           >
             <option value="all">All Statuses</option>
@@ -203,7 +216,7 @@ export const AdminCoursesPage = () => {
           <select
             value={levelFilter}
             onChange={(e) => setLevelFilter(e.target.value)}
-            className="w-full px-3 py-2 text-sm bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            className="w-full px-3 py-2 text-sm bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg text-brand-ink-primary dark:text-white focus:outline-none focus:ring-2 focus:ring-teal-600 focus:border-teal-600"
             aria-label="Filter by level"
           >
             <option value="all">All Levels</option>
@@ -247,7 +260,7 @@ export const AdminCoursesPage = () => {
               <Card key={id} className="flex flex-col justify-between">
                 <div>
                   <div className="flex items-start justify-between gap-2 mb-2">
-                    <span className="text-[11px] font-semibold uppercase tracking-wider text-indigo-600 dark:text-indigo-400">
+                    <span className="text-[11px] font-semibold uppercase tracking-wider text-teal-700 dark:text-teal-400">
                       {course.category || 'General'}
                     </span>
                     <AdminStatusBadge status={course.status} />
@@ -310,6 +323,17 @@ export const AdminCoursesPage = () => {
                     <Button
                       variant="ghost"
                       size="sm"
+                      onClick={() => setAssigningCourse(course)}
+                      className="text-teal-700 hover:text-teal-800 hover:bg-teal-50"
+                      title="Assign Course to Workforce"
+                      aria-label={`Assign ${course.title}`}
+                    >
+                      <UserCheck className="w-4 h-4 mr-1" />
+                      <span className="text-xs font-semibold">Assign</span>
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
                       onClick={() => handleOpenEditModal(course)}
                       title="Edit Course"
                       aria-label={`Edit ${course.title}`}
@@ -333,6 +357,16 @@ export const AdminCoursesPage = () => {
           })}
         </div>
       )}
+
+      {/* Assign Course Modal */}
+      <AssignCourseModal
+        isOpen={Boolean(assigningCourse)}
+        onClose={() => setAssigningCourse(null)}
+        course={assigningCourse}
+        departments={departments}
+        employees={employees}
+        onAssigned={loadCourses}
+      />
 
       {/* Course Modal */}
       <TrainerCourseModal

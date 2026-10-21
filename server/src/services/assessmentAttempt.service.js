@@ -5,6 +5,7 @@ const Course = require('../models/Course');
 const Module = require('../models/Module');
 const Employee = require('../models/Employee');
 const Enrollment = require('../models/Enrollment');
+const Lesson = require('../models/Lesson');
 const AppError = require('../utils/AppError');
 const assessmentResultService = require('./assessmentResult.service');
 const {
@@ -75,6 +76,28 @@ async function startAttempt(assessmentId, currentUser) {
     throw new AppError('You must have an active enrollment in this course to start an attempt', 403);
   }
 
+  // Enforce course completion prerequisite if required by assessment
+  if (assessment.requiresCourseCompletion) {
+    const activeModules = await Module.find({ course: course._id, isActive: true }).select('_id');
+    const totalActiveLessons = await Lesson.countDocuments({
+      module: { $in: activeModules.map((m) => m._id) },
+      isActive: true
+    });
+
+    if (totalActiveLessons === 0) {
+      throw new AppError('Assessment is not available because the course has no active lessons', 400);
+    }
+
+    const completedCount = Array.isArray(enrollment.completedLessons) ? enrollment.completedLessons.length : 0;
+    if (
+      enrollment.progressPercentage < 100 ||
+      enrollment.status !== 'completed' ||
+      completedCount < totalActiveLessons
+    ) {
+      throw new AppError('You must complete all course lessons before starting the assessment', 403);
+    }
+  }
+
   // Check maxAttempts policy
   if (assessment.maxAttempts) {
     const nonAbandonedAttempts = await AssessmentAttempt.countDocuments({
@@ -95,6 +118,12 @@ async function startAttempt(assessmentId, currentUser) {
   });
   const attemptNumber = totalAttempts + 1;
 
+  const startedAt = new Date();
+  let expiresAt = null;
+  if (assessment.timeLimitMinutes) {
+    expiresAt = new Date(startedAt.getTime() + assessment.timeLimitMinutes * 60 * 1000);
+  }
+
   const attempt = await AssessmentAttempt.create({
     employee: employee._id,
     assessment: assessment._id,
@@ -102,7 +131,8 @@ async function startAttempt(assessmentId, currentUser) {
     attemptNumber,
     status: 'in_progress',
     answers: [],
-    startedAt: new Date()
+    startedAt,
+    expiresAt
   });
 
   return await AssessmentAttempt.findById(attempt._id).populate(POPULATE_OPTIONS);
@@ -212,8 +242,73 @@ async function getAttemptById(attemptId, currentUser) {
   return attempt;
 }
 
+/**
+ * Saves draft answers in real-time for an in-progress attempt.
+ *
+ * @param {string} attemptId - Attempt ID
+ * @param {object} data - Draft payload { answers }
+ * @param {object} currentUser - Authenticated user object
+ * @returns {Promise<object>} Updated attempt document
+ */
+async function saveDraftAnswers(attemptId, data, currentUser) {
+  validateObjectId(attemptId, 'Attempt ID');
+  validateSubmitAttempt(data);
+
+  const attempt = await AssessmentAttempt.findById(attemptId);
+  if (!attempt) {
+    throw new AppError('Assessment attempt not found', 404);
+  }
+
+  if (currentUser.role !== 'employee') {
+    throw new AppError('Only employees can save assessment draft answers', 403);
+  }
+
+  const employee = await Employee.findOne({ user: currentUser.id || currentUser.userId });
+  if (!employee || attempt.employee.toString() !== employee._id.toString()) {
+    throw new AppError('Access denied. You can only update your own attempt.', 403);
+  }
+
+  if (attempt.status !== 'in_progress') {
+    throw new AppError('Cannot update answers for an attempt that is not in progress', 400);
+  }
+
+  const assessment = await Assessment.findById(attempt.assessment);
+  if (!assessment || !assessment.isActive || assessment.status !== 'published') {
+    throw new AppError('Assessment is no longer accessible', 400);
+  }
+
+  const activeQuestions = await Question.find({ assessment: assessment._id, isActive: true });
+  const questionMap = new Map(activeQuestions.map((q) => [q._id.toString(), q]));
+
+  const validatedAnswers = [];
+  for (const ans of data.answers) {
+    const qDoc = questionMap.get(ans.question.toString());
+    if (!qDoc) {
+      throw new AppError('Question does not belong to this assessment or is inactive', 400);
+    }
+
+    const validOptionKeys = new Set(qDoc.options.map((opt) => opt.key));
+    for (const sel of ans.selectedAnswers) {
+      if (!validOptionKeys.has(sel)) {
+        throw new AppError('Selected answer is not a valid option for the question', 400);
+      }
+    }
+
+    validatedAnswers.push({
+      question: qDoc._id,
+      selectedAnswers: ans.selectedAnswers
+    });
+  }
+
+  attempt.answers = validatedAnswers;
+  await attempt.save();
+
+  return await AssessmentAttempt.findById(attempt._id).populate(POPULATE_OPTIONS);
+}
+
 module.exports = {
   startAttempt,
   submitAttempt,
-  getAttemptById
+  getAttemptById,
+  saveDraftAnswers
 };

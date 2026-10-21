@@ -460,7 +460,41 @@ async function processCertificateExpiryNotifications() {
   };
 }
 
+/**
+ * Creates a server-controlled notification for an issued certificate.
+ *
+ * @param {object} certificate - Certificate document
+ * @returns {Promise<object|null>} Created notification or null
+ */
+async function createCertificateIssuedNotification(certificate) {
+  if (!certificate || certificate.status === 'revoked') {
+    return null;
+  }
+
+  const context = await resolveCertificateContext(certificate);
+  if (!context) {
+    return null;
+  }
+
+  const courseTitle = context.course.title || 'Course';
+  const certNumber = certificate.certificateNumber || 'Credential';
+  const eventKey = `certificate-issued:${certificate._id.toString()}`;
+
+  const { notification } = await createNotificationInternal({
+    recipient: context.recipientUserId,
+    type: 'certificate_issued',
+    title: 'Certificate Earned!',
+    message: `Congratulations! You earned certificate ${certNumber} for successfully completing "${courseTitle}".`,
+    relatedCertificate: certificate._id,
+    relatedCourse: context.course._id,
+    eventKey
+  });
+
+  return notification;
+}
+
 module.exports = {
+  createCertificateIssuedNotification,
   getNotifications,
   getUnreadCount,
   getNotificationById,

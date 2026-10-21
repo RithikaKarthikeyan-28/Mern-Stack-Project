@@ -114,7 +114,7 @@ export const DepartmentModal = ({
             onChange={(e) => setFormData({ ...formData, description: e.target.value })}
             placeholder="Brief purpose or function of this unit..."
             rows={3}
-            className="w-full px-3 py-2 text-sm bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            className="w-full px-3 py-2 text-sm bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg text-brand-ink-primary dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-teal-600 focus:border-teal-600"
           />
           {errors.description && (
             <p className="mt-1 text-xs text-rose-500">{errors.description}</p>
@@ -128,7 +128,7 @@ export const DepartmentModal = ({
               id="deptIsActive"
               checked={formData.isActive}
               onChange={(e) => setFormData({ ...formData, isActive: e.target.checked })}
-              className="w-4 h-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
+              className="w-4 h-4 rounded border-slate-300 text-teal-700 focus:ring-teal-600"
             />
             <label htmlFor="deptIsActive" className="text-sm font-medium text-slate-700 dark:text-slate-300 cursor-pointer">
               Active unit (available for employee assignment)

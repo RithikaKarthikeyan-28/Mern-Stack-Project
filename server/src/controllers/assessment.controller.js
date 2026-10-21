@@ -105,6 +105,19 @@ async function getAttemptData(req, res, next) {
   }
 }
 
+async function getCourseAssessmentStatus(req, res, next) {
+  try {
+    const data = await assessmentService.getCourseAssessmentStatus(req.params.courseId, req.user);
+    return sendSuccess(res, {
+      statusCode: 200,
+      message: 'Course assessment status retrieved successfully',
+      data
+    });
+  } catch (err) {
+    next(err);
+  }
+}
+
 module.exports = {
   createAssessment,
   getAssessments,
@@ -113,5 +126,7 @@ module.exports = {
   publishAssessment,
   archiveAssessment,
   deleteAssessment,
-  getAttemptData
+  getAttemptData,
+  getCourseAssessmentStatus
 };
+

@@ -133,10 +133,10 @@ export const ExportReportModal = ({ isOpen, onClose, data }) => {
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 bg-slate-50/50">
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center">
+            <div className="w-8 h-8 rounded-lg bg-teal-50 text-teal-700 flex items-center justify-center">
               <Download className="w-4 h-4" />
             </div>
-            <h2 id="export-modal-title" className="text-base font-semibold text-slate-900">
+            <h2 id="export-modal-title" className="text-base font-semibold text-brand-ink-primary">
               Export Analytics Report
             </h2>
           </div>
@@ -169,7 +169,7 @@ export const ExportReportModal = ({ isOpen, onClose, data }) => {
                 key={option.id}
                 className={`flex items-start gap-3 p-3 rounded-xl border cursor-pointer transition-all ${
                   selectedReport === option.id
-                    ? 'border-indigo-600 bg-indigo-50/40 text-slate-900'
+                    ? 'border-teal-700 bg-teal-50/50 text-brand-ink-primary'
                     : 'border-slate-200 hover:border-slate-300 text-slate-700'
                 }`}
               >
@@ -179,10 +179,10 @@ export const ExportReportModal = ({ isOpen, onClose, data }) => {
                   value={option.id}
                   checked={selectedReport === option.id}
                   onChange={() => setSelectedReport(option.id)}
-                  className="mt-1 text-indigo-600 focus:ring-indigo-500"
+                  className="mt-1 text-teal-700 focus:ring-teal-600"
                 />
                 <div className="min-w-0">
-                  <div className="text-xs font-semibold text-slate-900">{option.title}</div>
+                  <div className="text-xs font-semibold text-brand-ink-primary">{option.title}</div>
                   <div className="text-[11px] text-slate-500 mt-0.5">{option.desc}</div>
                 </div>
               </label>

@@ -97,7 +97,7 @@ export const CoursesTab = ({ data }) => {
       <div className="bg-white rounded-xl border border-slate-200/80 shadow-sm overflow-hidden">
         <div className="p-4 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-slate-50/50">
           <div>
-            <h3 className="text-sm font-semibold text-slate-800">Course Performance & Outcome Matrix</h3>
+            <h3 className="text-sm font-semibold text-brand-ink-primary dark:text-white">Course Performance & Outcome Matrix</h3>
             <p className="text-xs text-slate-500">Cross-course volume, assessment pass rates, and certification awards</p>
           </div>
           <div className="relative w-full sm:w-64">
@@ -107,7 +107,7 @@ export const CoursesTab = ({ data }) => {
               placeholder="Search courses..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="w-full pl-9 pr-3 py-1.5 text-xs rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 bg-white"
+              className="w-full pl-9 pr-3 py-1.5 text-xs rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-teal-600/20 focus:border-teal-600 bg-white"
             />
           </div>
         </div>
@@ -117,7 +117,7 @@ export const CoursesTab = ({ data }) => {
             <thead>
               <tr className="bg-slate-50 text-slate-600 font-semibold border-b border-slate-200">
                 <th
-                  className="py-3 px-4 cursor-pointer select-none hover:text-indigo-600"
+                  className="py-3 px-4 cursor-pointer select-none hover:text-teal-700"
                   onClick={() => handleSort('title')}
                 >
                   <div className="flex items-center gap-1.5">
@@ -126,7 +126,7 @@ export const CoursesTab = ({ data }) => {
                   </div>
                 </th>
                 <th
-                  className="py-3 px-4 text-center cursor-pointer select-none hover:text-indigo-600"
+                  className="py-3 px-4 text-center cursor-pointer select-none hover:text-teal-700"
                   onClick={() => handleSort('enrollmentCount')}
                 >
                   <div className="flex items-center justify-center gap-1">
@@ -135,7 +135,7 @@ export const CoursesTab = ({ data }) => {
                   </div>
                 </th>
                 <th
-                  className="py-3 px-4 text-center cursor-pointer select-none hover:text-indigo-600"
+                  className="py-3 px-4 text-center cursor-pointer select-none hover:text-teal-700"
                   onClick={() => handleSort('completedCount')}
                 >
                   <div className="flex items-center justify-center gap-1">
@@ -144,7 +144,7 @@ export const CoursesTab = ({ data }) => {
                   </div>
                 </th>
                 <th
-                  className="py-3 px-4 text-center cursor-pointer select-none hover:text-indigo-600"
+                  className="py-3 px-4 text-center cursor-pointer select-none hover:text-teal-700"
                   onClick={() => handleSort('completionRate')}
                 >
                   <div className="flex items-center justify-center gap-1">
@@ -153,7 +153,7 @@ export const CoursesTab = ({ data }) => {
                   </div>
                 </th>
                 <th
-                  className="py-3 px-4 text-center cursor-pointer select-none hover:text-indigo-600"
+                  className="py-3 px-4 text-center cursor-pointer select-none hover:text-teal-700"
                   onClick={() => handleSort('assessmentPassRate')}
                 >
                   <div className="flex items-center justify-center gap-1">
@@ -162,7 +162,7 @@ export const CoursesTab = ({ data }) => {
                   </div>
                 </th>
                 <th
-                  className="py-3 px-4 text-center cursor-pointer select-none hover:text-indigo-600"
+                  className="py-3 px-4 text-center cursor-pointer select-none hover:text-teal-700"
                   onClick={() => handleSort('certificateCount')}
                 >
                   <div className="flex items-center justify-center gap-1">
@@ -182,7 +182,7 @@ export const CoursesTab = ({ data }) => {
               ) : (
                 sortedAndFiltered.map((c) => (
                   <tr key={c.courseId} className="hover:bg-slate-50/80 transition-colors">
-                    <td className="py-3 px-4 font-medium text-slate-900">
+                    <td className="py-3 px-4 font-medium text-brand-ink-primary dark:text-white">
                       <div className="flex items-center gap-2">
                         <BookOpen className="w-3.5 h-3.5 text-slate-400" />
                         <span>{c.title}</span>
@@ -219,7 +219,7 @@ export const CoursesTab = ({ data }) => {
                     <td className="py-3 px-4 text-center font-medium text-slate-800">
                       {typeof c.assessmentPassRate === 'number' ? `${c.assessmentPassRate}%` : '—'}
                     </td>
-                    <td className="py-3 px-4 text-center font-semibold text-indigo-600">
+                    <td className="py-3 px-4 text-center font-semibold text-teal-700">
                       {c.certificateCount ?? '—'}
                     </td>
                   </tr>

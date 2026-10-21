@@ -49,6 +49,15 @@ const courseSchema = new mongoose.Schema(
       ref: 'User',
       required: [true, 'Trainer is required']
     },
+    department: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Department',
+      required: false
+    },
+    isGlobal: {
+      type: Boolean,
+      default: false
+    },
     status: {
       type: String,
       enum: {
@@ -88,6 +97,8 @@ courseSchema.index({ category: 1 });
 courseSchema.index({ level: 1 });
 courseSchema.index({ status: 1 });
 courseSchema.index({ trainer: 1 });
+courseSchema.index({ department: 1 });
+courseSchema.index({ isGlobal: 1 });
 courseSchema.index({ isActive: 1 });
 
 const Course = mongoose.model('Course', courseSchema);

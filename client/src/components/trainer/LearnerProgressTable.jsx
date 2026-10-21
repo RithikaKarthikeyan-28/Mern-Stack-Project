@@ -11,8 +11,12 @@ export const LearnerProgressTable = ({
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
 
+  const validEnrollments = useMemo(() => {
+    return enrollments.filter((e) => e && e.employee);
+  }, [enrollments]);
+
   const filteredEnrollments = useMemo(() => {
-    return enrollments.filter((enrollment) => {
+    return validEnrollments.filter((enrollment) => {
       // Course filter
       if (selectedCourseId) {
         const courseId =
@@ -51,7 +55,7 @@ export const LearnerProgressTable = ({
 
       return true;
     });
-  }, [enrollments, selectedCourseId, statusFilter, searchTerm]);
+  }, [validEnrollments, selectedCourseId, statusFilter, searchTerm]);
 
   const statusBadge = (status) => {
     switch (status) {
@@ -64,7 +68,7 @@ export const LearnerProgressTable = ({
         );
       case 'in_progress':
         return (
-          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-indigo-50 text-indigo-700 border border-indigo-200 dark:bg-indigo-950/40 dark:text-indigo-300">
+          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-teal-50 text-teal-800 border border-teal-200 dark:bg-teal-950/40 dark:text-teal-300">
             <Clock className="w-3 h-3" />
             In Progress
           </span>
@@ -86,21 +90,21 @@ export const LearnerProgressTable = ({
   };
 
   const statusTabs = [
-    { id: 'all', label: 'All Learners', count: enrollments.length },
+    { id: 'all', label: 'All Learners', count: validEnrollments.length },
     {
       id: 'in_progress',
       label: 'In Progress',
-      count: enrollments.filter((e) => e.status === 'in_progress').length,
+      count: validEnrollments.filter((e) => e.status === 'in_progress').length,
     },
     {
       id: 'completed',
       label: 'Completed',
-      count: enrollments.filter((e) => e.status === 'completed').length,
+      count: validEnrollments.filter((e) => e.status === 'completed').length,
     },
     {
       id: 'enrolled',
       label: 'Not Started',
-      count: enrollments.filter((e) => e.status === 'enrolled').length,
+      count: validEnrollments.filter((e) => e.status === 'enrolled').length,
     },
   ];
 
@@ -115,7 +119,7 @@ export const LearnerProgressTable = ({
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             placeholder="Search by learner name, email, or course..."
-            className="w-full pl-9 pr-3 py-2 text-sm bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            className="w-full pl-9 pr-3 py-2 text-sm bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg text-brand-ink-primary dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-teal-600 focus:border-teal-600"
             aria-label="Search learners"
           />
         </div>
@@ -125,7 +129,7 @@ export const LearnerProgressTable = ({
             <select
               value={selectedCourseId}
               onChange={(e) => onCourseChange(e.target.value)}
-              className="w-full px-3 py-2 text-sm bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              className="w-full px-3 py-2 text-sm bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg text-brand-ink-primary dark:text-white focus:outline-none focus:ring-2 focus:ring-teal-600 focus:border-teal-600"
               aria-label="Filter by course"
             >
               <option value="">All Assigned Courses</option>
@@ -147,7 +151,7 @@ export const LearnerProgressTable = ({
             onClick={() => setStatusFilter(tab.id)}
             className={`px-3 py-1.5 text-xs font-medium rounded-lg whitespace-nowrap transition-colors flex items-center gap-1.5 ${
               statusFilter === tab.id
-                ? 'bg-indigo-50 text-indigo-700 dark:bg-indigo-950/60 dark:text-indigo-300 font-semibold'
+                ? 'bg-teal-50 text-teal-800 dark:bg-teal-950/60 dark:text-teal-300 font-semibold'
                 : 'text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-200'
             }`}
           >
@@ -155,7 +159,7 @@ export const LearnerProgressTable = ({
             <span
               className={`px-1.5 py-0.2 rounded-full text-[10px] ${
                 statusFilter === tab.id
-                  ? 'bg-indigo-200/60 text-indigo-800 dark:bg-indigo-900 dark:text-indigo-200'
+                  ? 'bg-teal-200/60 text-teal-900 dark:bg-teal-900 dark:text-teal-200'
                   : 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400'
               }`}
             >

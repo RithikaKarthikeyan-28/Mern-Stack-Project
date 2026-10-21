@@ -41,6 +41,14 @@ export const NotificationItem = ({ notification, onMarkRead, onDelete }) => {
   // Icon configuration based on type
   const getTypeConfig = (type) => {
     switch (type) {
+      case 'certificate_issued':
+        return {
+          icon: Award,
+          bgColor: 'bg-teal-100',
+          textColor: 'text-teal-800',
+          badgeColor: 'bg-teal-50 text-teal-800 border-teal-200',
+          label: 'Certificate Earned',
+        };
       case 'certificate_expiring':
         return {
           icon: AlertTriangle,
@@ -84,9 +92,9 @@ export const NotificationItem = ({ notification, onMarkRead, onDelete }) => {
       default:
         return {
           icon: Bell,
-          bgColor: 'bg-indigo-100',
-          textColor: 'text-indigo-700',
-          badgeColor: 'bg-indigo-50 text-indigo-700 border-indigo-200',
+          bgColor: 'bg-teal-100',
+          textColor: 'text-teal-800',
+          badgeColor: 'bg-teal-50 text-teal-800 border-teal-200',
           label: 'Notification',
         };
     }
@@ -117,7 +125,7 @@ export const NotificationItem = ({ notification, onMarkRead, onDelete }) => {
     <div
       className={`p-4 sm:p-5 rounded-2xl border transition-all duration-150 flex gap-3 sm:gap-4 items-start ${
         isUnread
-          ? 'bg-white border-indigo-200 shadow-xs ring-1 ring-indigo-500/10'
+          ? 'bg-white border-teal-200 shadow-xs ring-1 ring-teal-500/10'
           : 'bg-slate-50/70 border-slate-200/80 hover:bg-white hover:border-slate-300'
       }`}
       data-testid={`notification-item-${notifId}`}
@@ -142,14 +150,14 @@ export const NotificationItem = ({ notification, onMarkRead, onDelete }) => {
 
           {isUnread && (
             <span
-              className="inline-block w-2 h-2 rounded-full bg-indigo-600 ml-1"
+              className="inline-block w-2 h-2 rounded-full bg-teal-700 ml-1"
               title="Unread"
               aria-label="Unread notification"
             />
           )}
         </div>
 
-        <h4 className="text-sm font-semibold text-slate-900 mb-1 leading-snug">
+        <h4 className="text-sm font-semibold text-[#102A2A] mb-1 leading-snug">
           {notification.title}
         </h4>
 
@@ -162,7 +170,7 @@ export const NotificationItem = ({ notification, onMarkRead, onDelete }) => {
           {certId && (
             <Link
               to={`/certificates/${certId}`}
-              className="inline-flex items-center gap-1 font-semibold text-indigo-600 hover:text-indigo-800 bg-indigo-50/80 hover:bg-indigo-100 px-2.5 py-1 rounded-lg transition-colors"
+              className="inline-flex items-center gap-1 font-semibold text-teal-700 hover:text-teal-800 bg-teal-50/80 hover:bg-teal-100 px-2.5 py-1 rounded-lg transition-colors"
             >
               <Award className="w-3.5 h-3.5" />
               <span>View Certificate {certNumber ? `(${certNumber})` : ''}</span>
@@ -199,7 +207,7 @@ export const NotificationItem = ({ notification, onMarkRead, onDelete }) => {
           <button
             type="button"
             onClick={() => onMarkRead(notifId)}
-            className="p-1.5 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors"
+            className="p-1.5 text-slate-400 hover:text-teal-700 hover:bg-teal-50 rounded-lg transition-colors"
             title="Mark as read"
             aria-label="Mark as read"
           >

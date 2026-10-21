@@ -26,7 +26,7 @@ export const SkillGapSummary = ({
   // Variant color based on overall match
   const getMatchVariant = (pct) => {
     if (pct >= 85) return 'emerald';
-    if (pct >= 60) return 'indigo';
+    if (pct >= 60) return 'teal';
     if (pct >= 40) return 'amber';
     return 'rose';
   };
@@ -43,10 +43,10 @@ export const SkillGapSummary = ({
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-slate-100">
         <div>
           <div className="flex items-center gap-2 mb-1">
-            <span className="p-1.5 rounded-lg bg-indigo-50 text-indigo-600">
+            <span className="p-1.5 rounded-lg bg-teal-50 text-teal-700">
               <Target className="w-5 h-5" />
             </span>
-            <h3 className="text-lg font-bold text-slate-900">
+            <h3 className="text-lg font-bold text-[#102A2A]">
               Competency Benchmark: {jobRoleTitle}
             </h3>
           </div>
@@ -60,7 +60,7 @@ export const SkillGapSummary = ({
             type="button"
             data-testid="view-recommendations-btn"
             onClick={onViewRecommendations}
-            className="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold text-white bg-indigo-600 hover:bg-indigo-700 transition shadow-sm"
+            className="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold text-white bg-teal-700 hover:bg-teal-800 transition shadow-sm"
           >
             <Sparkles className="w-4 h-4" />
             <span>Recommended Courses</span>
@@ -83,7 +83,7 @@ export const SkillGapSummary = ({
             <div className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
               Overall Match
             </div>
-            <div className="text-lg font-bold text-slate-900">
+            <div className="text-lg font-bold text-[#102A2A]">
               {overallMatchPercentage}%
             </div>
             <div className="text-xs text-slate-500">
@@ -105,7 +105,7 @@ export const SkillGapSummary = ({
             <div className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
               Mandatory Match
             </div>
-            <div className="text-lg font-bold text-slate-900">
+            <div className="text-lg font-bold text-[#102A2A]">
               {mandatoryMatchPercentage}%
             </div>
             <div className="text-xs text-slate-500">

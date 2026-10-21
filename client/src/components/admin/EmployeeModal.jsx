@@ -134,7 +134,7 @@ export const EmployeeModal = ({
         {isEditing ? (
           <div className="p-3 bg-slate-50 dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700">
             <span className="text-xs font-medium text-slate-500 dark:text-slate-400">Linked User Account</span>
-            <div className="font-semibold text-sm text-slate-900 dark:text-white">
+            <div className="font-semibold text-sm text-brand-ink-primary dark:text-white">
               {employee.user?.name || 'User'}
             </div>
             <div className="text-xs text-slate-500">{employee.user?.email}</div>
@@ -197,7 +197,7 @@ export const EmployeeModal = ({
               id="isActive"
               checked={formData.isActive}
               onChange={(e) => setFormData({ ...formData, isActive: e.target.checked })}
-              className="w-4 h-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
+              className="w-4 h-4 rounded border-slate-300 text-teal-700 focus:ring-teal-600"
             />
             <label htmlFor="isActive" className="text-sm font-medium text-slate-700 dark:text-slate-300 cursor-pointer">
               Profile is active and eligible for learning assignments

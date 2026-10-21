@@ -81,7 +81,7 @@ export const ModuleModal = ({
         <div className="flex items-center justify-between pb-4 border-b border-slate-100 dark:border-slate-800">
           <h2
             id="module-modal-title"
-            className="text-lg font-bold text-slate-900 dark:text-white"
+            className="text-lg font-bold text-brand-ink-primary dark:text-white"
           >
             {isEditing ? 'Edit Module' : 'Add New Module'}
           </h2>
@@ -116,7 +116,7 @@ export const ModuleModal = ({
               type="text"
               value={formData.title}
               onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-              className={`mt-1 block w-full rounded-lg border px-3 py-2 text-sm bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:outline-none ${
+              className={`mt-1 block w-full rounded-lg border px-3 py-2 text-sm bg-white dark:bg-slate-800 text-brand-ink-primary dark:text-white focus:ring-2 focus:ring-teal-600 focus:border-teal-600 focus:outline-none ${
                 errors.title
                   ? 'border-red-400 focus:border-red-400'
                   : 'border-slate-300 dark:border-slate-700'
@@ -139,7 +139,7 @@ export const ModuleModal = ({
               rows={2}
               value={formData.description}
               onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-              className="mt-1 block w-full rounded-lg border border-slate-300 dark:border-slate-700 px-3 py-2 text-sm bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+              className="mt-1 block w-full rounded-lg border border-slate-300 dark:border-slate-700 px-3 py-2 text-sm bg-white dark:bg-slate-800 text-brand-ink-primary dark:text-white focus:ring-2 focus:ring-teal-600 focus:border-teal-600 focus:outline-none"
               placeholder="Brief summary of topics covered in this module..."
               disabled={isLoading}
             />
@@ -158,7 +158,7 @@ export const ModuleModal = ({
               min={1}
               value={formData.order}
               onChange={(e) => setFormData({ ...formData, order: e.target.value })}
-              className={`mt-1 block w-full rounded-lg border px-3 py-2 text-sm bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:outline-none ${
+              className={`mt-1 block w-full rounded-lg border px-3 py-2 text-sm bg-white dark:bg-slate-800 text-brand-ink-primary dark:text-white focus:ring-2 focus:ring-teal-600 focus:border-teal-600 focus:outline-none ${
                 errors.order
                   ? 'border-red-400 focus:border-red-400'
                   : 'border-slate-300 dark:border-slate-700'

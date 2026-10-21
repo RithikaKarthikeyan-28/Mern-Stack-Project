@@ -10,6 +10,7 @@ vi.mock('../../services/adminService', () => ({
   default: {
     getDepartments: vi.fn(),
     getEmployees: vi.fn(),
+    getCourses: vi.fn(),
     createDepartment: vi.fn(),
     updateDepartment: vi.fn(),
     deleteDepartment: vi.fn(),
@@ -49,6 +50,7 @@ describe('AdminDepartmentsPage', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
+    adminService.getCourses.mockResolvedValue([]);
   });
 
   const renderComponent = () =>
@@ -71,6 +73,23 @@ describe('AdminDepartmentsPage', () => {
       expect(screen.getByText('Information Security')).toBeInTheDocument();
       expect(screen.getByText('Human Resources')).toBeInTheDocument();
       expect(screen.getAllByText(/employee/i).length).toBeGreaterThanOrEqual(1);
+    });
+  });
+
+  it('renders mapped course badge when department has associated courses', async () => {
+    adminService.getDepartments.mockResolvedValue([
+      { _id: 'dept-java', name: 'Java Programming', description: 'Core Java', isActive: true },
+    ]);
+    adminService.getEmployees.mockResolvedValue([]);
+    adminService.getCourses.mockResolvedValue([
+      { _id: 'c1', title: 'Java Programming Fundamentals', department: { _id: 'dept-java' } },
+    ]);
+
+    renderComponent();
+
+    await waitFor(() => {
+      expect(screen.getByText('Java Programming')).toBeInTheDocument();
+      expect(screen.getByText(/Mapped Course: Java Programming Fundamentals/i)).toBeInTheDocument();
     });
   });
 

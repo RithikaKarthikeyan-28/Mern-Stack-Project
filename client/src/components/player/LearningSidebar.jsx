@@ -27,6 +27,13 @@ export const LearningSidebar = ({
     completedLessonIds.map((id) => (typeof id === 'object' ? id._id || id.id : id))
   );
 
+  let totalLessonsCount = 0;
+  (curriculum || []).forEach((mod) => {
+    totalLessonsCount += (mod.lessons || []).length;
+  });
+  const completedLessonsCount = completedSet.size;
+  const remainingLessonsCount = Math.max(0, totalLessonsCount - completedLessonsCount);
+
   const getContentTypeIcon = (contentType) => {
     switch (contentType) {
       case 'video':
@@ -35,7 +42,7 @@ export const LearningSidebar = ({
         return <Link2 className="w-3.5 h-3.5 text-emerald-500 shrink-0" />;
       case 'text':
       default:
-        return <FileText className="w-3.5 h-3.5 text-indigo-500 shrink-0" />;
+        return <FileText className="w-3.5 h-3.5 text-teal-400 shrink-0" />;
     }
   };
 
@@ -70,15 +77,25 @@ export const LearningSidebar = ({
         </h3>
 
         {/* Course Progress */}
-        <div className="pt-1">
+        <div className="pt-1 space-y-1.5">
           <ProgressBar
             value={progressPercentage}
             max={100}
             showLabel
             label="Course Progress"
-            color="indigo"
+            color="teal"
             size="sm"
           />
+          <div className="flex items-center justify-between text-[11px] text-slate-400 font-medium pt-0.5">
+            <span>
+              {completedLessonsCount} of {totalLessonsCount} completed
+            </span>
+            <span>
+              {progressPercentage === 100
+                ? 'All Complete'
+                : `${remainingLessonsCount} remaining`}
+            </span>
+          </div>
         </div>
       </div>
 
@@ -91,7 +108,7 @@ export const LearningSidebar = ({
           return (
             <div key={modId} className="pt-2 first:pt-0">
               <div className="px-3 py-2">
-                <span className="text-[11px] font-bold text-indigo-400 uppercase tracking-wider block">
+                <span className="text-[11px] font-bold text-teal-400 uppercase tracking-wider block">
                   Module {mod.order || modIdx + 1}
                 </span>
                 <h4 className="text-xs font-semibold text-slate-200 line-clamp-1 mt-0.5">
@@ -115,7 +132,7 @@ export const LearningSidebar = ({
                       }}
                       className={`w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-left text-xs transition-all ${
                         isCurrent
-                          ? 'bg-indigo-600 text-white font-bold shadow-md shadow-indigo-900/40'
+                          ? 'bg-teal-700 text-white font-bold shadow-md shadow-teal-950/40'
                           : isCompleted
                           ? 'text-slate-300 hover:bg-slate-800/70 hover:text-white'
                           : 'text-slate-400 hover:bg-slate-800/70 hover:text-slate-200'

@@ -99,7 +99,7 @@ export const DepartmentsTab = ({ data }) => {
       <div className="bg-white rounded-xl border border-slate-200/80 shadow-sm overflow-hidden">
         <div className="p-4 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-slate-50/50">
           <div>
-            <h3 className="text-sm font-semibold text-slate-800">Department Comparative Analytics</h3>
+            <h3 className="text-sm font-semibold text-brand-ink-primary dark:text-white">Department Comparative Analytics</h3>
             <p className="text-xs text-slate-500">Cross-department metrics across staffing, learning completion, and compliance</p>
           </div>
           <div className="relative w-full sm:w-64">
@@ -109,7 +109,7 @@ export const DepartmentsTab = ({ data }) => {
               placeholder="Search departments..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="w-full pl-9 pr-3 py-1.5 text-xs rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 bg-white"
+              className="w-full pl-9 pr-3 py-1.5 text-xs rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-teal-600/20 focus:border-teal-600 bg-white"
             />
           </div>
         </div>
@@ -119,7 +119,7 @@ export const DepartmentsTab = ({ data }) => {
             <thead>
               <tr className="bg-slate-50 text-slate-600 font-semibold border-b border-slate-200">
                 <th
-                  className="py-3 px-4 cursor-pointer select-none hover:text-indigo-600"
+                  className="py-3 px-4 cursor-pointer select-none hover:text-teal-700"
                   onClick={() => handleSort('departmentName')}
                 >
                   <div className="flex items-center gap-1.5">
@@ -128,7 +128,7 @@ export const DepartmentsTab = ({ data }) => {
                   </div>
                 </th>
                 <th
-                  className="py-3 px-4 text-center cursor-pointer select-none hover:text-indigo-600"
+                  className="py-3 px-4 text-center cursor-pointer select-none hover:text-teal-700"
                   onClick={() => handleSort('employeeCount')}
                 >
                   <div className="flex items-center justify-center gap-1">
@@ -137,7 +137,7 @@ export const DepartmentsTab = ({ data }) => {
                   </div>
                 </th>
                 <th
-                  className="py-3 px-4 text-center cursor-pointer select-none hover:text-indigo-600"
+                  className="py-3 px-4 text-center cursor-pointer select-none hover:text-teal-700"
                   onClick={() => handleSort('enrollmentCount')}
                 >
                   <div className="flex items-center justify-center gap-1">
@@ -146,7 +146,7 @@ export const DepartmentsTab = ({ data }) => {
                   </div>
                 </th>
                 <th
-                  className="py-3 px-4 text-center cursor-pointer select-none hover:text-indigo-600"
+                  className="py-3 px-4 text-center cursor-pointer select-none hover:text-teal-700"
                   onClick={() => handleSort('completionCount')}
                 >
                   <div className="flex items-center justify-center gap-1">
@@ -155,7 +155,7 @@ export const DepartmentsTab = ({ data }) => {
                   </div>
                 </th>
                 <th
-                  className="py-3 px-4 text-center cursor-pointer select-none hover:text-indigo-600"
+                  className="py-3 px-4 text-center cursor-pointer select-none hover:text-teal-700"
                   onClick={() => handleSort('averageProgressPercentage')}
                 >
                   <div className="flex items-center justify-center gap-1">
@@ -164,7 +164,7 @@ export const DepartmentsTab = ({ data }) => {
                   </div>
                 </th>
                 <th
-                  className="py-3 px-4 text-center cursor-pointer select-none hover:text-indigo-600"
+                  className="py-3 px-4 text-center cursor-pointer select-none hover:text-teal-700"
                   onClick={() => handleSort('assessmentPassRate')}
                 >
                   <div className="flex items-center justify-center gap-1">
@@ -173,7 +173,7 @@ export const DepartmentsTab = ({ data }) => {
                   </div>
                 </th>
                 <th
-                  className="py-3 px-4 min-w-[130px] cursor-pointer select-none hover:text-indigo-600"
+                  className="py-3 px-4 min-w-[130px] cursor-pointer select-none hover:text-teal-700"
                   onClick={() => handleSort('complianceRate')}
                 >
                   <div className="flex items-center gap-1">
@@ -193,7 +193,7 @@ export const DepartmentsTab = ({ data }) => {
               ) : (
                 sortedAndFiltered.map((d) => (
                   <tr key={d.departmentId} className="hover:bg-slate-50/80 transition-colors">
-                    <td className="py-3 px-4 font-medium text-slate-900 flex items-center gap-2">
+                    <td className="py-3 px-4 font-medium text-brand-ink-primary dark:text-white flex items-center gap-2">
                       <Building2 className="w-3.5 h-3.5 text-slate-400" />
                       {d.departmentName}
                     </td>

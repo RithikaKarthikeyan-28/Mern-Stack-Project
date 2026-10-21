@@ -44,8 +44,26 @@ async function getAttemptById(req, res, next) {
   }
 }
 
+async function saveDraftAnswers(req, res, next) {
+  try {
+    const attempt = await attemptService.saveDraftAnswers(
+      req.params.attemptId,
+      req.body,
+      req.user
+    );
+    return sendSuccess(res, {
+      statusCode: 200,
+      message: 'Draft answers saved successfully',
+      data: { attempt }
+    });
+  } catch (err) {
+    next(err);
+  }
+}
+
 module.exports = {
   startAttempt,
   submitAttempt,
-  getAttemptById
+  getAttemptById,
+  saveDraftAnswers
 };

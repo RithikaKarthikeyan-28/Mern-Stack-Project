@@ -136,6 +136,7 @@ describe('AssessmentResultPage', () => {
 
     expect(screen.getByText(/Assessment Passed/i)).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /continue learning/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /view certificate/i })).toBeInTheDocument();
   });
 
   it('renders failed state with keep learning guidance and retake button', async () => {

@@ -48,7 +48,7 @@ export const LearningTab = ({ data }) => {
 
   const statusItems = [
     { label: 'Enrolled', value: enrolled, colorClass: 'bg-blue-500' },
-    { label: 'In Progress', value: inProgress, colorClass: 'bg-indigo-500' },
+    { label: 'In Progress', value: inProgress, colorClass: 'bg-teal-600' },
     { label: 'Completed', value: completed, colorClass: 'bg-emerald-500' },
     { label: 'Dropped', value: dropped, colorClass: 'bg-rose-500' },
   ];
@@ -108,7 +108,7 @@ export const LearningTab = ({ data }) => {
       <div className="bg-white rounded-xl border border-slate-200/80 shadow-sm overflow-hidden">
         <div className="p-4 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-slate-50/50">
           <div>
-            <h3 className="text-sm font-semibold text-slate-800">Course Performance Breakdown</h3>
+            <h3 className="text-sm font-semibold text-brand-ink-primary dark:text-white">Course Performance Breakdown</h3>
             <p className="text-xs text-slate-500">Learning adoption, completion rates, and average progress per course</p>
           </div>
           <div className="relative w-full sm:w-64">
@@ -118,7 +118,7 @@ export const LearningTab = ({ data }) => {
               placeholder="Search courses..."
               value={courseSearch}
               onChange={(e) => setCourseSearch(e.target.value)}
-              className="w-full pl-9 pr-3 py-1.5 text-xs rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 bg-white"
+              className="w-full pl-9 pr-3 py-1.5 text-xs rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-teal-600/20 focus:border-teal-600 bg-white"
             />
           </div>
         </div>
@@ -145,10 +145,10 @@ export const LearningTab = ({ data }) => {
               ) : (
                 filteredCourses.map((c) => (
                   <tr key={c.courseId} className="hover:bg-slate-50/80 transition-colors">
-                    <td className="py-3 px-4 font-medium text-slate-900">{c.title}</td>
+                    <td className="py-3 px-4 font-medium text-brand-ink-primary dark:text-white">{c.title}</td>
                     <td className="py-3 px-4 text-center font-semibold">{c.enrollmentCount}</td>
                     <td className="py-3 px-4 text-center text-emerald-600 font-semibold">{c.completedCount}</td>
-                    <td className="py-3 px-4 text-center text-indigo-600">{c.inProgressCount}</td>
+                    <td className="py-3 px-4 text-center text-teal-700 font-semibold">{c.inProgressCount}</td>
                     <td className="py-3 px-4 text-center">
                       <span
                         className={`inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold ${
@@ -187,7 +187,7 @@ export const LearningTab = ({ data }) => {
       <div className="bg-white rounded-xl border border-slate-200/80 shadow-sm overflow-hidden">
         <div className="p-4 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-slate-50/50">
           <div>
-            <h3 className="text-sm font-semibold text-slate-800">Department Learning Engagement</h3>
+            <h3 className="text-sm font-semibold text-brand-ink-primary dark:text-white">Department Learning Engagement</h3>
             <p className="text-xs text-slate-500">Employee volume, enrollments, and completion velocity per business unit</p>
           </div>
           <div className="relative w-full sm:w-64">
@@ -197,7 +197,7 @@ export const LearningTab = ({ data }) => {
               placeholder="Search departments..."
               value={deptSearch}
               onChange={(e) => setDeptSearch(e.target.value)}
-              className="w-full pl-9 pr-3 py-1.5 text-xs rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 bg-white"
+              className="w-full pl-9 pr-3 py-1.5 text-xs rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-teal-600/20 focus:border-teal-600 bg-white"
             />
           </div>
         </div>
@@ -225,14 +225,14 @@ export const LearningTab = ({ data }) => {
               ) : (
                 filteredDepartments.map((d) => (
                   <tr key={d.departmentId} className="hover:bg-slate-50/80 transition-colors">
-                    <td className="py-3 px-4 font-medium text-slate-900 flex items-center gap-2">
+                    <td className="py-3 px-4 font-medium text-brand-ink-primary dark:text-white flex items-center gap-2">
                       <Building2 className="w-3.5 h-3.5 text-slate-400" />
                       {d.departmentName}
                     </td>
                     <td className="py-3 px-4 text-center">{d.employeeCount}</td>
                     <td className="py-3 px-4 text-center font-semibold">{d.enrollmentCount}</td>
                     <td className="py-3 px-4 text-center text-emerald-600 font-semibold">{d.completedEnrollments}</td>
-                    <td className="py-3 px-4 text-center text-indigo-600">{d.inProgressEnrollments}</td>
+                    <td className="py-3 px-4 text-center text-teal-700 font-semibold">{d.inProgressEnrollments}</td>
                     <td className="py-3 px-4 text-center">
                       <span
                         className={`inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold ${

@@ -219,13 +219,13 @@ export const TrainerCurriculumPage = () => {
             <span className="text-xs font-semibold px-2.5 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300">
               {course?.category}
             </span>
-            <span className="text-xs font-medium px-2 py-0.5 rounded bg-indigo-50 text-indigo-700 dark:bg-indigo-950/60 dark:text-indigo-300 capitalize">
+            <span className="text-xs font-medium px-2 py-0.5 rounded bg-teal-50 text-teal-800 dark:bg-teal-950/60 dark:text-teal-300 capitalize">
               {course?.level}
             </span>
             <TrainerStatusBadge status={course?.status} />
           </div>
 
-          <h1 className="text-2xl font-bold text-slate-900 dark:text-white">
+          <h1 className="text-2xl font-bold text-[#102A2A] dark:text-white">
             {course?.title}
           </h1>
           <p className="mt-1 text-xs text-slate-500 max-w-2xl">
@@ -259,8 +259,8 @@ export const TrainerCurriculumPage = () => {
       {/* Curriculum Module List */}
       <div className="space-y-4">
         <div className="flex items-center justify-between">
-          <h2 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
-            <Layers className="w-5 h-5 text-indigo-600" />
+          <h2 className="text-lg font-bold text-[#102A2A] dark:text-white flex items-center gap-2">
+            <Layers className="w-5 h-5 text-teal-700" />
             Curriculum Structure ({curriculum.length} modules)
           </h2>
         </div>

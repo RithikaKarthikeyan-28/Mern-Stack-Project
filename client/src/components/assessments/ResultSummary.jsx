@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
 import {
@@ -10,10 +10,15 @@ import {
   ArrowRight,
   Calendar,
   Layers,
+  ExternalLink,
+  Download,
+  Mail,
+  AlertCircle,
 } from 'lucide-react';
 import Card from '../ui/Card';
 import Badge from '../ui/Badge';
 import Button from '../ui/Button';
+import certificateService from '../../services/certificateService';
 
 export const ResultSummary = ({
   resultData,
@@ -21,6 +26,7 @@ export const ResultSummary = ({
   canRetake = false,
   remainingAttempts = null,
 }) => {
+  const [downloading, setDownloading] = useState(false);
   if (!resultData) return null;
 
   const {
@@ -38,12 +44,36 @@ export const ResultSummary = ({
   const courseId = assessment?.course?._id || assessment?.course?.id || assessment?.course;
   const courseTitle = assessment?.course?.title || 'Associated Course';
 
+  const certObj = resultData?.certificate || {};
+  const certificateId = certObj._id || certObj.id || resultData?.certificateId;
+  const certificateNumber = certObj.certificateNumber || resultData?.certificateNumber;
+
   const formattedDate = evaluatedAt
     ? new Date(evaluatedAt).toLocaleString(undefined, {
         dateStyle: 'medium',
         timeStyle: 'short',
       })
     : 'Just now';
+
+  const certIssuedDate = certObj.issuedAt
+    ? new Date(certObj.issuedAt).toLocaleDateString(undefined, {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+      })
+    : null;
+
+  const handleDownload = async () => {
+    if (!certificateId) return;
+    setDownloading(true);
+    try {
+      await certificateService.downloadCertificatePDF(certificateId, certificateNumber);
+    } catch (err) {
+      console.error('Failed to download certificate PDF:', err);
+    } finally {
+      setDownloading(false);
+    }
+  };
 
   return (
     <Card
@@ -57,8 +87,8 @@ export const ResultSummary = ({
       <div
         className={`p-6 sm:p-8 text-center relative ${
           isPassed
-            ? 'bg-linear-to-b from-emerald-500/10 via-emerald-500/5 to-white'
-            : 'bg-linear-to-b from-rose-500/10 via-rose-500/5 to-white'
+            ? 'bg-gradient-to-b from-emerald-500/10 via-emerald-500/5 to-white'
+            : 'bg-gradient-to-b from-rose-500/10 via-rose-500/5 to-white'
         }`}
       >
         {/* Status Icon */}
@@ -80,8 +110,8 @@ export const ResultSummary = ({
             {isPassed ? 'Assessment Passed' : 'Assessment Not Passed'}
           </Badge>
 
-          <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 mt-2">
-            {isPassed ? 'Congratulations!' : 'Keep Learning'}
+          <h2 className="text-2xl sm:text-3xl font-extrabold text-[#102A2A] mt-2">
+            {isPassed ? 'Congratulations! You Passed!' : 'Keep Learning'}
           </h2>
 
           <p className="text-sm text-slate-600 max-w-lg mx-auto leading-relaxed">
@@ -89,6 +119,52 @@ export const ResultSummary = ({
               ? `You achieved ${percentage}% and exceeded the required ${passingPercentage}% passing threshold.`
               : `You scored ${percentage}%. A minimum score of ${passingPercentage}% is required to pass this assessment.`}
           </p>
+
+          {isPassed && certificateNumber && (
+            <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
+              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 bg-emerald-50 border border-emerald-200 rounded-xl text-emerald-800 text-xs font-semibold shadow-2xs">
+                <Award className="w-4 h-4 text-emerald-600 shrink-0" />
+                <span>Certificate ID:</span>
+                <code className="font-mono font-bold text-emerald-950">{certificateNumber}</code>
+              </div>
+
+              {certIssuedDate && (
+                <div className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-700 text-xs font-medium">
+                  <Calendar className="w-3.5 h-3.5 text-slate-400" />
+                  <span>Issued: {certIssuedDate}</span>
+                </div>
+              )}
+
+              {certObj.emailStatus && (
+                <div className="inline-flex items-center">
+                  {certObj.emailStatus === 'sent' && (
+                    <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-xl text-xs font-medium">
+                      <Mail className="w-3.5 h-3.5" />
+                      <span>Certificate Emailed</span>
+                    </span>
+                  )}
+                  {certObj.emailStatus === 'pending' && (
+                    <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-amber-50 text-amber-700 border border-amber-200 rounded-xl text-xs font-medium">
+                      <Mail className="w-3.5 h-3.5" />
+                      <span>Email Queued</span>
+                    </span>
+                  )}
+                  {certObj.emailStatus === 'not_configured' && (
+                    <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-slate-100 text-slate-700 border border-slate-200 rounded-xl text-xs font-medium">
+                      <Mail className="w-3.5 h-3.5" />
+                      <span>Direct Download Ready</span>
+                    </span>
+                  )}
+                  {certObj.emailStatus === 'failed' && (
+                    <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-rose-50 text-rose-700 border border-rose-200 rounded-xl text-xs font-medium">
+                      <AlertCircle className="w-3.5 h-3.5" />
+                      <span>Email Delivery Notice</span>
+                    </span>
+                  )}
+                </div>
+              )}
+            </div>
+          )}
         </div>
 
         {/* Score Metacards Row */}
@@ -106,7 +182,7 @@ export const ResultSummary = ({
             <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-400 block">
               Marks Obtained
             </span>
-            <span className="text-2xl font-black text-slate-900">
+            <span className="text-2xl font-black text-[#102A2A]">
               {obtainedMarks} <span className="text-sm text-slate-400 font-normal">/ {totalMarks}</span>
             </span>
           </div>
@@ -115,7 +191,7 @@ export const ResultSummary = ({
             <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-400 block">
               Passing Mark
             </span>
-            <span className="text-2xl font-black text-slate-900">
+            <span className="text-2xl font-black text-[#102A2A]">
               {passingPercentage}%
             </span>
           </div>
@@ -124,7 +200,7 @@ export const ResultSummary = ({
             <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-400 block">
               Attempt #
             </span>
-            <span className="text-2xl font-black text-indigo-700">
+            <span className="text-2xl font-black text-teal-700">
               {attemptNumber || 1}
             </span>
           </div>
@@ -165,13 +241,52 @@ export const ResultSummary = ({
         </div>
 
         <div className="flex flex-wrap items-center gap-3 w-full sm:w-auto justify-end">
+          {isPassed && certificateId && (
+            <Button
+              variant="primary"
+              size="md"
+              leftIcon={<Download className="w-4 h-4" />}
+              onClick={handleDownload}
+              disabled={downloading}
+              className="bg-teal-700 hover:bg-teal-800 text-white font-semibold"
+            >
+              {downloading ? 'Downloading...' : 'Download Certificate'}
+            </Button>
+          )}
+
+          {isPassed && (
+            <Link to={certificateId ? `/certificates/${certificateId}` : '/certificates'}>
+              <Button
+                variant="outline"
+                size="md"
+                leftIcon={<Award className="w-4 h-4" />}
+                className="border-emerald-600 text-emerald-700 hover:bg-emerald-50 font-semibold"
+              >
+                View Certificate
+              </Button>
+            </Link>
+          )}
+
+          {isPassed && certificateNumber && (
+            <Link to={`/verify-certificate/${certificateNumber}`}>
+              <Button
+                variant="outline"
+                size="md"
+                leftIcon={<ExternalLink className="w-4 h-4" />}
+                className="border-slate-300 hover:bg-slate-50 text-slate-700"
+              >
+                Verify Credential
+              </Button>
+            </Link>
+          )}
+
           {courseId && (
             <Link to={`/learn/${courseId}`}>
               <Button
-                variant={isPassed ? 'primary' : 'outline'}
+                variant={isPassed ? 'outline' : 'outline'}
                 size="md"
                 leftIcon={<BookOpen className="w-4 h-4" />}
-                className={isPassed ? 'bg-indigo-600 hover:bg-indigo-700' : ''}
+                className={isPassed ? 'border-teal-300 text-teal-800 hover:bg-teal-50' : ''}
               >
                 {isPassed ? 'Continue Learning' : 'Back to Course'}
               </Button>
@@ -184,7 +299,7 @@ export const ResultSummary = ({
               size="md"
               onClick={onRetake}
               leftIcon={<RotateCcw className="w-4 h-4" />}
-              className="bg-indigo-600 hover:bg-indigo-700"
+              className="bg-teal-700 hover:bg-teal-800"
             >
               Retake Assessment
             </Button>

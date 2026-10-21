@@ -111,7 +111,7 @@ export const LessonModal = ({
         <div className="flex items-center justify-between pb-4 border-b border-slate-100 dark:border-slate-800">
           <h2
             id="lesson-modal-title"
-            className="text-lg font-bold text-slate-900 dark:text-white"
+            className="text-lg font-bold text-brand-ink-primary dark:text-white"
           >
             {isEditing ? 'Edit Lesson' : 'Add New Lesson'}
           </h2>
@@ -146,7 +146,7 @@ export const LessonModal = ({
               type="text"
               value={formData.title}
               onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-              className={`mt-1 block w-full rounded-lg border px-3 py-2 text-sm bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:outline-none ${
+              className={`mt-1 block w-full rounded-lg border px-3 py-2 text-sm bg-white dark:bg-slate-800 text-brand-ink-primary dark:text-white focus:ring-2 focus:ring-teal-600 focus:border-teal-600 focus:outline-none ${
                 errors.title
                   ? 'border-red-400 focus:border-red-400'
                   : 'border-slate-300 dark:border-slate-700'
@@ -169,7 +169,7 @@ export const LessonModal = ({
                 id="lesson-content-type"
                 value={formData.contentType}
                 onChange={(e) => setFormData({ ...formData, contentType: e.target.value })}
-                className="mt-1 block w-full rounded-lg border border-slate-300 dark:border-slate-700 px-3 py-2 text-sm bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+                className="mt-1 block w-full rounded-lg border border-slate-300 dark:border-slate-700 px-3 py-2 text-sm bg-white dark:bg-slate-800 text-brand-ink-primary dark:text-white focus:ring-2 focus:ring-teal-600 focus:border-teal-600 focus:outline-none"
                 disabled={isLoading}
               >
                 {CONTENT_TYPES.map((ct) => (
@@ -193,7 +193,7 @@ export const LessonModal = ({
                 min={1}
                 value={formData.order}
                 onChange={(e) => setFormData({ ...formData, order: e.target.value })}
-                className={`mt-1 block w-full rounded-lg border px-3 py-2 text-sm bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:outline-none ${
+                className={`mt-1 block w-full rounded-lg border px-3 py-2 text-sm bg-white dark:bg-slate-800 text-brand-ink-primary dark:text-white focus:ring-2 focus:ring-teal-600 focus:border-teal-600 focus:outline-none ${
                   errors.order
                     ? 'border-red-400 focus:border-red-400'
                     : 'border-slate-300 dark:border-slate-700'
@@ -217,7 +217,7 @@ export const LessonModal = ({
                 type="url"
                 value={formData.resourceUrl}
                 onChange={(e) => setFormData({ ...formData, resourceUrl: e.target.value })}
-                className={`mt-1 block w-full rounded-lg border px-3 py-2 text-sm bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:outline-none ${
+                className={`mt-1 block w-full rounded-lg border px-3 py-2 text-sm bg-white dark:bg-slate-800 text-brand-ink-primary dark:text-white focus:ring-2 focus:ring-teal-600 focus:border-teal-600 focus:outline-none ${
                   errors.resourceUrl
                     ? 'border-red-400 focus:border-red-400'
                     : 'border-slate-300 dark:border-slate-700'
@@ -243,7 +243,7 @@ export const LessonModal = ({
               rows={4}
               value={formData.content}
               onChange={(e) => setFormData({ ...formData, content: e.target.value })}
-              className={`mt-1 block w-full rounded-lg border px-3 py-2 text-sm bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:outline-none ${
+              className={`mt-1 block w-full rounded-lg border px-3 py-2 text-sm bg-white dark:bg-slate-800 text-brand-ink-primary dark:text-white focus:ring-2 focus:ring-teal-600 focus:border-teal-600 focus:outline-none ${
                 errors.content
                   ? 'border-red-400 focus:border-red-400'
                   : 'border-slate-300 dark:border-slate-700'

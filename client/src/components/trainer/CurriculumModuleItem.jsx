@@ -40,12 +40,12 @@ export const CurriculumModuleItem = ({
           </button>
 
           <div className="flex items-center gap-2">
-            <span className="w-7 h-7 rounded-lg bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300 text-xs font-bold flex items-center justify-center shrink-0">
+            <span className="w-7 h-7 rounded-lg bg-teal-50 dark:bg-teal-950/60 text-teal-800 dark:text-teal-300 text-xs font-bold flex items-center justify-center shrink-0">
               #{module.order}
             </span>
             <Folder className="w-4 h-4 text-slate-400 shrink-0" />
             <div>
-              <h4 className="text-base font-semibold text-slate-900 dark:text-white">
+              <h4 className="text-base font-semibold text-[#102A2A] dark:text-white">
                 {module.title}
               </h4>
               {module.description && (

@@ -180,8 +180,8 @@ export const TrainerAssessmentDetailPage = () => {
       {/* Questions Section */}
       <div className="space-y-4">
         <div className="flex items-center justify-between">
-          <h2 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
-            <HelpCircle className="w-5 h-5 text-indigo-600" />
+          <h2 className="text-lg font-bold text-[#102A2A] dark:text-white flex items-center gap-2">
+            <HelpCircle className="w-5 h-5 text-teal-700" />
             Question Pool ({questions.length} questions)
           </h2>
         </div>
@@ -189,7 +189,7 @@ export const TrainerAssessmentDetailPage = () => {
         {questions.length === 0 ? (
           <div className="py-16 text-center bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-8">
             <HelpCircle className="w-12 h-12 text-slate-300 dark:text-slate-600 mx-auto mb-3" />
-            <h3 className="text-base font-semibold text-slate-900 dark:text-white">
+            <h3 className="text-base font-semibold text-[#102A2A] dark:text-white">
               No questions authored yet
             </h3>
             <p className="mt-1 text-xs text-slate-500 max-w-sm mx-auto">
@@ -216,7 +216,7 @@ export const TrainerAssessmentDetailPage = () => {
                 >
                   <div className="flex items-start justify-between gap-3">
                     <div className="flex items-start gap-3">
-                      <span className="w-7 h-7 rounded-lg bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300 text-xs font-bold flex items-center justify-center shrink-0 mt-0.5">
+                      <span className="w-7 h-7 rounded-lg bg-teal-50 dark:bg-teal-950/60 text-teal-800 dark:text-teal-300 text-xs font-bold flex items-center justify-center shrink-0 mt-0.5">
                         #{q.order}
                       </span>
                       <div>

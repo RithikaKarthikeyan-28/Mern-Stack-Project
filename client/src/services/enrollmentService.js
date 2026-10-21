@@ -44,10 +44,11 @@ export const enrollmentService = {
    * @param {boolean} [completed=true]
    * @returns {Promise<object>} Updated populated enrollment
    */
-  updateProgress: async (enrollmentId, lessonId, completed = true) => {
+  updateProgress: async (enrollmentId, lessonId, completed = true, options = {}) => {
     const res = await api.patch(`/enrollments/${enrollmentId}/progress`, {
       lessonId,
       completed,
+      ...options,
     });
     return res.data?.data?.enrollment || res.data?.enrollment;
   },

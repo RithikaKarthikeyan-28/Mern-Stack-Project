@@ -6,6 +6,7 @@ import {
 import Button from '../components/ui/Button';
 import ErrorState from '../components/ui/ErrorState';
 import Skeleton from '../components/ui/Skeleton';
+import { useAuth } from '../context/AuthContext';
 
 // Compliance Components
 import ComplianceSummaryCards from '../components/compliance/ComplianceSummaryCards';
@@ -15,6 +16,7 @@ import ComplianceRequirementList from '../components/compliance/ComplianceRequir
 import complianceService from '../services/complianceService';
 
 export const CompliancePage = () => {
+  const { user } = useAuth();
   const [summary, setSummary] = useState(null);
   const [assignments, setAssignments] = useState([]);
 
@@ -67,13 +69,16 @@ export const CompliancePage = () => {
   return (
     <div className="space-y-8" data-testid="compliance-page">
       {/* 1. Header Hero Banner */}
-      <div className="relative overflow-hidden bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 rounded-3xl p-6 sm:p-8 text-white shadow-xl shadow-slate-950/20">
-        <div className="absolute top-0 right-0 w-80 h-80 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none" />
+      <div className="relative overflow-hidden bg-gradient-to-r from-teal-900 via-teal-950 to-slate-950 rounded-3xl p-6 sm:p-8 text-white shadow-xl shadow-slate-950/20">
+        <div className="absolute top-0 right-0 w-80 h-80 bg-teal-500/10 rounded-full blur-3xl pointer-events-none" />
         <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div className="max-w-3xl">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 text-indigo-200 text-xs font-semibold backdrop-blur-sm mb-3">
-              <ShieldCheck className="w-3.5 h-3.5 text-indigo-400" />
-              <span>Regulatory Governance & Compliance</span>
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 text-teal-200 text-xs font-semibold backdrop-blur-sm mb-3">
+              <ShieldCheck className="w-3.5 h-3.5 text-teal-300" />
+              <span>
+                {user?.employee?.jobRole?.name || user?.employee?.designation ? `Role Track: ${user?.employee?.jobRole?.name || user?.employee?.designation} • ` : ''}
+                Mandatory Compliance Obligations
+              </span>
             </div>
             <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight mb-2">
               Compliance Management Hub
@@ -85,11 +90,12 @@ export const CompliancePage = () => {
 
           <div className="shrink-0">
             <Button
-              variant="outline"
+              variant="outline-light"
               size="sm"
               onClick={refreshAll}
               disabled={isLoading}
-              className="bg-white/10 border-white/20 text-white hover:bg-white/20 backdrop-blur-sm gap-2"
+              className="gap-2"
+              aria-label="Refresh Status"
             >
               <RefreshCw className={`w-3.5 h-3.5 ${isLoading ? 'animate-spin' : ''}`} />
               <span>Refresh Status</span>
@@ -124,7 +130,7 @@ export const CompliancePage = () => {
       <div data-testid="compliance-assignments-section" className="space-y-4 pt-4 border-t border-slate-200/80">
         <div className="flex items-center justify-between gap-4 mb-2">
           <div>
-            <h2 className="text-lg font-bold text-slate-900">
+            <h2 className="text-lg font-bold text-[#102A2A]">
               Assigned Policy Requirements
             </h2>
             <p className="text-xs text-slate-500">

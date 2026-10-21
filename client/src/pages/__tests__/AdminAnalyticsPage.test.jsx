@@ -297,6 +297,20 @@ describe('AdminAnalyticsPage Component', () => {
     expect(screen.getByText('Export Analytics Report')).toBeInTheDocument();
   });
 
+  it('renders visible and separate Refresh and Export CSV buttons in the header toolbar', async () => {
+    render(<AdminAnalyticsPage />);
+
+    await waitFor(() => {
+      const refreshBtn = screen.getByRole('button', { name: /refresh analytics data/i });
+      const exportBtn = screen.getByRole('button', { name: /export report/i });
+
+      expect(refreshBtn).toBeInTheDocument();
+      expect(exportBtn).toBeInTheDocument();
+      expect(refreshBtn).toHaveTextContent('Refresh');
+      expect(exportBtn).toHaveTextContent('Export CSV');
+    });
+  });
+
   it('renders partial error banner if data.hasPartialError is true', async () => {
     analyticsService.getComprehensiveAnalytics.mockResolvedValueOnce({
       ...mockAnalyticsData,

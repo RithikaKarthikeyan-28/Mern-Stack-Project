@@ -72,6 +72,10 @@ const assessmentSchema = new mongoose.Schema(
         message: 'Max attempts must be an integer of at least 1'
       }
     },
+    requiresCourseCompletion: {
+      type: Boolean,
+      default: false
+    },
     isActive: {
       type: Boolean,
       default: true,

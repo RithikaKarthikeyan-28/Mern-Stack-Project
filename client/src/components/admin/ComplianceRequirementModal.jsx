@@ -16,6 +16,7 @@ export const ComplianceRequirementModal = ({
   onSubmit,
   requirement = null,
   courses = [],
+  departments = [],
   isLoading = false,
 }) => {
   const isEditing = Boolean(requirement);
@@ -24,6 +25,8 @@ export const ComplianceRequirementModal = ({
     title: '',
     description: '',
     course: '',
+    department: '',
+    isGlobal: false,
     frequency: 'annual',
     dueWithinDays: 30,
     renewalGraceDays: 0,
@@ -38,6 +41,8 @@ export const ComplianceRequirementModal = ({
         title: requirement.title || '',
         description: requirement.description || '',
         course: requirement.course?._id || requirement.course?.id || requirement.course || '',
+        department: requirement.department?._id || requirement.department?.id || requirement.department || '',
+        isGlobal: Boolean(requirement.isGlobal),
         frequency: requirement.frequency || 'annual',
         dueWithinDays: requirement.dueWithinDays ?? 30,
         renewalGraceDays: requirement.renewalGraceDays ?? 0,
@@ -47,6 +52,8 @@ export const ComplianceRequirementModal = ({
         title: '',
         description: '',
         course: courses[0]?._id || courses[0]?.id || '',
+        department: departments[0]?._id || departments[0]?.id || '',
+        isGlobal: false,
         frequency: 'annual',
         dueWithinDays: 30,
         renewalGraceDays: 0,
@@ -54,7 +61,7 @@ export const ComplianceRequirementModal = ({
     }
     setErrors({});
     setServerError('');
-  }, [requirement, courses, isOpen]);
+  }, [requirement, courses, departments, isOpen]);
 
   if (!isOpen) return null;
 
@@ -101,6 +108,8 @@ export const ComplianceRequirementModal = ({
         title: formData.title.trim(),
         description: formData.description.trim(),
         course: formData.course,
+        department: formData.isGlobal ? null : (formData.department || null),
+        isGlobal: Boolean(formData.isGlobal),
         frequency: formData.frequency,
         dueWithinDays: Number(formData.dueWithinDays),
         renewalGraceDays: Number(formData.renewalGraceDays),
@@ -116,6 +125,14 @@ export const ComplianceRequirementModal = ({
     value: c._id || c.id,
     label: `${c.title} (${c.level || 'all levels'})`,
   }));
+
+  const departmentOptions = [
+    { value: '', label: 'Select Target Department' },
+    ...departments.map((d) => ({
+      value: d._id || d.id,
+      label: d.name,
+    })),
+  ];
 
   return (
     <Modal
@@ -147,6 +164,28 @@ export const ComplianceRequirementModal = ({
           options={courseOptions}
           error={errors.course}
         />
+
+        <div className="space-y-2 p-3 rounded-xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800">
+          <label className="flex items-center gap-2 cursor-pointer text-xs font-semibold text-slate-700 dark:text-slate-300">
+            <input
+              type="checkbox"
+              checked={formData.isGlobal}
+              onChange={(e) => setFormData({ ...formData, isGlobal: e.target.checked })}
+              className="rounded border-slate-300 text-teal-600 focus:ring-teal-500 w-4 h-4"
+            />
+            <span>Organization-Wide (Global Requirement for All Departments)</span>
+          </label>
+
+          {!formData.isGlobal && (
+            <Select
+              label="Target Department"
+              value={formData.department}
+              onChange={(e) => setFormData({ ...formData, department: e.target.value })}
+              options={departmentOptions}
+              helperText="Only employees in this department will be assigned this mandatory rule."
+            />
+          )}
+        </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
           <Select
@@ -186,7 +225,7 @@ export const ComplianceRequirementModal = ({
             onChange={(e) => setFormData({ ...formData, description: e.target.value })}
             placeholder="Regulatory background, jurisdiction, or organizational standard..."
             rows={3}
-            className="w-full px-3 py-2 text-sm bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            className="w-full px-3 py-2 text-sm bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg text-brand-ink-primary dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-teal-600 focus:border-teal-600"
           />
           {errors.description && (
             <p className="mt-1 text-xs text-rose-500">{errors.description}</p>

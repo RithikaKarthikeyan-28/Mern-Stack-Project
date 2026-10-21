@@ -45,7 +45,7 @@ export const AnalyticsDonutChart = ({
     >
       {(title || subtitle) && (
         <div className="mb-4">
-          {title && <h3 className="text-sm font-semibold text-slate-800">{title}</h3>}
+          {title && <h3 className="text-sm font-semibold text-brand-ink-primary dark:text-white">{title}</h3>}
           {subtitle && <p className="text-xs text-slate-500 mt-0.5">{subtitle}</p>}
         </div>
       )}
@@ -86,7 +86,7 @@ export const AnalyticsDonutChart = ({
                     cy={size / 2}
                     r={radius}
                     fill="none"
-                    stroke={seg.color || '#6366f1'}
+                    stroke={seg.color || '#0F766E'}
                     strokeWidth={strokeWidth}
                     strokeDasharray={seg.strokeDasharray}
                     strokeDashoffset={seg.strokeDashoffset}
@@ -100,7 +100,7 @@ export const AnalyticsDonutChart = ({
             {(centerValue || centerLabel) && (
               <div className="absolute inset-0 flex flex-col items-center justify-center text-center pointer-events-none">
                 {centerValue && (
-                  <span className="text-xl sm:text-2xl font-bold tracking-tight text-slate-900">
+                  <span className="text-xl sm:text-2xl font-bold tracking-tight text-brand-ink-primary dark:text-white">
                     {centerValue}
                   </span>
                 )}
@@ -123,13 +123,13 @@ export const AnalyticsDonutChart = ({
                 <div className="flex items-center gap-2 min-w-0">
                   <span
                     className="w-2.5 h-2.5 rounded-full shrink-0"
-                    style={{ backgroundColor: seg.color || '#6366f1' }}
+                    style={{ backgroundColor: seg.color || '#0F766E' }}
                     aria-hidden="true"
                   />
                   <span className="font-medium text-slate-700 truncate">{seg.label}</span>
                 </div>
                 <div className="text-right shrink-0 pl-2">
-                  <span className="font-semibold text-slate-900">
+                  <span className="font-semibold text-brand-ink-primary dark:text-white">
                     {(Number(seg.value) || 0).toLocaleString()}
                   </span>
                   <span className="text-slate-400 text-[11px] ml-1.5">

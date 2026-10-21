@@ -423,4 +423,23 @@ describe('EmployeeDashboard (Phase F3)', () => {
     fireEvent.click(complianceBtn);
     expect(mockNavigate).toHaveBeenCalledWith('/compliance');
   });
+
+  // 16. Refresh button updates dashboard data
+  it('16. refreshes dashboard data when Refresh button is clicked', async () => {
+    renderDashboard();
+
+    await waitFor(() => {
+      expect(screen.queryByTestId('dashboard-skeleton')).not.toBeInTheDocument();
+    });
+
+    const refreshBtn = screen.getByRole('button', { name: /refresh employee dashboard/i });
+    expect(refreshBtn).toBeInTheDocument();
+
+    fireEvent.click(refreshBtn);
+
+    await waitFor(() => {
+      expect(enrollmentService.getMyEnrollments).toHaveBeenCalledTimes(2);
+      expect(certificateService.getMyCertificates).toHaveBeenCalledTimes(2);
+    });
+  });
 });

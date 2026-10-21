@@ -68,10 +68,24 @@ describe('CertificatesPage', () => {
     });
   });
 
-  it('renders page header, stat cards, and certificates grid', async () => {
+  it('renders page header with dark-teal gradient banner, contrast badge, and stat cards', async () => {
     renderComponent();
 
-    expect(screen.getByText('My Certificates')).toBeInTheDocument();
+    const banner = screen.getByTestId('certificates-hero-banner');
+    expect(banner).toBeInTheDocument();
+    expect(banner.className).toContain('bg-gradient-to-r');
+    expect(banner.className).toContain('from-[#0F766E]');
+    expect(banner.className).toContain('text-white');
+
+    const badge = screen.getByText('Verified Learning Achievements');
+    expect(badge).toBeInTheDocument();
+    expect(badge.closest('div').className).toContain('bg-[#ECFDF5]');
+    expect(badge.closest('div').className).toContain('text-[#0F766E]');
+
+    const heading = screen.getByRole('heading', { level: 1, name: 'My Certificates' });
+    expect(heading).toBeInTheDocument();
+    expect(heading.className).toContain('text-white');
+
     expect(
       screen.getByText(/access your verified course completion credentials/i)
     ).toBeInTheDocument();

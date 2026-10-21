@@ -67,7 +67,7 @@ export const CourseCard = ({ course, enrollment = null }) => {
         </div>
 
         {/* Title */}
-        <h3 className="text-base font-bold text-slate-900 leading-snug line-clamp-2 mb-2 group-hover:text-indigo-600 transition-colors">
+        <h3 className="text-base font-bold text-[#102A2A] leading-snug line-clamp-2 mb-2 group-hover:text-teal-700 transition-colors">
           {course.title}
         </h3>
 
@@ -105,7 +105,7 @@ export const CourseCard = ({ course, enrollment = null }) => {
               max={100}
               showLabel
               label="Course Progress"
-              color={isCompleted ? 'emerald' : 'indigo'}
+              color={isCompleted ? 'emerald' : 'teal'}
               size="sm"
             />
           </div>
@@ -138,7 +138,7 @@ export const CourseCard = ({ course, enrollment = null }) => {
           <Button
             variant="outline"
             size="sm"
-            className="w-full justify-between hover:bg-indigo-50 hover:text-indigo-700 hover:border-indigo-200"
+            className="w-full justify-between hover:bg-teal-50 hover:text-teal-800 hover:border-teal-200"
             onClick={handleActionClick}
             rightIcon={<ArrowRight className="w-3.5 h-3.5" />}
           >

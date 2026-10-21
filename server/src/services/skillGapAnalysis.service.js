@@ -1,3 +1,4 @@
+const mongoose = require('mongoose');
 const Employee = require('../models/Employee');
 const JobRole = require('../models/JobRole');
 const JobRoleSkillRequirement = require('../models/JobRoleSkillRequirement');
@@ -18,17 +19,36 @@ const {
  * @returns {Promise<object>} Complete deterministic skill gap report
  */
 async function analyzeEmployeeSkillGap(employeeId, jobRoleId, query = {}) {
-  validateSkillGapParams(employeeId, jobRoleId);
-  validateSkillGapQuery(query);
+  if (!employeeId || !mongoose.Types.ObjectId.isValid(employeeId)) {
+    throw new AppError('Invalid Employee ID format', 400);
+  }
 
   // 1. Verify active employee
-  const employee = await Employee.findById(employeeId).populate('user', 'name email role isActive');
+  const employee = await Employee.findById(employeeId)
+    .populate('user', 'name email role isActive')
+    .populate('department', 'name');
   if (!employee || !employee.isActive) {
     throw new AppError('Employee not found', 404);
   }
 
-  // 2. Verify active job role
-  const jobRole = await JobRole.findById(jobRoleId);
+  // 2. Resolve target job role (fallback to employee's department role if omitted)
+  let effectiveJobRoleId = jobRoleId;
+  if (!effectiveJobRoleId || effectiveJobRoleId === 'default' || effectiveJobRoleId === 'me') {
+    if (employee.jobRole) {
+      effectiveJobRoleId = employee.jobRole;
+    } else if (employee.department) {
+      const deptRole = await JobRole.findOne({
+        $or: [{ department: employee.department._id || employee.department }, { departments: employee.department._id || employee.department }],
+        isActive: true
+      });
+      if (deptRole) effectiveJobRoleId = deptRole._id;
+    }
+  }
+
+  validateSkillGapParams(employeeId, effectiveJobRoleId);
+  validateSkillGapQuery(query);
+
+  const jobRole = await JobRole.findById(effectiveJobRoleId);
   if (!jobRole || !jobRole.isActive) {
     throw new AppError('Job Role not found', 404);
   }
@@ -74,6 +94,7 @@ async function analyzeEmployeeSkillGap(employeeId, jobRoleId, query = {}) {
       currentLevel: employeeSkill ? employeeSkill.proficiencyLevel : null,
       requiredLevelRank: comparison.requiredRank,
       currentLevelRank: comparison.currentRank,
+      gap: Math.max(0, comparison.requiredRank - (comparison.currentRank || 0)),
       mandatory: Boolean(reqDoc.mandatory),
       weight: typeof reqDoc.weight === 'number' ? reqDoc.weight : 1,
       status: comparison.status
@@ -158,7 +179,8 @@ async function analyzeEmployeeSkillGap(employeeId, jobRoleId, query = {}) {
       id: employee._id,
       employeeId: employee.employeeId,
       name: employee.user ? employee.user.name : undefined,
-      designation: employee.designation
+      designation: employee.designation,
+      department: employee.department
     },
     jobRole: {
       id: jobRole._id,

@@ -8,7 +8,7 @@ describe('Analytics Visualization Components', () => {
   describe('AnalyticsDistributionChart', () => {
     const mockItems = [
       { label: 'Completed', value: 80, colorClass: 'bg-emerald-500' },
-      { label: 'In Progress', value: 20, colorClass: 'bg-indigo-500' },
+      { label: 'In Progress', value: 20, colorClass: 'bg-teal-600' },
     ];
 
     it('renders title, subtitle, items and calculated percentages', () => {

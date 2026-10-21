@@ -184,19 +184,40 @@ export const CertificatesPage = () => {
   return (
     <div className="space-y-6">
       {/* Header Banner */}
-      <div className="bg-linear-to-r from-slate-900 via-indigo-950 to-slate-900 rounded-3xl p-6 sm:p-8 text-white shadow-xl relative overflow-hidden">
-        <div className="absolute right-0 top-0 bottom-0 w-1/3 bg-radial from-indigo-500/20 to-transparent pointer-events-none" />
-        <div className="relative z-10 max-w-2xl">
-          <div className="inline-flex items-center gap-2 bg-indigo-500/20 text-indigo-300 text-xs font-semibold px-3 py-1 rounded-full mb-3 backdrop-blur-sm border border-indigo-400/20">
-            <Sparkles className="w-3.5 h-3.5" />
-            <span>Verified Learning Achievements</span>
+      <div
+        className="bg-gradient-to-r from-[#0F766E] via-[#115E59] to-[#0D544F] rounded-3xl p-6 sm:p-8 text-white shadow-md border border-[#0F766E]/20 relative overflow-hidden"
+        data-testid="certificates-hero-banner"
+      >
+        {/* Soft background glow accents */}
+        <div className="absolute -right-12 -top-12 w-56 h-56 bg-[#14B8A6]/15 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute right-1/4 -bottom-12 w-64 h-64 bg-[#2DD4BF]/10 rounded-full blur-3xl pointer-events-none" />
+
+        <div className="relative z-10 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+          <div className="max-w-2xl">
+            <div className="inline-flex items-center gap-2 bg-[#ECFDF5] text-[#0F766E] text-xs font-semibold px-3 py-1 rounded-full mb-3 shadow-xs border border-[#A7DCCB]">
+              <Sparkles className="w-3.5 h-3.5 text-[#0F766E]" />
+              <span>Verified Learning Achievements</span>
+            </div>
+            <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-white mb-2">
+              My Certificates
+            </h1>
+            <p className="text-sm text-teal-50/90 leading-relaxed font-normal">
+              Access your verified course completion credentials, view renewal eligibility, and share publicly verifiable proof of your skill proficiencies.
+            </p>
           </div>
-          <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-white mb-2">
-            My Certificates
-          </h1>
-          <p className="text-sm text-slate-300 leading-relaxed">
-            Access your verified course completion credentials, view renewal eligibility, and share publicly verifiable proof of your skill proficiencies.
-          </p>
+          <div className="shrink-0 flex items-center gap-2">
+            <Button
+              variant="outline-light"
+              size="sm"
+              onClick={() => fetchCertificates(activeTab, pagination.page)}
+              disabled={loading}
+              className="flex items-center gap-1.5"
+              aria-label="Refresh certificates"
+            >
+              <RefreshCw className={`w-4 h-4 mr-1.5 ${loading ? 'animate-spin' : ''}`} />
+              Refresh
+            </Button>
+          </div>
         </div>
       </div>
 
@@ -206,7 +227,7 @@ export const CertificatesPage = () => {
           title="Total Earned"
           value={statsSummary.total}
           icon={<Award className="w-5 h-5" />}
-          color="indigo"
+          color="teal"
           description="Issued credentials"
         />
         <StatCard
@@ -270,10 +291,10 @@ export const CertificatesPage = () => {
           className="p-12 text-center bg-white rounded-3xl border border-dashed border-slate-200"
           data-testid="certificates-empty"
         >
-          <div className="w-16 h-16 rounded-2xl bg-indigo-50 border border-indigo-100 flex items-center justify-center text-indigo-600 mx-auto mb-4">
+          <div className="w-16 h-16 rounded-2xl bg-[#ECFDF5] border border-[#A7DCCB] flex items-center justify-center text-[#0F766E] mx-auto mb-4">
             <Award className="w-8 h-8" />
           </div>
-          <h3 className="text-lg font-bold text-slate-800">
+          <h3 className="text-lg font-bold text-[#102A2A]">
             {searchQuery ? 'No matching certificates found' : 'No certificates earned yet'}
           </h3>
           <p className="text-sm text-slate-500 max-w-md mx-auto mt-2 mb-6">

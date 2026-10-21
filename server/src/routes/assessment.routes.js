@@ -20,6 +20,12 @@ router.patch(
   attemptController.submitAttempt
 );
 
+router.patch(
+  '/attempts/:attemptId/answers',
+  authorizeRoles('employee'),
+  attemptController.saveDraftAnswers
+);
+
 router.get(
   '/attempts/:attemptId/result',
   authorizeRoles('admin', 'trainer', 'employee'),
@@ -37,6 +43,13 @@ router.get(
   '/results/me',
   authorizeRoles('employee'),
   resultController.getEmployeeAssessmentHistory
+);
+
+// Course matching assessment status & learner progression
+router.get(
+  '/course/:courseId',
+  authorizeRoles('admin', 'trainer', 'employee'),
+  assessmentController.getCourseAssessmentStatus
 );
 
 // ============================================================================
@@ -122,7 +135,7 @@ router.post(
 
 router.get(
   '/',
-  authorizeRoles('admin', 'trainer'),
+  authorizeRoles('admin', 'trainer', 'employee'),
   assessmentController.getAssessments
 );
 

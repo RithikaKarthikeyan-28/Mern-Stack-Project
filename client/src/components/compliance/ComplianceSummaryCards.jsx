@@ -31,7 +31,7 @@ export const ComplianceSummaryCards = ({ summary, className = '' }) => {
   // Rate variant color
   const getRateVariant = (rate) => {
     if (rate === 100) return 'emerald';
-    if (rate >= 75) return 'indigo';
+    if (rate >= 75) return 'teal';
     if (rate >= 50) return 'amber';
     return 'rose';
   };
@@ -58,7 +58,7 @@ export const ComplianceSummaryCards = ({ summary, className = '' }) => {
               <div className="text-xs font-semibold uppercase tracking-wider text-slate-500 mb-0.5">
                 Organizational Compliance Standing
               </div>
-              <h2 className="text-2xl font-bold text-slate-900">
+              <h2 className="text-2xl font-bold text-[#102A2A]">
                 {complianceRate}% Compliant
               </h2>
               <p className="text-xs text-slate-500 mt-1">
@@ -117,7 +117,7 @@ export const ComplianceSummaryCards = ({ summary, className = '' }) => {
               <FileText className="w-4 h-4" />
             </span>
           </div>
-          <div className="text-2xl font-bold text-slate-900">{totalAssignments}</div>
+          <div className="text-2xl font-bold text-[#102A2A]">{totalAssignments}</div>
           <div className="text-[11px] text-slate-400 mt-1">Active policies</div>
         </div>
 

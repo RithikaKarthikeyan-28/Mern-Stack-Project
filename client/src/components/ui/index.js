@@ -19,3 +19,4 @@ export { ConfirmDialog } from './ConfirmDialog';
 export { ErrorState } from './ErrorState';
 export { StatCard } from './StatCard';
 export { AuthLoadingScreen } from './AuthLoadingScreen';
+export { PageHeader } from './PageHeader';

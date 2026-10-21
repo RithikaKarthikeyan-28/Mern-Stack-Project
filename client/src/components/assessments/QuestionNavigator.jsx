@@ -53,7 +53,7 @@ export const QuestionNavigator = ({
             }
 
             if (isCurrent) {
-              buttonStyles = 'border-indigo-600 bg-indigo-600 text-white font-bold ring-2 ring-indigo-200 hover:bg-indigo-700';
+              buttonStyles = 'border-teal-700 bg-teal-700 text-white font-bold ring-2 ring-teal-200/80 hover:bg-teal-800';
               statusLabel += ', Current Question';
             }
 
@@ -64,7 +64,7 @@ export const QuestionNavigator = ({
                 onClick={() => onSelectIndex(idx)}
                 aria-label={`Question ${idx + 1}: ${statusLabel}`}
                 aria-current={isCurrent ? 'true' : undefined}
-                className={`relative h-11 rounded-xl border flex flex-col items-center justify-center text-xs font-semibold transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-indigo-500 ${buttonStyles}`}
+                className={`relative h-11 rounded-xl border flex flex-col items-center justify-center text-xs font-semibold transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-teal-600 ${buttonStyles}`}
               >
                 <span>{idx + 1}</span>
                 {isAnswered && !isCurrent && (
@@ -82,7 +82,7 @@ export const QuestionNavigator = ({
       {/* Legend Footer */}
       <div className="px-4 py-3 bg-slate-50/70 border-t border-slate-100 rounded-b-2xl text-[11px] text-slate-500 flex items-center justify-between">
         <div className="flex items-center gap-1.5">
-          <span className="w-3 h-3 rounded bg-indigo-600 inline-block" />
+          <span className="w-3 h-3 rounded bg-teal-700 inline-block" />
           <span>Current</span>
         </div>
         <div className="flex items-center gap-1.5">

@@ -35,7 +35,7 @@ export const SkillCard = ({ employeeSkill, className = '' }) => {
 
         {/* Skill Title & Level Badge */}
         <div className="flex items-start justify-between gap-2 mb-2">
-          <h3 className="font-semibold text-slate-900 text-base leading-tight">
+          <h3 className="font-semibold text-[#102A2A] text-base leading-tight">
             {skillName}
           </h3>
           <SkillBadge level={proficiencyLevel} size="sm" showRank />
@@ -53,7 +53,7 @@ export const SkillCard = ({ employeeSkill, className = '' }) => {
       <div className="mt-4 pt-3 border-t border-slate-100">
         <div className="flex items-center justify-between text-xs text-slate-500 mb-1.5">
           <span className="font-medium text-slate-700">Proficiency Mastery</span>
-          <span className="capitalize font-semibold text-indigo-600">
+          <span className="capitalize font-semibold text-teal-700">
             {proficiencyLevel}
           </span>
         </div>

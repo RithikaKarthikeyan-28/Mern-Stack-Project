@@ -7,6 +7,7 @@ import AuthContext from '../../context/AuthContext';
 import { ToastProvider } from '../../context/ToastContext';
 import courseService from '../../services/courseService';
 import enrollmentService from '../../services/enrollmentService';
+import assessmentService from '../../services/assessmentService';
 
 const mockNavigate = vi.fn();
 
@@ -29,6 +30,12 @@ vi.mock('../../services/enrollmentService', () => ({
   default: {
     getCourseEnrollment: vi.fn(),
     enroll: vi.fn(),
+  },
+}));
+
+vi.mock('../../services/assessmentService', () => ({
+  default: {
+    getCourseAssessmentStatus: vi.fn().mockResolvedValue(null),
   },
 }));
 
@@ -250,5 +257,126 @@ describe('CourseDetailsPage (Scenarios 9-16)', () => {
 
     expect(screen.queryByRole('button', { name: /enroll in course/i })).not.toBeInTheDocument();
     expect(screen.getByRole('button', { name: /manage courses in admin portal/i })).toBeInTheDocument();
+  });
+
+  // 18. Certification assessment card locked state
+  it('18. displays locked Certification Assessment card when course lessons are not complete', async () => {
+    assessmentService.getCourseAssessmentStatus.mockResolvedValue({
+      hasAssessment: true,
+      assessment: {
+        id: 'asm1',
+        title: 'Distributed Systems Exam',
+        totalQuestions: 10,
+        timeLimitMinutes: 30,
+        passingPercentage: 70,
+        totalMarks: 20,
+      },
+      isEnrolled: true,
+      isUnlocked: false,
+      lockReason: 'Complete all course lessons to unlock the assessment.',
+      hasPassed: false,
+      attemptsCount: 0,
+      latestAttempt: null,
+      certificate: null,
+    });
+
+    enrollmentService.getCourseEnrollment.mockResolvedValue({
+      ...mockEnrollment,
+      progressPercentage: 50,
+    });
+
+    renderCourseDetailsPage();
+
+    await waitFor(() => {
+      expect(screen.getByTestId('certification-assessment-card')).toBeInTheDocument();
+    });
+
+    expect(screen.getByText('Complete all course lessons to unlock the assessment.')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /assessment locked/i })).toBeDisabled();
+  });
+
+  // 19. Certification assessment card unlocked state
+  it('19. displays unlocked "Start Assessment" CTA when course is 100% completed', async () => {
+    assessmentService.getCourseAssessmentStatus.mockResolvedValue({
+      hasAssessment: true,
+      assessment: {
+        id: 'asm1',
+        title: 'Distributed Systems Exam',
+        totalQuestions: 10,
+        timeLimitMinutes: 30,
+        passingPercentage: 70,
+        totalMarks: 20,
+      },
+      isEnrolled: true,
+      isUnlocked: true,
+      lockReason: null,
+      hasPassed: false,
+      attemptsCount: 0,
+      latestAttempt: null,
+      certificate: null,
+    });
+
+    enrollmentService.getCourseEnrollment.mockResolvedValue({
+      ...mockEnrollment,
+      progressPercentage: 100,
+      status: 'completed',
+    });
+
+    renderCourseDetailsPage();
+
+    await waitFor(() => {
+      expect(screen.getByRole('button', { name: /start assessment/i })).toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByRole('button', { name: /start assessment/i }));
+    expect(mockNavigate).toHaveBeenCalledWith('/assessments/asm1');
+  });
+
+  // 20. Certification assessment card passed state
+  it('20. displays passed badge and view certificate button when assessment is passed', async () => {
+    assessmentService.getCourseAssessmentStatus.mockResolvedValue({
+      hasAssessment: true,
+      assessment: {
+        id: 'asm1',
+        title: 'Distributed Systems Exam',
+        totalQuestions: 10,
+        timeLimitMinutes: 30,
+        passingPercentage: 70,
+        totalMarks: 20,
+      },
+      isEnrolled: true,
+      isUnlocked: true,
+      lockReason: null,
+      hasPassed: true,
+      attemptsCount: 1,
+      latestAttempt: {
+        id: 'att1',
+        percentage: 90,
+        obtainedMarks: 18,
+        totalMarks: 20,
+        result: 'passed',
+      },
+      certificate: {
+        id: 'cert1',
+        certificateNumber: 'CERT-12345',
+      },
+    });
+
+    enrollmentService.getCourseEnrollment.mockResolvedValue({
+      ...mockEnrollment,
+      progressPercentage: 100,
+      status: 'completed',
+    });
+
+    renderCourseDetailsPage();
+
+    await waitFor(() => {
+      expect(screen.getByText(/Assessment Passed/i)).toBeInTheDocument();
+    });
+
+    const certBtn = screen.getByRole('button', { name: /view certificate/i });
+    expect(certBtn).toBeInTheDocument();
+    fireEvent.click(certBtn);
+    expect(mockNavigate).toHaveBeenCalledWith('/certificates/cert1');
   });
 });

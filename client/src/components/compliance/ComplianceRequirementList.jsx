@@ -121,7 +121,7 @@ export const ComplianceRequirementList = ({ assignments = [], className = '' }) 
               onClick={() => setStatusFilter(tab.key)}
               className={`flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-colors ${
                 isActive
-                  ? 'bg-indigo-600 text-white shadow-sm'
+                  ? 'bg-teal-700 text-white shadow-sm'
                   : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50 hover:text-slate-900'
               }`}
             >
@@ -129,7 +129,7 @@ export const ComplianceRequirementList = ({ assignments = [], className = '' }) 
               <span
                 className={`text-[11px] px-1.5 py-0.2 rounded-full font-bold ${
                   isActive
-                    ? 'bg-indigo-700 text-white'
+                    ? 'bg-teal-800 text-white'
                     : tab.badgeClass || 'bg-slate-100 text-slate-600'
                 }`}
               >
@@ -150,7 +150,7 @@ export const ComplianceRequirementList = ({ assignments = [], className = '' }) 
             placeholder="Search requirements or courses..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 text-sm rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition"
+            className="w-full pl-10 pr-4 py-2 text-sm rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-teal-600/20 focus:border-teal-600 transition"
           />
         </div>
 
@@ -160,7 +160,7 @@ export const ComplianceRequirementList = ({ assignments = [], className = '' }) 
             data-testid="compliance-sort-select"
             value={sortBy}
             onChange={(e) => setSortBy(e.target.value)}
-            className="text-xs font-medium text-slate-700 py-2 px-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 bg-white"
+            className="text-xs font-medium text-slate-700 py-2 px-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-teal-600/20 bg-white"
           >
             <option value="due_asc">Deadline: Earliest First</option>
             <option value="due_desc">Deadline: Latest First</option>
@@ -172,7 +172,7 @@ export const ComplianceRequirementList = ({ assignments = [], className = '' }) 
       {/* 3. Cards Grid or Empty State */}
       {filteredAssignments.length === 0 ? (
         <EmptyState
-          icon={<ShieldCheck className="w-7 h-7 text-indigo-600" />}
+          icon={<ShieldCheck className="w-7 h-7 text-teal-700" />}
           title={
             assignments.length === 0
               ? 'No compliance requirements assigned'

@@ -12,6 +12,7 @@ import {
   PlayCircle,
   ExternalLink,
   Sparkles,
+  RefreshCw,
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import StatCard from '../components/ui/StatCard';
@@ -23,6 +24,7 @@ import ProgressCircle from '../components/ui/ProgressCircle';
 import EmptyState from '../components/ui/EmptyState';
 import ErrorState from '../components/ui/ErrorState';
 import Skeleton from '../components/ui/Skeleton';
+import ComplianceRequirementList from '../components/compliance/ComplianceRequirementList';
 
 // Services
 import enrollmentService from '../services/enrollmentService';
@@ -50,6 +52,7 @@ export const EmployeeDashboard = () => {
   const [enrollments, setEnrollments] = useState([]);
   const [certificates, setCertificates] = useState([]);
   const [complianceSummary, setComplianceSummary] = useState(null);
+  const [complianceAssignments, setComplianceAssignments] = useState([]);
   const [skillGapSummary, setSkillGapSummary] = useState(null);
   const [skillsCount, setSkillsCount] = useState(0);
   const [notifications, setNotifications] = useState([]);
@@ -83,12 +86,16 @@ export const EmployeeDashboard = () => {
     }
   }, []);
 
-  // Fetch Compliance Summary
+  // Fetch Compliance Summary & Assignments
   const fetchCompliance = useCallback(async () => {
     try {
       setComplianceError(null);
-      const data = await complianceService.getMyComplianceSummary();
-      setComplianceSummary(data);
+      const [summaryData, assignmentsData] = await Promise.all([
+        complianceService.getMyComplianceSummary(),
+        complianceService.getMyComplianceAssignments(),
+      ]);
+      setComplianceSummary(summaryData);
+      setComplianceAssignments(assignmentsData || []);
     } catch {
       setComplianceError('Failed to load compliance status.');
     }
@@ -101,10 +108,32 @@ export const EmployeeDashboard = () => {
       const skillsData = await skillService.getMySkills();
       setSkillsCount(skillsData.total || 0);
 
-      // Attempt to load job roles to derive skill gap analysis
+      // Attempt to load job roles to derive skill gap analysis matching employee's role/department
       const jobRoles = await skillService.getJobRoles();
       if (jobRoles && jobRoles.length > 0) {
-        const gapData = await skillService.getMySkillGap(jobRoles[0]._id || jobRoles[0].id);
+        const assignedRoleId = user?.employee?.jobRole?._id || user?.employee?.jobRole?.id || user?.employee?.jobRole;
+        const assignedRoleName = user?.employee?.jobRole?.name || user?.employee?.designation;
+        const employeeDeptId = user?.employee?.department?._id || user?.employee?.department?.id || user?.employee?.department;
+        const employeeDeptName = user?.employee?.department?.name;
+
+        const targetRole = jobRoles.find((r) =>
+          (assignedRoleId && (r._id === assignedRoleId || r.id === assignedRoleId)) ||
+          (assignedRoleName && (
+            r.name.toLowerCase() === assignedRoleName.toLowerCase() ||
+            assignedRoleName.toLowerCase().includes(r.name.toLowerCase()) ||
+            r.name.toLowerCase().includes(assignedRoleName.toLowerCase())
+          )) ||
+          (employeeDeptId && (
+            (r.department && (r.department === employeeDeptId || r.department?._id === employeeDeptId)) ||
+            (r.departments && r.departments.some(d => d === employeeDeptId || d?._id === employeeDeptId))
+          )) ||
+          (employeeDeptName && (
+            r.name.toLowerCase().includes(employeeDeptName.toLowerCase()) ||
+            employeeDeptName.toLowerCase().includes(r.name.toLowerCase())
+          ))
+        ) || jobRoles[0];
+
+        const gapData = await skillService.getMySkillGap(targetRole._id || targetRole.id);
         if (gapData?.summary) {
           setSkillGapSummary(gapData.summary);
         }
@@ -146,6 +175,20 @@ export const EmployeeDashboard = () => {
     };
   }, [fetchEnrollments, fetchCertificates, fetchCompliance, fetchSkills, fetchNotifications]);
 
+  const [isRefreshing, setIsRefreshing] = useState(false);
+
+  const handleRefresh = useCallback(async () => {
+    setIsRefreshing(true);
+    await Promise.allSettled([
+      fetchEnrollments(),
+      fetchCertificates(),
+      fetchCompliance(),
+      fetchSkills(),
+      fetchNotifications(),
+    ]);
+    setIsRefreshing(false);
+  }, [fetchEnrollments, fetchCertificates, fetchCompliance, fetchSkills, fetchNotifications]);
+
   // Derived KPI calculations
   const activeEnrollments = enrollments.filter(
     (e) => e.status === 'enrolled' || e.status === 'in_progress'
@@ -175,19 +218,34 @@ export const EmployeeDashboard = () => {
   return (
     <div className="space-y-8">
       {/* 1. Welcome Banner */}
-      <div className="relative overflow-hidden bg-gradient-to-r from-indigo-700 via-indigo-800 to-slate-900 rounded-3xl p-6 sm:p-8 text-white shadow-xl shadow-indigo-950/20">
+      <div className="relative overflow-hidden bg-gradient-to-r from-teal-800 via-teal-900 to-slate-950 rounded-3xl p-6 sm:p-8 text-white shadow-xl shadow-teal-950/20">
         <div className="absolute top-0 right-0 w-80 h-80 bg-white/5 rounded-full blur-3xl pointer-events-none" />
-        <div className="relative z-10 max-w-2xl">
-          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-white/10 backdrop-blur-md text-indigo-100 border border-white/10 mb-4">
-            <Sparkles className="w-3.5 h-3.5 text-indigo-300" />
-            Employee Learning Hub
-          </span>
-          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight">
-            {getGreeting()}, {user?.name || 'Learner'} 👋
-          </h1>
-          <p className="mt-2 text-indigo-100/90 text-sm sm:text-base leading-relaxed">
-            Welcome back, {user?.name || 'Learner'}! Here&apos;s your learning and development overview. Continue your active courses and review certifications.
-          </p>
+        <div className="relative z-10 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+          <div className="max-w-2xl">
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-white/10 backdrop-blur-md text-teal-100 border border-white/10 mb-4">
+              <Sparkles className="w-3.5 h-3.5 text-teal-300" />
+              Employee Learning Hub
+            </span>
+            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight">
+              {getGreeting()}, {user?.name || 'Learner'} 👋
+            </h1>
+            <p className="mt-2 text-teal-100/90 text-sm sm:text-base leading-relaxed">
+              Welcome back, {user?.name || 'Learner'}! Here&apos;s your learning and development overview. Continue your active courses and review certifications.
+            </p>
+          </div>
+          <div className="shrink-0 flex items-center gap-2">
+            <Button
+              variant="outline-light"
+              size="sm"
+              onClick={handleRefresh}
+              disabled={loading || isRefreshing}
+              className="flex items-center gap-1.5"
+              aria-label="Refresh employee dashboard"
+            >
+              <RefreshCw className={`w-4 h-4 mr-1.5 ${isRefreshing ? 'animate-spin' : ''}`} />
+              Refresh
+            </Button>
+          </div>
         </div>
       </div>
 
@@ -214,8 +272,8 @@ export const EmployeeDashboard = () => {
         <StatCard
           title="Learning Progress"
           value={formatPercentage(avgProgress)}
-          icon={<BookOpen className="w-5 h-5 text-indigo-600" />}
-          color="indigo"
+          icon={<BookOpen className="w-5 h-5 text-teal-700" />}
+          color="teal"
           description={`${activeEnrollments.length} active course${activeEnrollments.length === 1 ? '' : 's'}`}
         />
         <StatCard
@@ -254,7 +312,7 @@ export const EmployeeDashboard = () => {
           </div>
           <Link
             to="/my-learning"
-            className="text-xs font-semibold text-indigo-600 hover:text-indigo-700 flex items-center gap-1 transition-colors"
+            className="text-xs font-semibold text-teal-700 hover:text-teal-800 flex items-center gap-1 transition-colors"
           >
             <span>View All</span>
             <ArrowRight className="w-3.5 h-3.5" />
@@ -269,7 +327,7 @@ export const EmployeeDashboard = () => {
           />
         ) : activeEnrollments.length === 0 ? (
           <EmptyState
-            icon={<BookOpen className="w-7 h-7 text-indigo-600" />}
+            icon={<BookOpen className="w-7 h-7 text-teal-700" />}
             title="Start your learning journey"
             description="You have no active courses in progress. Explore our catalog to enroll in foundational modules."
             action={
@@ -300,7 +358,7 @@ export const EmployeeDashboard = () => {
                       </span>
                     </div>
 
-                    <h3 className="text-base font-bold text-slate-900 leading-snug line-clamp-2 mb-2">
+                    <h3 className="text-base font-bold text-[#102A2A] leading-snug line-clamp-2 mb-2">
                       {course.title || 'Untitled Course'}
                     </h3>
 
@@ -317,7 +375,7 @@ export const EmployeeDashboard = () => {
                       max={100}
                       showLabel
                       label="Progress"
-                      color="indigo"
+                      color="teal"
                       size="sm"
                       className="mb-4"
                     />
@@ -349,7 +407,7 @@ export const EmployeeDashboard = () => {
               title="Skill Development"
               subtitle="Alignment against organizational competencies"
               action={
-                <Link to="/skills" className="text-xs font-semibold text-indigo-600 hover:text-indigo-700">
+                <Link to="/skills" className="text-xs font-semibold text-teal-700 hover:text-teal-800">
                   Skill gaps →
                 </Link>
               }
@@ -364,18 +422,18 @@ export const EmployeeDashboard = () => {
                 />
               ) : skillGapSummary ? (
                 <div className="space-y-6">
-                  <div className="flex items-center gap-6 p-4 rounded-2xl bg-indigo-50/50 border border-indigo-100/80">
+                  <div className="flex items-center gap-6 p-4 rounded-2xl bg-teal-50/50 border border-teal-200/60">
                     <ProgressCircle
                       value={skillGapSummary.overallMatchPercentage || 0}
                       size={68}
                       strokeWidth={6}
-                      color="indigo"
+                      color="teal"
                     />
                     <div>
                       <p className="text-xs font-semibold uppercase tracking-wider text-slate-500">
                         Overall Skill Match
                       </p>
-                      <h4 className="text-2xl font-bold text-slate-900 mt-0.5">
+                      <h4 className="text-2xl font-bold text-[#102A2A] mt-0.5">
                         {formatPercentage(skillGapSummary.overallMatchPercentage)}
                       </h4>
                       <p className="text-xs text-slate-500 mt-0.5">
@@ -407,7 +465,7 @@ export const EmployeeDashboard = () => {
                 </div>
               ) : (
                 <EmptyState
-                  icon={<Target className="w-7 h-7 text-indigo-600" />}
+                  icon={<Target className="w-7 h-7 text-teal-700" />}
                   title="Start building your skill profile"
                   description={
                     skillsCount > 0
@@ -524,7 +582,35 @@ export const EmployeeDashboard = () => {
         </Card>
       </div>
 
-      {/* 5. Certificates Summary & Notifications Grid */}
+      {/* 5. Assigned Department Compliance Obligations Section */}
+      <div className="space-y-4 pt-4 border-t border-slate-200/80" data-testid="employee-compliance-section">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div>
+            <h2 className="text-lg font-bold text-[#102A2A] flex items-center gap-2">
+              <ShieldCheck className="w-5 h-5 text-teal-700" />
+              Assigned Department Compliance Obligations
+            </h2>
+            <p className="text-xs text-slate-500">
+              Mandatory policy standards and certifications required for your department ({user?.employee?.department?.name || 'Assigned Department'}).
+            </p>
+          </div>
+          <Link to="/compliance" className="text-xs font-semibold text-teal-700 hover:text-teal-800 shrink-0">
+            View Compliance Hub →
+          </Link>
+        </div>
+
+        {complianceAssignments.length > 0 ? (
+          <ComplianceRequirementList assignments={complianceAssignments} />
+        ) : (
+          <EmptyState
+            icon={<ShieldCheck className="w-8 h-8 text-teal-600" />}
+            title="All Compliance Standards Fulfilled"
+            description="You have no pending compliance obligations assigned to your department profile."
+          />
+        )}
+      </div>
+
+      {/* 6. Certificates Summary & Notifications Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Certificates Summary */}
         <Card className="flex flex-col justify-between">
@@ -533,7 +619,7 @@ export const EmployeeDashboard = () => {
               title="Certificates"
               subtitle="Verifiable credentials earned from completed courses"
               action={
-                <Link to="/certificates" className="text-xs font-semibold text-indigo-600 hover:text-indigo-700">
+                <Link to="/certificates" className="text-xs font-semibold text-teal-700 hover:text-teal-800">
                   View All →
                 </Link>
               }
@@ -619,7 +705,7 @@ export const EmployeeDashboard = () => {
               title="Recent Notifications"
               subtitle="Latest system alerts, milestones, and reminders"
               action={
-                <Link to="/notifications" className="text-xs font-semibold text-indigo-600 hover:text-indigo-700">
+                <Link to="/notifications" className="text-xs font-semibold text-teal-700 hover:text-teal-800">
                   View All →
                 </Link>
               }
@@ -634,7 +720,7 @@ export const EmployeeDashboard = () => {
                 />
               ) : notifications.length === 0 ? (
                 <EmptyState
-                  icon={<Bell className="w-7 h-7 text-indigo-600" />}
+                  icon={<Bell className="w-7 h-7 text-teal-700" />}
                   title="You're all caught up"
                   description="No new notifications. Alerts for assignments, certificates, and reviews will appear here."
                 />
@@ -646,10 +732,10 @@ export const EmployeeDashboard = () => {
                       className={`flex items-start gap-3 p-3 rounded-xl border transition-colors ${
                         notif.isRead
                           ? 'border-slate-100 bg-white'
-                          : 'border-indigo-100 bg-indigo-50/40'
+                          : 'border-teal-200/60 bg-teal-50/40'
                       }`}
                     >
-                      <div className="w-8 h-8 rounded-lg bg-indigo-100 text-indigo-700 flex items-center justify-center shrink-0 mt-0.5">
+                      <div className="w-8 h-8 rounded-lg bg-teal-100 text-teal-800 flex items-center justify-center shrink-0 mt-0.5">
                         <Bell className="w-4 h-4" />
                       </div>
                       <div className="min-w-0 flex-1">
@@ -715,7 +801,7 @@ export const EmployeeDashboard = () => {
                                   ? 'bg-emerald-500 text-white'
                                   : activity.type === 'certificate_earned'
                                   ? 'bg-amber-500 text-white'
-                                  : 'bg-indigo-500 text-white'
+                                  : 'bg-teal-700 text-white'
                               }`}
                             >
                               {activity.type === 'course_completed' ? (
@@ -729,7 +815,7 @@ export const EmployeeDashboard = () => {
                           </div>
                           <div className="flex-1 min-w-0 pt-1.5 flex justify-between space-x-4">
                             <div>
-                              <p className="text-xs font-semibold text-slate-800">
+                              <p className="text-xs font-semibold text-[#102A2A]">
                                 {activity.title}
                               </p>
                               <p className="text-xs text-slate-500 mt-0.5">
@@ -752,11 +838,11 @@ export const EmployeeDashboard = () => {
       )}
 
       {/* 7. Recommended Next Actions */}
-      <Card className="bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 text-white border-0">
+      <Card className="bg-gradient-to-r from-slate-950 via-teal-950 to-slate-950 text-white border-0">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-2">
           <div>
             <div className="flex items-center gap-2 mb-1">
-              <Sparkles className="w-4 h-4 text-indigo-400" />
+              <Sparkles className="w-4 h-4 text-teal-400" />
               <h3 className="text-base font-bold text-white tracking-tight">Recommended Next Actions</h3>
             </div>
             <p className="text-xs text-slate-300">
@@ -793,7 +879,7 @@ export const EmployeeDashboard = () => {
               size="sm"
               className="bg-white/10 text-white border-white/20 hover:bg-white/20"
               onClick={() => navigate('/skills')}
-              leftIcon={<Target className="w-4 h-4 text-indigo-300" />}
+              leftIcon={<Target className="w-4 h-4 text-teal-300" />}
             >
               Analyze Skills
             </Button>

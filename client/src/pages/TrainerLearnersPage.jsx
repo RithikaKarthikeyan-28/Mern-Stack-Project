@@ -43,8 +43,8 @@ export const TrainerLearnersPage = () => {
       {/* Header Banner */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-200 dark:border-slate-800">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900 dark:text-white flex items-center gap-2">
-            <Users className="w-7 h-7 text-indigo-600" />
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-[#102A2A] dark:text-white flex items-center gap-2">
+            <Users className="w-7 h-7 text-teal-700" />
             Learner Progress &amp; Performance
           </h1>
           <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">

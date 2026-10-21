@@ -80,7 +80,7 @@ export const ComplianceRequirementCard = ({ assignment, className = '' }) => {
         </div>
 
         {/* Title */}
-        <h3 className="text-base font-bold text-slate-900 mb-1 leading-snug">
+        <h3 className="text-base font-bold text-[#102A2A] mb-1 leading-snug">
           {reqTitle}
         </h3>
 
@@ -95,7 +95,7 @@ export const ComplianceRequirementCard = ({ assignment, className = '' }) => {
         {courseId && (
           <div className="p-3.5 rounded-2xl bg-slate-50/90 border border-slate-100 mb-4">
             <div className="flex items-center gap-2 text-xs font-semibold text-slate-500 mb-1">
-              <BookOpen className="w-3.5 h-3.5 text-indigo-600" />
+              <BookOpen className="w-3.5 h-3.5 text-teal-700" />
               <span>Mandatory Curriculum</span>
               {courseCode && (
                 <span className="text-[10px] text-slate-400 font-mono">
@@ -105,7 +105,7 @@ export const ComplianceRequirementCard = ({ assignment, className = '' }) => {
             </div>
             <Link
               to={`/courses/${courseId}`}
-              className="text-xs font-semibold text-slate-800 hover:text-indigo-600 transition-colors line-clamp-1"
+              className="text-xs font-semibold text-slate-800 hover:text-teal-700 transition-colors line-clamp-1"
             >
               {courseTitle}
             </Link>
@@ -169,7 +169,7 @@ export const ComplianceRequirementCard = ({ assignment, className = '' }) => {
             {certificationStatus === 'active' ? (
               <Link
                 to="/certificates"
-                className="inline-flex items-center gap-1 text-xs font-semibold text-indigo-600 hover:text-indigo-800 py-1 px-2.5 rounded-xl hover:bg-indigo-50 transition"
+                className="inline-flex items-center gap-1 text-xs font-semibold text-teal-700 hover:text-teal-800 py-1 px-2.5 rounded-xl hover:bg-teal-50 transition"
               >
                 <span>View Certificate</span>
                 <ArrowRight className="w-3.5 h-3.5" />
@@ -190,7 +190,7 @@ export const ComplianceRequirementCard = ({ assignment, className = '' }) => {
             </span>
             <Link
               to={`/learn/${courseId}`}
-              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-semibold text-white bg-indigo-600 hover:bg-indigo-700 transition shadow-sm"
+              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-semibold text-white bg-teal-700 hover:bg-teal-800 transition shadow-sm"
             >
               <PlayCircle className="w-4 h-4" />
               <span>{enrollmentStatus === 'in_progress' ? 'Continue Learning' : 'Start Course'}</span>
@@ -201,7 +201,7 @@ export const ComplianceRequirementCard = ({ assignment, className = '' }) => {
             <span className="text-xs text-slate-400">Not enrolled</span>
             <Link
               to={`/courses/${courseId}`}
-              className="inline-flex items-center gap-1 px-3.5 py-2 rounded-xl text-xs font-semibold text-indigo-700 bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 transition"
+              className="inline-flex items-center gap-1 px-3.5 py-2 rounded-xl text-xs font-semibold text-teal-800 bg-teal-50 hover:bg-teal-100 border border-teal-200 transition"
             >
               <span>Start Required Training</span>
               <ArrowRight className="w-3.5 h-3.5" />

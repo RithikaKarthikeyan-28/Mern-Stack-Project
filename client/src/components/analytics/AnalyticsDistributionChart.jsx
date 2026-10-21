@@ -25,7 +25,7 @@ export const AnalyticsDistributionChart = ({
     >
       {(title || subtitle) && (
         <div className="mb-4">
-          {title && <h3 className="text-sm font-semibold text-slate-800">{title}</h3>}
+          {title && <h3 className="text-sm font-semibold text-brand-ink-primary dark:text-white">{title}</h3>}
           {subtitle && <p className="text-xs text-slate-500 mt-0.5">{subtitle}</p>}
         </div>
       )}
@@ -53,7 +53,7 @@ export const AnalyticsDistributionChart = ({
                 <div
                   key={item.label || idx}
                   style={{ width: `${pct}%` }}
-                  className={`h-full transition-all duration-300 ${item.colorClass || 'bg-indigo-600'}`}
+                  className={`h-full transition-all duration-300 ${item.colorClass || 'bg-teal-700'}`}
                   title={`${item.label}: ${val} (${pct.toFixed(1)}%)`}
                 />
               );
@@ -68,7 +68,7 @@ export const AnalyticsDistributionChart = ({
               return (
                 <div key={item.label || idx} className="flex items-start gap-2 text-xs">
                   <span
-                    className={`w-2.5 h-2.5 rounded-sm shrink-0 mt-0.5 ${item.colorClass || 'bg-indigo-600'}`}
+                    className={`w-2.5 h-2.5 rounded-sm shrink-0 mt-0.5 ${item.colorClass || 'bg-teal-700'}`}
                     aria-hidden="true"
                   />
                   <div className="min-w-0">

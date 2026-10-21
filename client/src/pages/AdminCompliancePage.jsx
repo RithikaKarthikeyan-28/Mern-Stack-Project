@@ -39,6 +39,7 @@ export const AdminCompliancePage = () => {
   // Filters
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
+  const [departmentFilter, setDepartmentFilter] = useState('all');
 
   // Modals
   const [isReqModalOpen, setIsReqModalOpen] = useState(false);
@@ -108,6 +109,15 @@ export const AdminCompliancePage = () => {
 
   const filteredAssignments = useMemo(() => {
     return assignments.filter((a) => {
+      if (departmentFilter !== 'all') {
+        const aDeptId =
+          a.employee?.department?._id ||
+          a.employee?.department?.id ||
+          a.employee?.department;
+        if (aDeptId !== departmentFilter) {
+          return false;
+        }
+      }
       if (statusFilter !== 'all' && (a.status || '').toLowerCase() !== statusFilter.toLowerCase()) {
         return false;
       }
@@ -119,7 +129,7 @@ export const AdminCompliancePage = () => {
       }
       return true;
     });
-  }, [assignments, statusFilter, searchTerm]);
+  }, [assignments, statusFilter, departmentFilter, searchTerm]);
 
   const handleOpenCreateReq = () => {
     setEditingReq(null);
@@ -267,7 +277,7 @@ export const AdminCompliancePage = () => {
           onClick={() => setActiveTab('rules')}
           className={`pb-3 px-3 text-sm font-semibold border-b-2 transition-all flex items-center gap-1.5 ${
             activeTab === 'rules'
-              ? 'border-indigo-600 text-indigo-600 dark:text-indigo-400'
+              ? 'border-teal-700 text-teal-800 dark:text-teal-300'
               : 'border-transparent text-slate-500 hover:text-slate-900'
           }`}
         >
@@ -277,7 +287,7 @@ export const AdminCompliancePage = () => {
           onClick={() => setActiveTab('assignments')}
           className={`pb-3 px-3 text-sm font-semibold border-b-2 transition-all flex items-center gap-1.5 ${
             activeTab === 'assignments'
-              ? 'border-indigo-600 text-indigo-600 dark:text-indigo-400'
+              ? 'border-teal-700 text-teal-800 dark:text-teal-300'
               : 'border-transparent text-slate-500 hover:text-slate-900'
           }`}
         >
@@ -295,7 +305,7 @@ export const AdminCompliancePage = () => {
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               placeholder="Search compliance requirements..."
-              className="w-full pl-9 pr-3 py-2 text-sm bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              className="w-full pl-9 pr-3 py-2 text-sm bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg text-brand-ink-primary dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-teal-600 focus:border-teal-600"
               aria-label="Search compliance requirements"
             />
           </div>
@@ -402,16 +412,32 @@ export const AdminCompliancePage = () => {
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 placeholder="Search assignments by employee name or requirement..."
-                className="w-full pl-9 pr-3 py-2 text-sm bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                className="w-full pl-9 pr-3 py-2 text-sm bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg text-brand-ink-primary dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-teal-600 focus:border-teal-600"
                 aria-label="Search assignments"
               />
+            </div>
+
+            <div className="shrink-0 w-full sm:w-48">
+              <select
+                value={departmentFilter}
+                onChange={(e) => setDepartmentFilter(e.target.value)}
+                className="w-full px-3 py-2 text-sm bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg text-brand-ink-primary dark:text-white focus:outline-none focus:ring-2 focus:ring-teal-600 focus:border-teal-600"
+                aria-label="Filter assignments by department"
+              >
+                <option value="all">All Departments</option>
+                {departments.map((d) => (
+                  <option key={d._id || d.id} value={d._id || d.id}>
+                    {d.name}
+                  </option>
+                ))}
+              </select>
             </div>
 
             <div className="shrink-0 w-full sm:w-44">
               <select
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value)}
-                className="w-full px-3 py-2 text-sm bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                className="w-full px-3 py-2 text-sm bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg text-brand-ink-primary dark:text-white focus:outline-none focus:ring-2 focus:ring-teal-600 focus:border-teal-600"
                 aria-label="Filter assignments by status"
               >
                 <option value="all">All Statuses</option>
@@ -486,6 +512,7 @@ export const AdminCompliancePage = () => {
         onSubmit={handleReqModalSubmit}
         requirement={editingReq}
         courses={courses}
+        departments={departments}
         isLoading={isSubmittingReq}
       />
 

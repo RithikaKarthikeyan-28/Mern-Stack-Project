@@ -38,9 +38,8 @@ export const Avatar = ({
     busy: 'bg-rose-500',
   };
 
-  // Color generator for avatar background based on string hash
   const colors = [
-    'bg-indigo-500 text-white',
+    'bg-teal-600 text-white',
     'bg-violet-500 text-white',
     'bg-blue-500 text-white',
     'bg-emerald-500 text-white',

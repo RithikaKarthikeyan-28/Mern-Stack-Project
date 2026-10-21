@@ -8,7 +8,8 @@
     "start": "node src/server.js",
     "test": "jest --runInBand --detectOpenHandles",
     "test:integration": "jest tests/integration/ --runInBand --detectOpenHandles",
-    "test:production": "jest tests/production-readiness.test.js --runInBand --detectOpenHandles"
+    "test:production": "jest tests/production-readiness.test.js --runInBand --detectOpenHandles",
+    "seed:learning": "node src/seeds/integratedLearningSeeder.js"
   },
   "keywords": [
     "skilltrack",
@@ -26,7 +27,8 @@
     "express-rate-limit": "^8.7.1",
     "helmet": "^8.3.0",
     "jsonwebtoken": "^9.0.3",
-    "mongoose": "^9.9.5"
+    "mongoose": "^9.9.5",
+    "nodemailer": "^10.1.7"
   },
   "devDependencies": {
     "jest": "^29.7.0",

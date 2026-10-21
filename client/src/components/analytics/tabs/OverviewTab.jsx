@@ -26,14 +26,14 @@ export const OverviewTab = ({ data }) => {
     { label: 'Compliant', value: compliance.compliant, color: '#10b981' },
     { label: 'Due Soon', value: compliance.dueSoon, color: '#f59e0b' },
     { label: 'Overdue', value: compliance.overdue, color: '#ef4444' },
-    { label: 'In Progress', value: compliance.inProgress, color: '#6366f1' },
+    { label: 'In Progress', value: compliance.inProgress, color: '#0F766E' },
     { label: 'Not Started', value: compliance.notStarted, color: '#94a3b8' },
   ];
 
   // Enrollment Funnel Items
   const enrollmentItems = [
     { label: 'Enrolled', value: enrollments.enrolled, colorClass: 'bg-blue-500' },
-    { label: 'In Progress', value: enrollments.inProgress, colorClass: 'bg-indigo-500' },
+    { label: 'In Progress', value: enrollments.inProgress, colorClass: 'bg-teal-600' },
     { label: 'Completed', value: enrollments.completed, colorClass: 'bg-emerald-500' },
     { label: 'Dropped', value: enrollments.dropped, colorClass: 'bg-rose-500' },
   ];

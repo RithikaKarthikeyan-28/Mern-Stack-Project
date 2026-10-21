@@ -31,6 +31,21 @@ const skillSchema = new mongoose.Schema(
       },
       default: ['beginner', 'intermediate', 'advanced', 'expert']
     },
+    department: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Department',
+      required: false
+    },
+    departments: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Department'
+      }
+    ],
+    isGlobal: {
+      type: Boolean,
+      default: false
+    },
     isActive: {
       type: Boolean,
       default: true
@@ -60,6 +75,8 @@ const skillSchema = new mongoose.Schema(
 // Case-insensitive unique index on skill name
 skillSchema.index({ name: 1 }, { unique: true, collation: { locale: 'en', strength: 2 } });
 skillSchema.index({ category: 1 });
+skillSchema.index({ department: 1 });
+skillSchema.index({ isGlobal: 1 });
 skillSchema.index({ isActive: 1 });
 
 const Skill = mongoose.model('Skill', skillSchema);

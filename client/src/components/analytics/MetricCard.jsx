@@ -21,8 +21,8 @@ export const MetricCard = ({
 }) => {
   const variantStyles = {
     default: {
-      iconBg: 'bg-indigo-50 text-indigo-600 border border-indigo-100',
-      valueColor: 'text-slate-900',
+      iconBg: 'bg-teal-50 text-teal-700 border border-teal-100',
+      valueColor: 'text-brand-ink-primary dark:text-white',
     },
     success: {
       iconBg: 'bg-emerald-50 text-emerald-600 border border-emerald-100',

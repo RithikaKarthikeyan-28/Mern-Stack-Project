@@ -22,6 +22,10 @@ const POPULATE_OPTIONS = [
   {
     path: 'enrollment',
     select: 'status progressPercentage isActive'
+  },
+  {
+    path: 'certificate',
+    select: 'certificateNumber issuedAt expiresAt status emailStatus emailSentAt score'
   }
 ];
 
@@ -127,6 +131,26 @@ async function evaluateAttempt(attemptId, options = {}) {
   attempt.result = result;
   attempt.evaluatedAt = new Date();
 
+  // If attempt passed and is associated with a course, automatically issue certificate with score and audit links
+  if (result === 'passed' && assessment.course) {
+    try {
+      const certificateService = require('./certificate.service');
+      const certResult = await certificateService.issueCertificateInternal({
+        employeeId: attempt.employee,
+        courseId: assessment.course,
+        enrollmentId: attempt.enrollment,
+        assessmentId: assessment._id,
+        attemptId: attempt._id,
+        score: percentage
+      });
+      if (certResult?.certificate) {
+        attempt.certificate = certResult.certificate._id || certResult.certificate.id;
+      }
+    } catch (err) {
+      console.error('Failed to auto-issue certificate for passing attempt:', err.message);
+    }
+  }
+
   await attempt.save();
   return await AssessmentAttempt.findById(attempt._id).populate(POPULATE_OPTIONS);
 }
@@ -169,6 +193,25 @@ async function getAttemptResult(attemptId, currentUser) {
     return await evaluateAttempt(attempt._id);
   }
 
+  if (attempt.result === 'passed' && attempt.assessment?.course && !attempt.certificate) {
+    try {
+      const Certificate = require('../models/Certificate');
+      const courseId = attempt.assessment.course._id || attempt.assessment.course;
+      const employeeId = attempt.employee._id || attempt.employee;
+      const cert = await Certificate.findOne({
+        employee: employeeId,
+        course: courseId,
+        status: 'active'
+      });
+      if (cert) {
+        attempt.certificate = cert;
+        await AssessmentAttempt.findByIdAndUpdate(attempt._id, { certificate: cert._id });
+      }
+    } catch (err) {
+      // Non-blocking
+    }
+  }
+
   return attempt;
 }
 
@@ -201,6 +244,7 @@ async function getEmployeeAssessmentHistory(currentUser) {
         select: 'title'
       }
     })
+    .populate('certificate', 'certificateNumber status')
     .sort({ submittedAt: -1, createdAt: -1 });
 
   return attempts.map((att) => {
@@ -220,7 +264,9 @@ async function getEmployeeAssessmentHistory(currentUser) {
       obtainedMarks: att.obtainedMarks,
       percentage: att.percentage,
       result: att.result,
-      evaluatedAt: att.evaluatedAt
+      evaluatedAt: att.evaluatedAt,
+      certificateId: att.certificate?._id ? att.certificate._id.toString() : (att.certificate ? att.certificate.toString() : null),
+      certificateNumber: att.certificate?.certificateNumber || null
     };
   });
 }

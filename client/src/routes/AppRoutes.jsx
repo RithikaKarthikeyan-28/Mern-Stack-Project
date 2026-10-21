@@ -20,6 +20,7 @@ import AdminDashboard from '../pages/AdminDashboard';
 import CoursesPage from '../pages/CoursesPage';
 import CourseDetailsPage from '../pages/CourseDetailsPage';
 import LearningPlayerPage from '../pages/LearningPlayerPage';
+import MyLearningPage from '../pages/MyLearningPage';
 import AssessmentsPage from '../pages/AssessmentsPage';
 import AssessmentDetailsPage from '../pages/AssessmentDetailsPage';
 import AssessmentPlayerPage from '../pages/AssessmentPlayerPage';
@@ -61,10 +62,7 @@ export const AppRoutes = () => {
         <Route element={<AppShell />}>
           {/* Employee Routes */}
           <Route path="/dashboard" element={<EmployeeDashboard />} />
-          <Route
-            path="/my-learning"
-            element={<PlaceholderPage title="My Learning" description="Enrolled courses and lesson progress." />}
-          />
+          <Route path="/my-learning" element={<MyLearningPage />} />
           <Route path="/courses" element={<CoursesPage />} />
           <Route path="/courses/:courseId" element={<CourseDetailsPage />} />
           <Route path="/learn/:courseId" element={<LearningPlayerPage />} />

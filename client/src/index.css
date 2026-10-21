@@ -2,13 +2,28 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  --color-primary-teal: #0F766E;
+  --color-secondary-teal: #14B8A6;
+  --color-dark-teal: #115E59;
+  --color-light-mint: #ECFDF5;
+  --color-page: #F7FAFC;
+  --color-card: #FFFFFF;
+  --color-primary-text: #102A2A;
+  --color-secondary-text: #64748B;
+  --color-border: #E2E8F0;
+  --color-success: #16A34A;
+  --color-warning: #D97706;
+  --color-error: #DC2626;
+}
+
 @layer base {
   html {
     font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
   }
 
   body {
-    @apply bg-slate-50 text-slate-800 antialiased min-h-screen;
+    @apply bg-[#F7FAFC] text-[#102A2A] antialiased min-h-screen selection:bg-teal-100 selection:text-teal-900;
   }
 }
 
@@ -42,4 +57,55 @@
     scroll-behavior: auto !important;
   }
 }
+
+/* Subtle floating animations for decorative elements */
+@keyframes floatGentle1 {
+  0%, 100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-8px) rotate(1.5deg);
+  }
+}
+
+@keyframes floatGentle2 {
+  0%, 100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-12px) rotate(-2deg);
+  }
+}
+
+@keyframes floatGentle3 {
+  0%, 100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-7px) rotate(1deg);
+  }
+}
+
+.animate-float-slow {
+  animation: floatGentle1 6.5s ease-in-out infinite;
+}
+
+.animate-float-medium {
+  animation: floatGentle2 5s ease-in-out infinite;
+}
+
+.animate-float-gentle {
+  animation: floatGentle3 7.5s ease-in-out infinite;
+}
+
+/* Prevent Chrome / Safari / Edge autofill bright blue background */
+input:-webkit-autofill,
+input:-webkit-autofill:hover, 
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 1000px white inset !important;
+  -webkit-text-fill-color: #102A2A !important;
+  transition: background-color 5000s ease-in-out 0s;
+}
+
 

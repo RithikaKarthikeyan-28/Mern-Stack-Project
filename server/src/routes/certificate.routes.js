@@ -116,6 +116,30 @@ router.patch(
 );
 
 /**
+ * @route   GET /api/certificates/:id/download
+ * @desc    Download the official vector PDF certificate
+ * @access  Private (Admin, Trainer, Employee)
+ */
+router.get(
+  '/:id/download',
+  authMiddleware,
+  authorizeRoles('admin', 'trainer', 'employee'),
+  certificateController.downloadCertificate
+);
+
+/**
+ * @route   POST /api/certificates/:id/resend-email
+ * @desc    Resend certificate congratulations email
+ * @access  Private (Admin, Employee)
+ */
+router.post(
+  '/:id/resend-email',
+  authMiddleware,
+  authorizeRoles('admin', 'employee'),
+  certificateController.resendCertificateEmail
+);
+
+/**
  * @route   GET /api/certificates/:id
  * @desc    Retrieve single certificate details with ownership scoping
  * @access  Private (Admin, Trainer, Employee)

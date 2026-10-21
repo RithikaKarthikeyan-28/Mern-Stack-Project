@@ -69,6 +69,10 @@ const assessmentAttemptSchema = new mongoose.Schema(
       type: Date,
       default: null
     },
+    expiresAt: {
+      type: Date,
+      default: null
+    },
     totalMarks: {
       type: Number,
       min: [0, 'Total marks cannot be negative'],
@@ -96,6 +100,11 @@ const assessmentAttemptSchema = new mongoose.Schema(
     },
     evaluatedAt: {
       type: Date,
+      default: null
+    },
+    certificate: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Certificate',
       default: null
     }
   },

@@ -28,10 +28,10 @@ export const AssessmentHeader = ({
           {/* Assessment Title & Course Info */}
           <div className="min-w-0">
             <div className="flex items-center gap-2">
-              <span className="p-1.5 rounded-lg bg-indigo-50 text-indigo-600">
+              <span className="p-1.5 rounded-lg bg-teal-50 text-teal-700">
                 <FileCheck className="w-4 h-4" />
               </span>
-              <h1 className="text-base sm:text-lg font-bold text-slate-900 truncate">
+              <h1 className="text-base sm:text-lg font-bold text-[#102A2A] truncate">
                 {assessment?.title || 'Assessment'}
               </h1>
             </div>
@@ -57,7 +57,7 @@ export const AssessmentHeader = ({
               onClick={onOpenReview}
               isLoading={isSubmitting}
               rightIcon={<CheckCircle2 className="w-4 h-4" />}
-              className="bg-indigo-600 hover:bg-indigo-700 font-semibold"
+              className="bg-teal-700 hover:bg-teal-800 font-semibold"
             >
               Review & Submit
             </Button>
@@ -67,7 +67,7 @@ export const AssessmentHeader = ({
         {/* Progress & Question Counter Bar */}
         <div className="mt-3 pt-3 border-t border-slate-100 flex flex-wrap items-center justify-between gap-2">
           <div className="flex items-center gap-3 text-xs">
-            <span className="font-semibold text-slate-800">
+            <span className="font-semibold text-[#102A2A]">
               Question {currentIndex + 1} of {totalQuestions}
             </span>
             <span className="text-slate-300">|</span>
@@ -89,7 +89,7 @@ export const AssessmentHeader = ({
               value={progressPercent}
               max={100}
               size="sm"
-              color="indigo"
+              color="teal"
             />
           </div>
         </div>

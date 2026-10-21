@@ -205,6 +205,45 @@ async function revokeCertificate(req, res, next) {
   }
 }
 
+/**
+ * Controller to handle certificate PDF download.
+ */
+async function downloadCertificate(req, res, next) {
+  try {
+    const { buffer, filename } = await certificateService.downloadCertificatePDF(
+      req.params.id,
+      req.user
+    );
+
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+    res.setHeader('Content-Length', buffer.length);
+    return res.end(buffer);
+  } catch (err) {
+    next(err);
+  }
+}
+
+/**
+ * Controller to handle manual resend of certificate email.
+ */
+async function resendCertificateEmail(req, res, next) {
+  try {
+    const certificate = await certificateService.resendCertificateEmail(
+      req.params.id,
+      req.user
+    );
+
+    return sendSuccess(res, {
+      statusCode: 200,
+      message: 'Certificate email dispatch triggered successfully',
+      data: { certificate }
+    });
+  } catch (err) {
+    next(err);
+  }
+}
+
 module.exports = {
   issueCertificate,
   verifyCertificate,
@@ -215,5 +254,7 @@ module.exports = {
   getCertificateRenewals,
   getCertificateById,
   getAdminCertificates,
-  revokeCertificate
+  revokeCertificate,
+  downloadCertificate,
+  resendCertificateEmail
 };

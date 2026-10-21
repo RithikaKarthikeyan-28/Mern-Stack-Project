@@ -25,7 +25,7 @@ export const JobRoleCard = ({
       }}
       className={`cursor-pointer rounded-2xl p-5 border text-left transition-all duration-200 relative flex flex-col justify-between ${
         isSelected
-          ? 'bg-indigo-50/50 border-indigo-600 ring-2 ring-indigo-500/20 shadow-md'
+          ? 'bg-teal-50/50 border-teal-700 ring-2 ring-teal-600/20 shadow-md'
           : 'bg-white border-slate-200 hover:border-slate-300 hover:shadow-sm'
       } ${className}`}
     >
@@ -35,7 +35,7 @@ export const JobRoleCard = ({
           <span
             className={`inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-0.5 rounded-full ${
               isSelected
-                ? 'bg-indigo-100 text-indigo-800'
+                ? 'bg-teal-100 text-teal-800'
                 : 'bg-slate-100 text-slate-700'
             }`}
           >
@@ -43,8 +43,8 @@ export const JobRoleCard = ({
             {code || 'ROLE'}
           </span>
           {isSelected ? (
-            <span className="flex items-center gap-1 text-xs font-semibold text-indigo-600">
-              <CheckCircle2 className="w-4 h-4 text-indigo-600" />
+            <span className="flex items-center gap-1 text-xs font-semibold text-teal-700">
+              <CheckCircle2 className="w-4 h-4 text-teal-700" />
               <span>Selected</span>
             </span>
           ) : (
@@ -55,7 +55,7 @@ export const JobRoleCard = ({
         </div>
 
         {/* Title */}
-        <h4 className="font-semibold text-slate-900 text-base mb-1.5 leading-snug">
+        <h4 className="font-semibold text-[#102A2A] text-base mb-1.5 leading-snug">
           {name}
         </h4>
 
@@ -77,7 +77,7 @@ export const JobRoleCard = ({
             onSelect && onSelect(jobRole);
           }}
           className={`font-semibold hover:underline ${
-            isSelected ? 'text-indigo-600' : 'text-slate-600'
+            isSelected ? 'text-teal-700' : 'text-slate-600'
           }`}
         >
           {isSelected ? 'Active Target' : 'Analyze Gaps'}

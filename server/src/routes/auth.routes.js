@@ -8,6 +8,8 @@ const router = express.Router();
 // Public authentication routes
 router.post('/register', authLimiter, authController.register);
 router.post('/login', authLimiter, authController.login);
+router.get('/departments', authController.getPublicDepartments);
+router.get('/job-roles', authController.getPublicJobRoles);
 
 // Authenticated user route
 router.get('/me', authMiddleware, authController.getMe);

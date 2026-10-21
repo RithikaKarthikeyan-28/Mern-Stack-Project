@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import Modal from '../ui/Modal';
 import Button from '../ui/Button';
 import Input from '../ui/Input';
@@ -15,10 +15,42 @@ export const ComplianceAssignModal = ({
   isLoading = false,
 }) => {
   const [targetType, setTargetType] = useState('department'); // 'department' | 'employee'
-  const [departmentId, setDepartmentId] = useState(departments[0]?._id || departments[0]?.id || '');
-  const [employeeId, setEmployeeId] = useState(employees[0]?._id || employees[0]?.id || '');
+  const [departmentId, setDepartmentId] = useState('');
+  const [employeeId, setEmployeeId] = useState('');
   const [dueAt, setDueAt] = useState('');
   const [serverError, setServerError] = useState('');
+
+  // Synchronize department based on requirement
+  useEffect(() => {
+    if (requirement) {
+      const reqDeptId =
+        requirement.department?._id ||
+        requirement.department?.id ||
+        requirement.department ||
+        departments[0]?._id ||
+        departments[0]?.id ||
+        '';
+      setDepartmentId(reqDeptId);
+    }
+  }, [requirement, departments]);
+
+  // Filter eligible employees by target department
+  const eligibleEmployees = useMemo(() => {
+    const isGlobal = requirement?.isGlobal === true;
+    if (isGlobal || !departmentId) return employees;
+    return employees.filter((e) => {
+      const eDeptId = e.department?._id || e.department?.id || e.department;
+      return eDeptId === departmentId;
+    });
+  }, [employees, departmentId, requirement]);
+
+  useEffect(() => {
+    if (eligibleEmployees.length > 0) {
+      setEmployeeId(eligibleEmployees[0]._id || eligibleEmployees[0].id || '');
+    } else {
+      setEmployeeId('');
+    }
+  }, [eligibleEmployees]);
 
   if (!isOpen || !requirement) return null;
 
@@ -35,7 +67,7 @@ export const ComplianceAssignModal = ({
         await onAssignDepartment(requirement._id || requirement.id, departmentId, dueAt || undefined);
       } else {
         if (!employeeId) {
-          setServerError('Please select a target employee');
+          setServerError('Please select an eligible employee from this department');
           return;
         }
         await onAssignEmployee(requirement._id || requirement.id, employeeId, dueAt || undefined);
@@ -51,9 +83,9 @@ export const ComplianceAssignModal = ({
     label: d.name,
   }));
 
-  const employeeOptions = employees.map((e) => ({
+  const employeeOptions = eligibleEmployees.map((e) => ({
     value: e._id || e.id,
-    label: `${e.user?.name || e.employeeId} (${e.department?.name || 'No Dept'})`,
+    label: `${e.user?.name || e.employeeId} (${e.department?.name || 'Department'})`,
   }));
 
   return (
@@ -81,7 +113,7 @@ export const ComplianceAssignModal = ({
               onClick={() => setTargetType('department')}
               className={`px-3 py-2 text-xs font-semibold rounded-lg border transition-all ${
                 targetType === 'department'
-                  ? 'border-indigo-600 bg-indigo-50 text-indigo-700 dark:bg-indigo-950/60 dark:text-indigo-300'
+                  ? 'border-teal-700 bg-teal-50 text-teal-800 dark:bg-teal-950/60 dark:text-teal-300'
                   : 'border-slate-200 dark:border-slate-700 text-slate-600 hover:bg-slate-50'
               }`}
             >
@@ -92,7 +124,7 @@ export const ComplianceAssignModal = ({
               onClick={() => setTargetType('employee')}
               className={`px-3 py-2 text-xs font-semibold rounded-lg border transition-all ${
                 targetType === 'employee'
-                  ? 'border-indigo-600 bg-indigo-50 text-indigo-700 dark:bg-indigo-950/60 dark:text-indigo-300'
+                  ? 'border-teal-700 bg-teal-50 text-teal-800 dark:bg-teal-950/60 dark:text-teal-300'
                   : 'border-slate-200 dark:border-slate-700 text-slate-600 hover:bg-slate-50'
               }`}
             >

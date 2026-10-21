@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import {
   Menu,
@@ -108,29 +108,53 @@ export const AssessmentPlayerPage = () => {
     };
   }, [assessmentId, paramAttemptId, location.state]);
 
-  // Answer selection handlers
+  // Real-time draft answer autosave
+  const saveDraft = useCallback(
+    async (currentAnswers) => {
+      if (!attemptId) return;
+      try {
+        const payloadAnswers = Object.entries(currentAnswers)
+          .filter(([_, sel]) => Array.isArray(sel) && sel.length > 0)
+          .map(([qId, sel]) => ({
+            question: qId,
+            selectedAnswers: sel,
+          }));
+
+        if (assessmentService.saveDraftAnswers) {
+          await assessmentService.saveDraftAnswers(attemptId, { answers: payloadAnswers });
+        }
+      } catch (err) {
+        // Silent catch for background autosave
+      }
+    },
+    [attemptId]
+  );
+
+  // Answer selection handlers with real-time persistence
   const handleSelectSingle = (key) => {
     const currentQ = questions[currentIndex];
     if (!currentQ) return;
-    setAnswers((prev) => ({
-      ...prev,
+    const newAnswers = {
+      ...answers,
       [currentQ.id]: [key],
-    }));
+    };
+    setAnswers(newAnswers);
+    saveDraft(newAnswers);
   };
 
   const handleToggleMultiple = (key) => {
     const currentQ = questions[currentIndex];
     if (!currentQ) return;
-    setAnswers((prev) => {
-      const currentList = prev[currentQ.id] || [];
-      const nextList = currentList.includes(key)
-        ? currentList.filter((k) => k !== key)
-        : [...currentList, key];
-      return {
-        ...prev,
-        [currentQ.id]: nextList,
-      };
-    });
+    const currentList = answers[currentQ.id] || [];
+    const nextList = currentList.includes(key)
+      ? currentList.filter((k) => k !== key)
+      : [...currentList, key];
+    const newAnswers = {
+      ...answers,
+      [currentQ.id]: nextList,
+    };
+    setAnswers(newAnswers);
+    saveDraft(newAnswers);
   };
 
   // Compute stats
@@ -141,10 +165,16 @@ export const AssessmentPlayerPage = () => {
     }).length;
   }, [questions, answers]);
 
-  // Calculate remaining seconds if timeLimitMinutes is given
+  // Calculate remaining seconds synced with server expiresAt
   const timeRemainingSeconds = useMemo(() => {
     const timeLimitMinutes = assessment?.timeLimitMinutes;
     if (!timeLimitMinutes) return null;
+
+    if (attempt?.expiresAt) {
+      const expiresTime = new Date(attempt.expiresAt).getTime();
+      const remaining = Math.max(0, Math.floor((expiresTime - Date.now()) / 1000));
+      return remaining;
+    }
 
     if (attempt?.startedAt) {
       const startedTime = new Date(attempt.startedAt).getTime();
@@ -153,7 +183,7 @@ export const AssessmentPlayerPage = () => {
       return remaining > 0 ? remaining : 0;
     }
     return timeLimitMinutes * 60;
-  }, [assessment?.timeLimitMinutes, attempt?.startedAt]);
+  }, [assessment?.timeLimitMinutes, attempt?.expiresAt, attempt?.startedAt]);
 
   // Submission handler
   const handleSubmit = async () => {

@@ -44,7 +44,7 @@ export const CurriculumAccordion = ({
         return <Link2 className="w-4 h-4 text-emerald-500" />;
       case 'text':
       default:
-        return <FileText className="w-4 h-4 text-indigo-500" />;
+        return <FileText className="w-4 h-4 text-teal-700" />;
     }
   };
 
@@ -82,11 +82,11 @@ export const CurriculumAccordion = ({
               aria-controls={`module-content-${modId}`}
             >
               <div className="flex items-center gap-3 min-w-0 pr-2">
-                <span className="w-7 h-7 rounded-lg bg-indigo-100/80 text-indigo-700 text-xs font-bold flex items-center justify-center shrink-0">
+                <span className="w-7 h-7 rounded-lg bg-teal-100/80 text-teal-800 text-xs font-bold flex items-center justify-center shrink-0">
                   {mod.order || modIdx + 1}
                 </span>
                 <div className="min-w-0">
-                  <h4 className="text-sm font-bold text-slate-900 truncate">
+                  <h4 className="text-sm font-bold text-[#102A2A] truncate">
                     {mod.title}
                   </h4>
                   {mod.description && (
@@ -132,7 +132,7 @@ export const CurriculumAccordion = ({
                           onSelectLesson
                             ? 'cursor-pointer hover:bg-slate-50/80'
                             : ''
-                        } ${isCurrent ? 'bg-indigo-50/60 font-semibold' : ''}`}
+                        } ${isCurrent ? 'bg-teal-50/60 font-semibold' : ''}`}
                         role={onSelectLesson ? 'button' : undefined}
                         tabIndex={onSelectLesson ? 0 : undefined}
                         onKeyDown={(e) => {
@@ -148,7 +148,7 @@ export const CurriculumAccordion = ({
                             isCompleted ? (
                               <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
                             ) : isCurrent ? (
-                              <PlayCircle className="w-4 h-4 text-indigo-600 shrink-0" />
+                              <PlayCircle className="w-4 h-4 text-teal-700 shrink-0" />
                             ) : (
                               <Circle className="w-4 h-4 text-slate-300 shrink-0" />
                             )
@@ -163,7 +163,7 @@ export const CurriculumAccordion = ({
                           <span
                             className={`text-xs sm:text-sm truncate ${
                               isCurrent
-                                ? 'text-indigo-700 font-bold'
+                                ? 'text-teal-800 font-bold'
                                 : isCompleted
                                 ? 'text-slate-700'
                                 : 'text-slate-800'

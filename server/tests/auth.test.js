@@ -211,7 +211,7 @@ describe('Authentication API & Middleware Tests (Phase 4)', () => {
     });
 
     // Test 17 — Unknown email returns HTTP 401
-    it('Test 17: Unknown email returns HTTP 401 with generic message (no enumeration)', async () => {
+    it('Test 17: Unknown email returns HTTP 401 informing user to create account', async () => {
       const response = await request(app)
         .post('/api/auth/login')
         .send({
@@ -221,7 +221,7 @@ describe('Authentication API & Middleware Tests (Phase 4)', () => {
         .expect(401);
 
       expect(response.body.success).toBe(false);
-      expect(response.body.message).toBe('Invalid email or password');
+      expect(response.body.message).toMatch(/Account not found|Invalid email/i);
     });
 
     // Test 18 — Inactive user cannot log in

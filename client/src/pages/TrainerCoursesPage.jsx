@@ -133,7 +133,7 @@ export const TrainerCoursesPage = () => {
       {/* Header Banner */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-200 dark:border-slate-800">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900 dark:text-white">
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-[#102A2A] dark:text-white">
             Course Management
           </h1>
           <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
@@ -173,7 +173,7 @@ export const TrainerCoursesPage = () => {
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             placeholder="Search courses by title, topic, or category..."
-            className="w-full pl-9 pr-3 py-2 text-sm bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            className="w-full pl-9 pr-3 py-2 text-sm bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-teal-600 focus:border-teal-600"
             aria-label="Search courses"
           />
         </div>
@@ -183,7 +183,7 @@ export const TrainerCoursesPage = () => {
             <select
               value={categoryFilter}
               onChange={(e) => setCategoryFilter(e.target.value)}
-              className="w-full px-3 py-2 text-sm bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              className="w-full px-3 py-2 text-sm bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-teal-600"
               aria-label="Filter by category"
             >
               <option value="all">All Categories</option>
@@ -205,7 +205,7 @@ export const TrainerCoursesPage = () => {
             onClick={() => setStatusFilter(tab.id)}
             className={`px-3 py-1.5 text-xs font-medium rounded-lg whitespace-nowrap transition-colors flex items-center gap-1.5 ${
               statusFilter === tab.id
-                ? 'bg-indigo-50 text-indigo-700 dark:bg-indigo-950/60 dark:text-indigo-300 font-semibold'
+                ? 'bg-teal-50 text-teal-800 dark:bg-teal-950/60 dark:text-teal-300 font-semibold'
                 : 'text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-200'
             }`}
           >
@@ -213,7 +213,7 @@ export const TrainerCoursesPage = () => {
             <span
               className={`px-1.5 py-0.2 rounded-full text-[10px] ${
                 statusFilter === tab.id
-                  ? 'bg-indigo-200/60 text-indigo-800 dark:bg-indigo-900 dark:text-indigo-200'
+                  ? 'bg-teal-200/60 text-teal-900 dark:bg-teal-900 dark:text-teal-200'
                   : 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400'
               }`}
             >

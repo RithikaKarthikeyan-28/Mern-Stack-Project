@@ -39,6 +39,14 @@ const POPULATE_OPTIONS = [
   {
     path: 'renewedFrom',
     select: 'certificateNumber issuedAt expiresAt status'
+  },
+  {
+    path: 'assessment',
+    select: 'title passingPercentage'
+  },
+  {
+    path: 'assessmentAttempt',
+    select: 'percentage obtainedMarks totalMarks result evaluatedAt'
   }
 ];
 
@@ -165,42 +173,11 @@ async function issueCertificate(currentUser, data) {
     throw new AppError('Course is not published', 400);
   }
 
-  // Idempotency check: check if initial certificate already exists for this employee and course
-  const existingCert = await Certificate.findOne({
-    employee: employee._id,
-    course: course._id,
-    renewedFrom: null
+  return await issueCertificateInternal({
+    employeeId: employee._id,
+    courseId: course._id,
+    enrollmentId: enrollment._id
   });
-
-  if (existingCert) {
-    if (existingCert.status === 'active') {
-      const populated = await Certificate.findById(existingCert._id).populate(POPULATE_OPTIONS);
-      return { certificate: populated, isExisting: true };
-    } else {
-      throw new AppError('Certificate for this course has been revoked and cannot be re-issued', 409);
-    }
-  }
-
-  // Generate unique certificate number and timestamps
-  const certificateNumber = await generateCertificateNumber();
-  const issuedAt = new Date();
-  const validityDays = config.certificateValidityDays || 365;
-  const expiresAt = new Date(issuedAt.getTime() + validityDays * 86400000);
-
-  // Create new certificate
-  const certificate = await Certificate.create({
-    employee: employee._id,
-    course: course._id,
-    enrollment: enrollment._id,
-    certificateNumber,
-    issuedAt,
-    expiresAt,
-    status: 'active',
-    renewedFrom: null
-  });
-
-  const populated = await Certificate.findById(certificate._id).populate(POPULATE_OPTIONS);
-  return { certificate: populated, isExisting: false };
 }
 
 /**
@@ -731,6 +708,7 @@ async function getAdminCertificates(query = {}) {
 }
 
 module.exports = {
+  issueCertificateInternal,
   generateCertificateNumber,
   buildLifecycleStatusFilter,
   issueCertificate,
@@ -742,5 +720,282 @@ module.exports = {
   getCertificateRenewals,
   getEmployeeCertificates,
   getCertificateById,
-  getAdminCertificates
+  getAdminCertificates,
+  downloadCertificatePDF,
+  resendCertificateEmail
 };
+
+
+/**
+ * Internal certificate issuance engine.
+ * Idempotently issues an active certificate for an employee and course.
+ * Generates official PDF certificate, sends congratulations email with status tracking.
+ *
+ * @param {object} params - { employeeId, courseId, enrollmentId, assessmentId, attemptId, score }
+ * @returns {Promise<{ certificate: object, isExisting: boolean }>}
+ */
+async function issueCertificateInternal({
+  employeeId,
+  courseId,
+  enrollmentId,
+  assessmentId = null,
+  attemptId = null,
+  score = null
+}) {
+  const existingCert = await Certificate.findOne({
+    employee: employeeId,
+    course: courseId,
+    renewedFrom: null
+  });
+
+  if (existingCert) {
+    if (existingCert.status === 'active') {
+      const populated = await Certificate.findById(existingCert._id).populate(POPULATE_OPTIONS);
+      return { certificate: populated, isExisting: true };
+    } else {
+      throw new AppError('Certificate for this course has been revoked and cannot be re-issued', 409);
+    }
+  }
+
+  let targetEnrollmentId = enrollmentId;
+  if (!targetEnrollmentId) {
+    let enrollment = await Enrollment.findOne({ employee: employeeId, course: courseId });
+    if (!enrollment) {
+      enrollment = await Enrollment.create({
+        employee: employeeId,
+        course: courseId,
+        status: 'completed',
+        progressPercentage: 100,
+        completedAt: new Date()
+      });
+    }
+    targetEnrollmentId = enrollment._id;
+  }
+
+  const certificateNumber = await generateCertificateNumber();
+  const issuedAt = new Date();
+  const validityDays = config.certificateValidityDays || 365;
+  const expiresAt = new Date(issuedAt.getTime() + validityDays * 86400000);
+
+  const certificate = await Certificate.create({
+    employee: employeeId,
+    course: courseId,
+    enrollment: targetEnrollmentId,
+    certificateNumber,
+    issuedAt,
+    expiresAt,
+    status: 'active',
+    renewedFrom: null,
+    assessment: assessmentId || null,
+    assessmentAttempt: attemptId || null,
+    score: typeof score === 'number' ? score : null,
+    emailStatus: 'pending'
+  });
+
+  if (targetEnrollmentId) {
+    await Enrollment.findByIdAndUpdate(targetEnrollmentId, {
+      status: 'completed',
+      progressPercentage: 100,
+      completedAt: new Date()
+    });
+  }
+
+  try {
+    const notificationService = require('./notification.service');
+    await notificationService.createCertificateIssuedNotification(certificate);
+  } catch (err) {
+    console.error('Error creating certificate issued notification:', err.message);
+  }
+
+  // Award Skills from this course to the employee
+  try {
+    const CourseSkill = require('../models/CourseSkill');
+    const EmployeeSkill = require('../models/EmployeeSkill');
+    const courseSkills = await CourseSkill.find({ course: courseId, isActive: true });
+    for (const cs of courseSkills) {
+      await EmployeeSkill.findOneAndUpdate(
+        { employee: employeeId, skill: cs.skill },
+        {
+          $set: {
+            proficiencyLevel: cs.coverageLevel || 'intermediate',
+            isActive: true
+          }
+        },
+        { upsert: true, new: true }
+      );
+    }
+  } catch (skillErr) {
+    console.error('Error awarding skills on certificate issuance:', skillErr.message);
+  }
+
+  // Update compliance assignment status
+  try {
+    const ComplianceRequirement = require('../models/ComplianceRequirement');
+    const ComplianceAssignment = require('../models/ComplianceAssignment');
+    const complianceService = require('./compliance.service');
+    const requirements = await ComplianceRequirement.find({ course: courseId, isActive: true });
+    if (requirements.length > 0) {
+      const reqIds = requirements.map((r) => r._id);
+      const assignments = await ComplianceAssignment.find({
+        employee: employeeId,
+        complianceRequirement: { $in: reqIds },
+        isActive: true
+      });
+      for (const assignment of assignments) {
+        await complianceService.evaluateAssignmentStatus(assignment, { save: true });
+      }
+    }
+  } catch (compErr) {
+    console.error('Error updating compliance assignments on certificate issuance:', compErr.message);
+  }
+
+  try {
+    const { generateCertificatePDFBuffer } = require('../utils/pdfGenerator');
+    const emailService = require('./email.service');
+    const employee = await Employee.findById(employeeId).populate('user');
+    const course = await Course.findById(courseId);
+    const employeeName = employee?.user?.name || employee?.name || 'Learner';
+    const courseTitle = course?.title || 'Course';
+
+    const pdfBuffer = generateCertificatePDFBuffer({
+      employeeName,
+      courseTitle,
+      score: typeof score === 'number' ? score : null,
+      certificateNumber,
+      issueDate: issuedAt,
+      expiryDate: expiresAt,
+      verificationUrl: `${config.clientUrl || 'http://localhost:5173'}/verify-certificate/${certificateNumber}`
+    });
+
+    if (employee?.user?.email) {
+      const emailResult = await emailService.sendCertificateIssuedEmail({
+        recipientEmail: employee.user.email,
+        recipientName: employeeName,
+        certificateNumber,
+        courseTitle,
+        score: typeof score === 'number' ? score : null,
+        issueDate: issuedAt,
+        certificateId: certificate._id.toString(),
+        verificationUrl: `${config.clientUrl || 'http://localhost:5173'}/verify-certificate/${certificateNumber}`,
+        pdfBuffer
+      });
+
+      if (emailResult.status === 'sent') {
+        certificate.emailStatus = 'sent';
+        certificate.emailSentAt = new Date();
+        certificate.emailError = null;
+        if (emailResult.previewUrl) {
+          certificate.emailPreviewUrl = emailResult.previewUrl;
+        }
+      } else if (emailResult.status === 'not_configured') {
+        certificate.emailStatus = 'not_configured';
+        certificate.emailError = emailResult.error || null;
+      } else {
+        certificate.emailStatus = 'failed';
+        certificate.emailError = emailResult.error || 'Failed to dispatch email';
+      }
+      await certificate.save();
+    }
+  } catch (err) {
+    console.error('Error dispatching certificate email:', err.message);
+    certificate.emailStatus = 'failed';
+    certificate.emailError = err.message;
+    await certificate.save().catch(() => {});
+  }
+
+  const populated = await Certificate.findById(certificate._id).populate(POPULATE_OPTIONS);
+  return { certificate: populated, isExisting: false };
+}
+
+/**
+ * Downloads the official vector PDF certificate with strict role authorization.
+ *
+ * @param {string} id - Certificate ID
+ * @param {object} currentUser - Authenticated user object
+ * @returns {Promise<{ buffer: Buffer, filename: string, certificate: object }>}
+ */
+async function downloadCertificatePDF(id, currentUser) {
+  const cert = await getCertificateById(id, currentUser);
+
+  const { generateCertificatePDFBuffer } = require('../utils/pdfGenerator');
+  const employeeName = cert.employee?.user?.name || cert.employee?.name || 'Learner';
+  const courseTitle = cert.course?.title || 'Course';
+
+  const buffer = generateCertificatePDFBuffer({
+    employeeName,
+    courseTitle,
+    score: cert.score,
+    certificateNumber: cert.certificateNumber,
+    issueDate: cert.issuedAt,
+    verificationUrl: `${config.clientUrl || 'http://localhost:5173'}/verify-certificate/${cert.certificateNumber}`
+  });
+
+  return {
+    buffer,
+    filename: `SkillTrack-Certificate-${cert.certificateNumber}.pdf`,
+    certificate: cert
+  };
+}
+
+/**
+ * Triggers a secure resend of the congratulations email for a certificate.
+ *
+ * @param {string} id - Certificate ID
+ * @param {object} currentUser - Authenticated user object
+ * @returns {Promise<object>} Populated certificate document
+ */
+async function resendCertificateEmail(id, currentUser) {
+  const cert = await getCertificateById(id, currentUser);
+  if (currentUser.role !== 'admin' && currentUser.role !== 'employee') {
+    throw new AppError('Access denied. You do not have permission to resend certificate email.', 403);
+  }
+
+  const employee = await Employee.findById(cert.employee?._id || cert.employee).populate('user');
+  const course = await Course.findById(cert.course?._id || cert.course);
+  const employeeName = employee?.user?.name || employee?.name || 'Learner';
+  const recipientEmail = employee?.user?.email;
+
+  if (!recipientEmail) {
+    throw new AppError('Recipient email address not found on employee profile', 400);
+  }
+
+  const { generateCertificatePDFBuffer } = require('../utils/pdfGenerator');
+  const emailService = require('./email.service');
+
+  const pdfBuffer = generateCertificatePDFBuffer({
+    employeeName,
+    courseTitle: course?.title || 'Course',
+    score: cert.score,
+    certificateNumber: cert.certificateNumber,
+    issueDate: cert.issuedAt,
+    verificationUrl: `${config.clientUrl || 'http://localhost:5173'}/verify-certificate/${cert.certificateNumber}`
+  });
+
+  const emailResult = await emailService.sendCertificateIssuedEmail({
+    recipientEmail,
+    recipientName: employeeName,
+    certificateNumber: cert.certificateNumber,
+    courseTitle: course?.title || 'Course',
+    score: cert.score,
+    issueDate: cert.issuedAt,
+    certificateId: cert._id.toString(),
+    verificationUrl: `${config.clientUrl || 'http://localhost:5173'}/verify-certificate/${cert.certificateNumber}`,
+    pdfBuffer
+  });
+
+  const certDoc = await Certificate.findById(cert._id);
+  if (emailResult.status === 'sent') {
+    certDoc.emailStatus = 'sent';
+    certDoc.emailSentAt = new Date();
+    certDoc.emailError = null;
+  } else if (emailResult.status === 'not_configured') {
+    certDoc.emailStatus = 'not_configured';
+    certDoc.emailError = emailResult.error || null;
+  } else {
+    certDoc.emailStatus = 'failed';
+    certDoc.emailError = emailResult.error || 'Failed to dispatch email';
+  }
+
+  await certDoc.save();
+  return await Certificate.findById(certDoc._id).populate(POPULATE_OPTIONS);
+}

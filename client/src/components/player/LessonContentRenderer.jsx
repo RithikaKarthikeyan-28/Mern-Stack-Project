@@ -77,7 +77,7 @@ export const LessonContentRenderer = ({ lesson, currentModule = null }) => {
       <div className="pb-5 border-b border-slate-200">
         <div className="flex items-center gap-2 mb-2">
           {currentModule && (
-            <span className="text-xs font-semibold text-indigo-600 uppercase tracking-wider">
+            <span className="text-xs font-semibold text-teal-700 uppercase tracking-wider">
               {currentModule.title}
             </span>
           )}
@@ -85,7 +85,7 @@ export const LessonContentRenderer = ({ lesson, currentModule = null }) => {
             {contentType}
           </Badge>
         </div>
-        <h2 className="text-xl sm:text-2xl font-extrabold text-slate-900 tracking-tight">
+        <h2 className="text-xl sm:text-2xl font-extrabold text-[#102A2A] tracking-tight">
           {title}
         </h2>
       </div>

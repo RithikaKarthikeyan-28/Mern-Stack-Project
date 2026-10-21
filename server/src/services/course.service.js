@@ -1,5 +1,6 @@
 const Course = require('../models/Course');
 const User = require('../models/User');
+const Department = require('../models/Department');
 const AppError = require('../utils/AppError');
 const {
   validateObjectId,
@@ -51,6 +52,8 @@ async function createCourse(data, currentUser) {
     level: data.level,
     duration: data.duration,
     trainer: trainerUser._id,
+    department: data.department || undefined,
+    isGlobal: Boolean(data.isGlobal),
     status: data.status || 'draft',
     isActive: true
   });
@@ -99,8 +102,40 @@ async function getCourses(filters = {}, currentUser) {
     query.trainer = filters.trainer;
   }
 
+  // Department filter
+  if (filters.department) {
+    validateObjectId(filters.department, 'Department ID');
+    if (filters.includeGlobal === 'true' || filters.includeGlobal === true) {
+      query.$or = [{ department: filters.department }, { isGlobal: true }];
+    } else {
+      query.department = filters.department;
+    }
+  } else if (filters.isGlobal !== undefined) {
+    query.isGlobal = filters.isGlobal === 'true' || filters.isGlobal === true;
+  }
+
+  // Guard against obsolete demo and non-technical courses
+  const OBSOLETE_COURSES = [
+    'Excel for Better Decisions',
+    'Coaching for Performance',
+    'Leadership Essentials',
+    'Data Privacy Foundations',
+    'Secure Working Practices',
+    'Project Management Fundamentals',
+    'Inclusive Communication',
+    'Financial Acumen for Non-Finance Teams',
+    'Customer Experience Excellence',
+    'Advanced Presentation Skills',
+    'Workplace Health and Safety'
+  ];
+
+  if (!query.title) {
+    query.title = { $nin: OBSOLETE_COURSES };
+  }
+
   return Course.find(query)
     .populate({ path: 'trainer', select: TRAINER_POPULATE_FIELDS })
+    .populate({ path: 'department', select: 'name description' })
     .sort({ createdAt: -1 });
 }
 
@@ -114,10 +149,15 @@ async function getCourses(filters = {}, currentUser) {
 async function getCourseById(id, currentUser) {
   validateObjectId(id, 'Course ID');
 
-  const course = await Course.findById(id).populate({
-    path: 'trainer',
-    select: TRAINER_POPULATE_FIELDS
-  });
+  const course = await Course.findById(id)
+    .populate({
+      path: 'trainer',
+      select: TRAINER_POPULATE_FIELDS
+    })
+    .populate({
+      path: 'department',
+      select: 'name description'
+    });
 
   if (!course) {
     throw new AppError('Course not found', 404);
@@ -188,6 +228,8 @@ async function updateCourse(id, data, currentUser) {
   if (data.category !== undefined) course.category = data.category.trim();
   if (data.level !== undefined) course.level = data.level;
   if (data.duration !== undefined) course.duration = data.duration;
+  if (data.department !== undefined) course.department = data.department || null;
+  if (data.isGlobal !== undefined) course.isGlobal = Boolean(data.isGlobal);
   if (data.status !== undefined) course.status = data.status;
   if (data.isActive !== undefined) course.isActive = data.isActive;
 

@@ -87,4 +87,37 @@ describe('assessmentService', () => {
     expect(api.get).toHaveBeenCalledWith('/assessments/results/me');
     expect(result).toEqual([{ id: 'h1' }]);
   });
+
+  it('saveDraftAnswers makes PATCH /assessments/attempts/:attemptId/answers request', async () => {
+    const payload = {
+      answers: [{ question: 'q1', selectedAnswers: ['B'] }],
+    };
+    const mockData = { data: { data: { attempt: { id: 'att1', answers: payload.answers } } } };
+    api.patch.mockResolvedValue(mockData);
+
+    const result = await assessmentService.saveDraftAnswers('att1', payload);
+
+    expect(api.patch).toHaveBeenCalledWith('/assessments/attempts/att1/answers', payload);
+    expect(result).toEqual({ id: 'att1', answers: payload.answers });
+  });
+
+  it('getCourseAssessmentStatus makes GET /assessments/course/:courseId request', async () => {
+    const mockData = { data: { data: { isUnlocked: true, courseProgress: 100 } } };
+    api.get.mockResolvedValue(mockData);
+
+    const result = await assessmentService.getCourseAssessmentStatus('c1');
+
+    expect(api.get).toHaveBeenCalledWith('/assessments/course/c1');
+    expect(result).toEqual({ isUnlocked: true, courseProgress: 100 });
+  });
+
+  it('getAssessments makes GET /assessments request', async () => {
+    const mockData = { data: { data: { assessments: [{ id: 'a1' }, { id: 'a2' }] } } };
+    api.get.mockResolvedValue(mockData);
+
+    const result = await assessmentService.getAssessments();
+
+    expect(api.get).toHaveBeenCalledWith('/assessments', { params: {} });
+    expect(result).toEqual([{ id: 'a1' }, { id: 'a2' }]);
+  });
 });

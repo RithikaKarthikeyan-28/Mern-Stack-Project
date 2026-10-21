@@ -13,6 +13,9 @@ import {
   AlertCircle,
   Building2,
   Share2,
+  BookOpen,
+  Download,
+  Mail,
 } from 'lucide-react';
 import certificateService from '../services/certificateService';
 import CertificateStatusBadge from '../components/certificates/CertificateStatusBadge';
@@ -35,6 +38,7 @@ export const CertificateDetailsPage = () => {
   const [error, setError] = useState(null);
   const [copiedLink, setCopiedLink] = useState(false);
   const [copiedNumber, setCopiedNumber] = useState(false);
+  const [downloading, setDownloading] = useState(false);
 
   // Renewal Action Modal
   const [renewalModalOpen, setRenewalModalOpen] = useState(false);
@@ -100,6 +104,10 @@ export const CertificateDetailsPage = () => {
     certificate.employee?.name ||
     'Learner';
   const departmentName = certificate.employee?.department?.name || 'Department';
+  const courseId =
+    certificate.course?._id ||
+    certificate.course?.id ||
+    (typeof certificate.course === 'string' ? certificate.course : null);
   const courseTitle = certificate.course?.title || 'Professional Certification';
   const courseCategory = certificate.course?.category || 'Professional';
   const courseLevel = certificate.course?.level || 'Intermediate';
@@ -162,6 +170,21 @@ export const CertificateDetailsPage = () => {
     window.print();
   };
 
+  const handleDownloadPDF = async () => {
+    setDownloading(true);
+    try {
+      await certificateService.downloadCertificatePDF(certificateId, certNumber);
+      addToast({ type: 'success', message: 'Certificate PDF downloaded successfully!' });
+    } catch (err) {
+      addToast({
+        type: 'danger',
+        message: err.response?.data?.message || 'Failed to download certificate PDF.'
+      });
+    } finally {
+      setDownloading(false);
+    }
+  };
+
   const handleConfirmRenew = async () => {
     setRenewing(true);
     try {
@@ -203,6 +226,11 @@ export const CertificateDetailsPage = () => {
         </Button>
 
         <div className="flex items-center gap-2">
+          <Button variant="primary" size="sm" onClick={handleDownloadPDF} disabled={downloading}>
+            <Download className="w-4 h-4 mr-1.5" />
+            <span>{downloading ? 'Downloading...' : 'Download PDF'}</span>
+          </Button>
+
           <Button variant="outline" size="sm" onClick={handleCopyLink}>
             {copiedLink ? (
               <Check className="w-4 h-4 text-emerald-600 mr-1.5" />
@@ -223,6 +251,29 @@ export const CertificateDetailsPage = () => {
               <span>Public Verification</span>
             </Button>
           </Link>
+
+          {courseId && (
+            <Link to={`/courses/${courseId}`}>
+              <Button variant="outline" size="sm">
+                <BookOpen className="w-4 h-4 mr-1.5" />
+                <span>View Course</span>
+              </Button>
+            </Link>
+          )}
+
+          {certificate.emailPreviewUrl && (
+            <a
+              href={certificate.emailPreviewUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center"
+            >
+              <Button variant="outline" size="sm" className="text-teal-700 border-teal-300 hover:bg-teal-50">
+                <Mail className="w-4 h-4 mr-1.5 text-teal-600" />
+                <span>View Email Notification</span>
+              </Button>
+            </a>
+          )}
         </div>
       </div>
 
@@ -232,19 +283,19 @@ export const CertificateDetailsPage = () => {
         data-testid="certificate-showcase"
       >
         {/* Certificate Decorative Border Margin */}
-        <div className="p-2 sm:p-4 border-4 border-dashed border-indigo-200/80 m-2 sm:m-4 rounded-2xl bg-radial from-white via-indigo-50/20 to-slate-50/40">
+        <div className="p-2 sm:p-4 border-4 border-dashed border-teal-200/80 m-2 sm:m-4 rounded-2xl bg-radial from-white via-teal-50/20 to-slate-50/40">
           <div className="p-6 sm:p-12 text-center flex flex-col items-center">
             {/* Seal / Emblem */}
-            <div className="w-20 h-20 rounded-2xl bg-indigo-600 shadow-xl shadow-indigo-600/30 flex items-center justify-center text-white mb-6">
+            <div className="w-20 h-20 rounded-2xl bg-teal-700 shadow-xl shadow-teal-700/30 flex items-center justify-center text-white mb-6">
               <Award className="w-10 h-10" />
             </div>
 
             {/* Platform Issuer Brand */}
-            <span className="text-xs font-bold uppercase tracking-widest text-indigo-700 bg-indigo-50 px-3.5 py-1 rounded-full border border-indigo-200 mb-2">
+            <span className="text-xs font-bold uppercase tracking-widest text-teal-800 bg-teal-50 px-3.5 py-1 rounded-full border border-teal-200 mb-2">
               SkillTrack Enterprise Credential
             </span>
 
-            <h1 className="text-2xl sm:text-4xl font-serif font-black tracking-tight text-slate-900 mb-4">
+            <h1 className="text-2xl sm:text-4xl font-serif font-black tracking-tight text-[#102A2A] mb-4">
               Certificate of Completion
             </h1>
 
@@ -253,7 +304,7 @@ export const CertificateDetailsPage = () => {
             </p>
 
             {/* Recipient Name */}
-            <h2 className="text-xl sm:text-3xl font-bold text-slate-900 underline decoration-indigo-400 decoration-2 underline-offset-8 mb-2">
+            <h2 className="text-xl sm:text-3xl font-bold text-[#102A2A] underline decoration-teal-500 decoration-2 underline-offset-8 mb-2">
               {employeeName}
             </h2>
 
@@ -267,11 +318,11 @@ export const CertificateDetailsPage = () => {
             </p>
 
             {/* Course Title */}
-            <div className="bg-indigo-50/80 border border-indigo-100 rounded-2xl px-6 py-4 max-w-xl mx-auto mb-6">
-              <h3 className="text-lg sm:text-2xl font-bold text-indigo-950 mb-1">
+            <div className="bg-teal-50/80 border border-teal-100 rounded-2xl px-6 py-4 max-w-xl mx-auto mb-6">
+              <h3 className="text-lg sm:text-2xl font-bold text-teal-950 mb-1">
                 {courseTitle}
               </h3>
-              <div className="flex items-center justify-center gap-3 text-xs text-indigo-700 font-medium">
+              <div className="flex items-center justify-center gap-3 text-xs text-teal-800 font-medium">
                 <span className="capitalize">{courseCategory}</span>
                 <span>•</span>
                 <span className="capitalize">{courseLevel}</span>
@@ -279,6 +330,13 @@ export const CertificateDetailsPage = () => {
                 <span>{courseDuration}</span>
               </div>
             </div>
+
+            {certificate.score !== null && certificate.score !== undefined && (
+              <div className="mb-6 inline-flex items-center gap-2 px-4 py-1.5 bg-emerald-50 text-emerald-800 border border-emerald-200 rounded-full text-xs font-semibold">
+                <Award className="w-4 h-4 text-emerald-600" />
+                <span>Assessment Score: {certificate.score}% • Passed</span>
+              </div>
+            )}
 
             {/* Status & Identifiers Grid */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 w-full max-w-2xl pt-6 border-t border-slate-200 text-xs text-slate-600">

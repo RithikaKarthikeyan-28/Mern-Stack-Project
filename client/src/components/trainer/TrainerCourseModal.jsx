@@ -114,7 +114,7 @@ export const TrainerCourseModal = ({
         <div className="flex items-center justify-between pb-4 border-b border-slate-100 dark:border-slate-800">
           <h2
             id="course-modal-title"
-            className="text-xl font-bold text-slate-900 dark:text-white"
+            className="text-xl font-bold text-brand-ink-primary dark:text-white"
           >
             {isEditing ? 'Edit Course' : 'Create New Course'}
           </h2>
@@ -149,7 +149,7 @@ export const TrainerCourseModal = ({
               type="text"
               value={formData.title}
               onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-              className={`mt-1 block w-full rounded-lg border px-3 py-2 text-sm bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:outline-none ${
+              className={`mt-1 block w-full rounded-lg border px-3 py-2 text-sm bg-white dark:bg-slate-800 text-brand-ink-primary dark:text-white focus:ring-2 focus:ring-teal-600 focus:border-teal-600 focus:outline-none ${
                 errors.title
                   ? 'border-red-400 focus:border-red-400'
                   : 'border-slate-300 dark:border-slate-700'
@@ -172,7 +172,7 @@ export const TrainerCourseModal = ({
               rows={3}
               value={formData.description}
               onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-              className={`mt-1 block w-full rounded-lg border px-3 py-2 text-sm bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:outline-none ${
+              className={`mt-1 block w-full rounded-lg border px-3 py-2 text-sm bg-white dark:bg-slate-800 text-brand-ink-primary dark:text-white focus:ring-2 focus:ring-teal-600 focus:border-teal-600 focus:outline-none ${
                 errors.description
                   ? 'border-red-400 focus:border-red-400'
                   : 'border-slate-300 dark:border-slate-700'
@@ -197,7 +197,7 @@ export const TrainerCourseModal = ({
                 id="course-category"
                 value={formData.category}
                 onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                className="mt-1 block w-full rounded-lg border border-slate-300 dark:border-slate-700 px-3 py-2 text-sm bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+                className="mt-1 block w-full rounded-lg border border-slate-300 dark:border-slate-700 px-3 py-2 text-sm bg-white dark:bg-slate-800 text-brand-ink-primary dark:text-white focus:ring-2 focus:ring-teal-600 focus:border-teal-600 focus:outline-none"
                 disabled={isLoading}
               >
                 {CATEGORIES.map((cat) => (
@@ -219,7 +219,7 @@ export const TrainerCourseModal = ({
                 id="course-level"
                 value={formData.level}
                 onChange={(e) => setFormData({ ...formData, level: e.target.value })}
-                className="mt-1 block w-full rounded-lg border border-slate-300 dark:border-slate-700 px-3 py-2 text-sm bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+                className="mt-1 block w-full rounded-lg border border-slate-300 dark:border-slate-700 px-3 py-2 text-sm bg-white dark:bg-slate-800 text-brand-ink-primary dark:text-white focus:ring-2 focus:ring-teal-600 focus:border-teal-600 focus:outline-none"
                 disabled={isLoading}
               >
                 {LEVELS.map((lvl) => (
@@ -245,7 +245,7 @@ export const TrainerCourseModal = ({
                 min={1}
                 value={formData.duration}
                 onChange={(e) => setFormData({ ...formData, duration: e.target.value })}
-                className={`mt-1 block w-full rounded-lg border px-3 py-2 text-sm bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:outline-none ${
+                className={`mt-1 block w-full rounded-lg border px-3 py-2 text-sm bg-white dark:bg-slate-800 text-brand-ink-primary dark:text-white focus:ring-2 focus:ring-teal-600 focus:border-teal-600 focus:outline-none ${
                   errors.duration
                     ? 'border-red-400 focus:border-red-400'
                     : 'border-slate-300 dark:border-slate-700'
@@ -268,7 +268,7 @@ export const TrainerCourseModal = ({
                 id="course-status"
                 value={formData.status}
                 onChange={(e) => setFormData({ ...formData, status: e.target.value })}
-                className="mt-1 block w-full rounded-lg border border-slate-300 dark:border-slate-700 px-3 py-2 text-sm bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+                className="mt-1 block w-full rounded-lg border border-slate-300 dark:border-slate-700 px-3 py-2 text-sm bg-white dark:bg-slate-800 text-brand-ink-primary dark:text-white focus:ring-2 focus:ring-teal-600 focus:border-teal-600 focus:outline-none"
                 disabled={isLoading}
               >
                 <option value="draft">Draft (Private)</option>

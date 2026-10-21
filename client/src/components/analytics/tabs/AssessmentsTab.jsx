@@ -94,7 +94,7 @@ export const AssessmentsTab = ({ data }) => {
       <div className="bg-white rounded-xl border border-slate-200/80 shadow-sm overflow-hidden">
         <div className="p-4 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-slate-50/50">
           <div>
-            <h3 className="text-sm font-semibold text-slate-800">Assessment Cohort Breakdown</h3>
+            <h3 className="text-sm font-semibold text-brand-ink-primary dark:text-white">Assessment Cohort Breakdown</h3>
             <p className="text-xs text-slate-500">Attempt volume, pass rates, and score distributions per assessment</p>
           </div>
           <div className="relative w-full sm:w-64">
@@ -104,7 +104,7 @@ export const AssessmentsTab = ({ data }) => {
               placeholder="Search assessments..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="w-full pl-9 pr-3 py-1.5 text-xs rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 bg-white"
+              className="w-full pl-9 pr-3 py-1.5 text-xs rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-teal-600/20 focus:border-teal-600 bg-white"
             />
           </div>
         </div>
@@ -133,7 +133,7 @@ export const AssessmentsTab = ({ data }) => {
               ) : (
                 filteredAssessments.map((a) => (
                   <tr key={a.assessmentId} className="hover:bg-slate-50/80 transition-colors">
-                    <td className="py-3 px-4 font-medium text-slate-900">{a.title}</td>
+                    <td className="py-3 px-4 font-medium text-brand-ink-primary dark:text-white">{a.title}</td>
                     <td className="py-3 px-4 text-center font-semibold">{a.attemptCount}</td>
                     <td className="py-3 px-4 text-center text-slate-600">{a.uniqueEmployees}</td>
                     <td className="py-3 px-4 text-center text-emerald-600 font-semibold">{a.passed}</td>

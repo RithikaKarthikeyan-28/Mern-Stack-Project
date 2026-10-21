@@ -15,6 +15,7 @@ import Button from '../components/ui/Button';
 import EmptyState from '../components/ui/EmptyState';
 import ErrorState from '../components/ui/ErrorState';
 import Skeleton from '../components/ui/Skeleton';
+import { useAuth } from '../context/AuthContext';
 
 // Skills components
 import SkillCard from '../components/skills/SkillCard';
@@ -27,6 +28,7 @@ import RecommendedCourseCard from '../components/skills/RecommendedCourseCard';
 import skillService from '../services/skillService';
 
 export const SkillsPage = () => {
+  const { user } = useAuth();
   const [searchParams, setSearchParams] = useSearchParams();
   const initialTab = searchParams.get('tab') || 'my-skills';
   const [activeTab, setActiveTab] = useState(initialTab);
@@ -86,14 +88,35 @@ export const SkillsPage = () => {
       const roles = await skillService.getJobRoles();
       setJobRoles(roles || []);
       if (roles && roles.length > 0) {
-        setSelectedJobRole((prev) => prev || roles[0]);
+        const assignedRoleId = user?.employee?.jobRole?._id || user?.employee?.jobRole?.id || user?.employee?.jobRole;
+        const assignedRoleName = user?.employee?.jobRole?.name || user?.employee?.designation;
+        const employeeDeptId = user?.employee?.department?._id || user?.employee?.department?.id || user?.employee?.department;
+        const employeeDeptName = user?.employee?.department?.name;
+
+        const matched = roles.find((r) =>
+          (assignedRoleId && (r._id === assignedRoleId || r.id === assignedRoleId)) ||
+          (assignedRoleName && (
+            r.name.toLowerCase() === assignedRoleName.toLowerCase() ||
+            assignedRoleName.toLowerCase().includes(r.name.toLowerCase()) ||
+            r.name.toLowerCase().includes(assignedRoleName.toLowerCase())
+          )) ||
+          (employeeDeptId && (
+            (r.department && (r.department === employeeDeptId || r.department?._id === employeeDeptId)) ||
+            (r.departments && r.departments.some(d => (d === employeeDeptId || d?._id === employeeDeptId)))
+          )) ||
+          (employeeDeptName && (
+            r.name.toLowerCase().includes(employeeDeptName.toLowerCase()) ||
+            employeeDeptName.toLowerCase().includes(r.name.toLowerCase())
+          ))
+        );
+        setSelectedJobRole((prev) => prev || matched || roles[0]);
       }
     } catch {
       setRolesError('Failed to load benchmark job roles.');
     } finally {
       setRolesLoading(false);
     }
-  }, []);
+  }, [user]);
 
   // Fetch Skill Gap for Selected Role
   const fetchSkillGap = useCallback(async (jobRoleId, status, mandatoryOnly) => {
@@ -181,17 +204,17 @@ export const SkillsPage = () => {
   return (
     <div className="space-y-8" data-testid="skills-page">
       {/* 1. Header Banner */}
-      <div className="relative overflow-hidden bg-gradient-to-r from-indigo-700 via-indigo-800 to-slate-900 rounded-3xl p-6 sm:p-8 text-white shadow-xl shadow-indigo-950/20">
+      <div className="relative overflow-hidden bg-gradient-to-r from-teal-800 via-teal-900 to-slate-950 rounded-3xl p-6 sm:p-8 text-white shadow-xl shadow-teal-950/20">
         <div className="absolute top-0 right-0 w-80 h-80 bg-white/5 rounded-full blur-3xl pointer-events-none" />
         <div className="relative z-10 max-w-3xl">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 text-indigo-200 text-xs font-semibold backdrop-blur-sm mb-3">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 text-teal-200 text-xs font-semibold backdrop-blur-sm mb-3">
             <Award className="w-3.5 h-3.5" />
             <span>Talent Development & Benchmarking</span>
           </div>
           <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight mb-2">
             Skills & Competency Hub
           </h1>
-          <p className="text-sm text-indigo-100/90 leading-relaxed">
+          <p className="text-sm text-teal-100/90 leading-relaxed">
             Review your verified organizational proficiencies, benchmark competencies against key job roles,
             and discover targeted courses designed to close critical skill gaps.
           </p>
@@ -206,7 +229,7 @@ export const SkillsPage = () => {
           onClick={() => handleTabChange('my-skills')}
           className={`flex items-center gap-2 py-3 px-5 text-sm font-semibold border-b-2 transition -mb-px ${
             activeTab === 'my-skills'
-              ? 'border-indigo-600 text-indigo-600'
+              ? 'border-teal-700 text-teal-800'
               : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300'
           }`}
         >
@@ -223,7 +246,7 @@ export const SkillsPage = () => {
           onClick={() => handleTabChange('gap-analysis')}
           className={`flex items-center gap-2 py-3 px-5 text-sm font-semibold border-b-2 transition -mb-px ${
             activeTab === 'gap-analysis'
-              ? 'border-indigo-600 text-indigo-600'
+              ? 'border-teal-700 text-teal-800'
               : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300'
           }`}
         >
@@ -237,14 +260,14 @@ export const SkillsPage = () => {
           onClick={() => handleTabChange('recommendations')}
           className={`flex items-center gap-2 py-3 px-5 text-sm font-semibold border-b-2 transition -mb-px ${
             activeTab === 'recommendations'
-              ? 'border-indigo-600 text-indigo-600'
+              ? 'border-teal-700 text-teal-800'
               : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300'
           }`}
         >
           <Sparkles className="w-4 h-4" />
           <span>Course Recommendations</span>
           {recommendationsData?.recommendations?.length > 0 && (
-            <span className="text-xs px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-700 font-bold">
+            <span className="text-xs px-2 py-0.5 rounded-full bg-teal-50 text-teal-800 font-bold">
               {recommendationsData.recommendations.length}
             </span>
           )}
@@ -257,10 +280,10 @@ export const SkillsPage = () => {
       {activeTab === 'my-skills' && (
         <div className="space-y-6" data-testid="my-skills-section">
           {/* Admin Verification Notice */}
-          <div className="flex items-center gap-3 p-4 rounded-2xl bg-indigo-50/60 border border-indigo-100 text-slate-700 text-xs">
-            <ShieldCheck className="w-5 h-5 text-indigo-600 shrink-0" />
+          <div className="flex items-center gap-3 p-4 rounded-2xl bg-teal-50/60 border border-teal-100 text-slate-700 text-xs">
+            <ShieldCheck className="w-5 h-5 text-teal-700 shrink-0" />
             <p className="flex-1 leading-relaxed">
-              <span className="font-semibold text-slate-900">Verified Competencies: </span>
+              <span className="font-semibold text-[#102A2A]">Verified Competencies: </span>
               Your employee skill profile is maintained and verified by platform administrators based on formal evaluations, course completions, and role requirements.
             </p>
           </div>
@@ -275,7 +298,7 @@ export const SkillsPage = () => {
                 placeholder="Search skills by name..."
                 value={skillSearchQuery}
                 onChange={(e) => setSkillSearchQuery(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 text-sm rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition"
+                className="w-full pl-10 pr-4 py-2 text-sm rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-teal-600/20 focus:border-teal-600 transition"
               />
             </div>
 
@@ -285,7 +308,7 @@ export const SkillsPage = () => {
                 data-testid="skill-category-filter"
                 value={selectedCategory}
                 onChange={(e) => setSelectedCategory(e.target.value)}
-                className="text-xs font-medium text-slate-700 py-2 px-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 bg-white"
+                className="text-xs font-medium text-slate-700 py-2 px-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-teal-600/20 bg-white"
               >
                 <option value="ALL">All Categories</option>
                 {categories.map((cat) => (
@@ -370,7 +393,7 @@ export const SkillsPage = () => {
           <div>
             <div className="flex items-center justify-between gap-4 mb-4">
               <div>
-                <h2 className="text-base font-bold text-slate-900">
+                <h2 className="text-base font-bold text-[#102A2A]">
                   Target Job Role Benchmark
                 </h2>
                 <p className="text-xs text-slate-500">
@@ -474,7 +497,7 @@ export const SkillsPage = () => {
                           onClick={() => setStatusFilter(item.key)}
                           className={`text-xs font-semibold px-3 py-1.5 rounded-full transition whitespace-nowrap ${
                             statusFilter === item.key
-                              ? 'bg-indigo-600 text-white shadow-sm'
+                              ? 'bg-teal-700 text-white shadow-sm'
                               : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
                           }`}
                         >
@@ -489,7 +512,7 @@ export const SkillsPage = () => {
                         data-testid="gap-mandatory-toggle"
                         checked={mandatoryOnlyFilter}
                         onChange={(e) => setMandatoryOnlyFilter(e.target.checked)}
-                        className="rounded border-slate-300 text-indigo-600 focus:ring-indigo-500 w-4 h-4"
+                        className="rounded border-slate-300 text-teal-700 focus:ring-teal-600 w-4 h-4"
                       />
                       <span>Mandatory Requirements Only</span>
                     </label>
@@ -521,10 +544,10 @@ export const SkillsPage = () => {
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-5 rounded-2xl bg-slate-50 border border-slate-200">
             <div>
               <div className="flex items-center gap-2 text-xs text-slate-500 mb-1">
-                <Briefcase className="w-3.5 h-3.5 text-indigo-600" />
+                <Briefcase className="w-3.5 h-3.5 text-teal-700" />
                 <span>Target Benchmark Role</span>
               </div>
-              <h3 className="text-base font-bold text-slate-900">
+              <h3 className="text-base font-bold text-[#102A2A]">
                 {selectedJobRole?.name || 'Select a Job Role'}
               </h3>
             </div>
@@ -534,7 +557,7 @@ export const SkillsPage = () => {
                 data-testid="rec-minscore-filter"
                 value={recMinScore}
                 onChange={(e) => setRecMinScore(Number(e.target.value))}
-                className="text-xs font-medium text-slate-700 py-2 px-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 bg-white"
+                className="text-xs font-medium text-slate-700 py-2 px-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-teal-600/20 bg-white"
               >
                 <option value={0}>All Recommendation Scores</option>
                 <option value={50}>Match &gt;= 50%</option>
@@ -548,7 +571,7 @@ export const SkillsPage = () => {
                   data-testid="rec-mandatory-toggle"
                   checked={recMandatoryOnly}
                   onChange={(e) => setRecMandatoryOnly(e.target.checked)}
-                  className="rounded border-slate-300 text-indigo-600 focus:ring-indigo-500 w-4 h-4"
+                  className="rounded border-slate-300 text-teal-700 focus:ring-teal-600 w-4 h-4"
                 />
                 <span>Mandatory Gaps Only</span>
               </label>

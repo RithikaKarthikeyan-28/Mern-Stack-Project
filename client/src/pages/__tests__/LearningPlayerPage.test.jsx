@@ -7,6 +7,7 @@ import AuthContext from '../../context/AuthContext';
 import { ToastProvider } from '../../context/ToastContext';
 import courseService from '../../services/courseService';
 import enrollmentService from '../../services/enrollmentService';
+import assessmentService from '../../services/assessmentService';
 
 const mockNavigate = vi.fn();
 
@@ -29,6 +30,12 @@ vi.mock('../../services/enrollmentService', () => ({
   default: {
     getCourseEnrollment: vi.fn(),
     updateProgress: vi.fn(),
+  },
+}));
+
+vi.mock('../../services/assessmentService', () => ({
+  default: {
+    getCourseAssessmentStatus: vi.fn().mockResolvedValue(null),
   },
 }));
 
@@ -109,7 +116,7 @@ const renderPlayer = (initialPath = '/learn/c200') => {
   );
 };
 
-describe('LearningPlayerPage (Scenarios 17-29)', () => {
+describe('LearningPlayerPage (Automatic Lesson Completion & Progress Flow)', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     courseService.getCourseById.mockResolvedValue(mockCourse);
@@ -117,7 +124,6 @@ describe('LearningPlayerPage (Scenarios 17-29)', () => {
     enrollmentService.getCourseEnrollment.mockResolvedValue(mockEnrollment);
   });
 
-  // 17. Renders module navigation
   it('17. renders module navigation tree in sidebar', async () => {
     renderPlayer();
 
@@ -127,7 +133,6 @@ describe('LearningPlayerPage (Scenarios 17-29)', () => {
     expect(screen.getByText('Integration Testing')).toBeInTheDocument();
   });
 
-  // 18. Renders lessons in correct order
   it('18. renders lessons in correct sequence within their modules', async () => {
     renderPlayer();
 
@@ -138,9 +143,7 @@ describe('LearningPlayerPage (Scenarios 17-29)', () => {
     expect(screen.getByText('Testing Library Best Practices')).toBeInTheDocument();
   });
 
-  // 19. Renders selected lesson
   it('19. renders resume lesson content by default (first incomplete lesson)', async () => {
-    // l1 is completed, so player should resume at l2
     renderPlayer();
 
     await waitFor(() => {
@@ -149,7 +152,6 @@ describe('LearningPlayerPage (Scenarios 17-29)', () => {
     expect(screen.getByText(/Video guide on vi.mock and vi.fn spies/i)).toBeInTheDocument();
   });
 
-  // 20. Renders supported lesson content
   it('20. renders video player embed for video content type', async () => {
     renderPlayer('/learn/c200/module/m1/lesson/l2');
 
@@ -169,9 +171,7 @@ describe('LearningPlayerPage (Scenarios 17-29)', () => {
     expect(screen.getByRole('button', { name: /visit resource/i })).toBeInTheDocument();
   });
 
-  // 21. Completed lessons are visually distinguished
   it('21. visually marks completed lessons in sidebar and header', async () => {
-    // Switch to l1 which is completed
     renderPlayer('/learn/c200/module/m1/lesson/l1');
 
     await waitFor(() => {
@@ -179,8 +179,7 @@ describe('LearningPlayerPage (Scenarios 17-29)', () => {
     });
   });
 
-  // 22. Next lesson navigation works
-  it('22. advances to next lesson upon clicking Next Lesson', async () => {
+  it('22a. clicking Next Lesson on an already completed lesson advances immediately without calling updateProgress', async () => {
     renderPlayer('/learn/c200/module/m1/lesson/l1');
 
     await waitFor(() => {
@@ -194,10 +193,61 @@ describe('LearningPlayerPage (Scenarios 17-29)', () => {
     await waitFor(() => {
       expect(screen.getByRole('heading', { level: 2 })).toHaveTextContent('Mocking Dependencies');
     });
+    expect(enrollmentService.updateProgress).not.toHaveBeenCalled();
   });
 
-  // 23. Previous lesson navigation works
-  it('23. navigates to previous lesson upon clicking Previous Lesson', async () => {
+  it('22b. clicking Next Lesson on an INCOMPLETE lesson automatically calls updateProgress and advances only after backend success', async () => {
+    enrollmentService.updateProgress.mockResolvedValue({
+      _id: 'enr200',
+      status: 'in_progress',
+      progressPercentage: 67,
+      completedLessons: ['l1', 'l2'],
+    });
+
+    renderPlayer('/learn/c200/module/m1/lesson/l2');
+
+    await waitFor(() => {
+      expect(screen.getByRole('heading', { level: 2 })).toHaveTextContent('Mocking Dependencies');
+    });
+
+    const nextBtn = screen.getByRole('button', { name: /next lesson/i });
+    fireEvent.click(nextBtn);
+
+    await waitFor(() => {
+      expect(enrollmentService.updateProgress).toHaveBeenCalledWith(
+        'enr200',
+        'l2',
+        true,
+        { moduleId: 'm1', courseId: 'c200' }
+      );
+    });
+
+    await waitFor(() => {
+      expect(screen.getByRole('heading', { level: 2 })).toHaveTextContent('Testing Library Best Practices');
+    });
+  });
+
+  it('22c. next lesson does NOT open if updateProgress fails, displays error, and stays on current lesson', async () => {
+    enrollmentService.updateProgress.mockRejectedValue(new Error('Network failure while saving progress'));
+
+    renderPlayer('/learn/c200/module/m1/lesson/l2');
+
+    await waitFor(() => {
+      expect(screen.getByRole('heading', { level: 2 })).toHaveTextContent('Mocking Dependencies');
+    });
+
+    const nextBtn = screen.getByRole('button', { name: /next lesson/i });
+    fireEvent.click(nextBtn);
+
+    await waitFor(() => {
+      expect(enrollmentService.updateProgress).toHaveBeenCalled();
+    });
+
+    // Stays on l2
+    expect(screen.getByRole('heading', { level: 2 })).toHaveTextContent('Mocking Dependencies');
+  });
+
+  it('23a. clicking Previous Lesson navigates back without calling updateProgress', async () => {
     renderPlayer('/learn/c200/module/m1/lesson/l2');
 
     await waitFor(() => {
@@ -211,11 +261,21 @@ describe('LearningPlayerPage (Scenarios 17-29)', () => {
     await waitFor(() => {
       expect(screen.getByRole('heading', { level: 2 })).toHaveTextContent('Writing Unit Tests');
     });
+    expect(enrollmentService.updateProgress).not.toHaveBeenCalled();
   });
 
-  // 24. Progress update succeeds
-  it('24. successfully updates lesson progress and displays updated completion status', async () => {
-    // Current lesson l2 is incomplete
+  it('23b. Previous Lesson button is disabled on the first lesson', async () => {
+    renderPlayer('/learn/c200/module/m1/lesson/l1');
+
+    await waitFor(() => {
+      expect(screen.getByRole('heading', { level: 2 })).toHaveTextContent('Writing Unit Tests');
+    });
+
+    const prevBtn = screen.getByRole('button', { name: /previous lesson/i });
+    expect(prevBtn).toBeDisabled();
+  });
+
+  it('24. manual mark-as-complete button updates progress with module and course context', async () => {
     enrollmentService.updateProgress.mockResolvedValue({
       _id: 'enr200',
       status: 'in_progress',
@@ -229,14 +289,18 @@ describe('LearningPlayerPage (Scenarios 17-29)', () => {
     fireEvent.click(markBtn);
 
     await waitFor(() => {
-      expect(enrollmentService.updateProgress).toHaveBeenCalledWith('enr200', 'l2', true);
+      expect(enrollmentService.updateProgress).toHaveBeenCalledWith(
+        'enr200',
+        'l2',
+        true,
+        { moduleId: 'm1', courseId: 'c200' }
+      );
     });
 
     expect(await screen.findByRole('button', { name: /completed/i })).toBeInTheDocument();
     expect(screen.getByText('67% Complete')).toBeInTheDocument();
   });
 
-  // 25. Progress update failure does not create false completion
   it('25. reverts state when progress update request fails and does not falsely mark lesson', async () => {
     enrollmentService.updateProgress.mockRejectedValue(new Error('Network error'));
 
@@ -249,12 +313,92 @@ describe('LearningPlayerPage (Scenarios 17-29)', () => {
       expect(enrollmentService.updateProgress).toHaveBeenCalled();
     });
 
-    // Button should still say "Mark as Complete" (not "Completed")
     expect(screen.getByRole('button', { name: /mark as complete/i })).toBeInTheDocument();
   });
 
-  // 26-28. Accessibility & keyboard navigation
-  it('26-28. supports accessible sidebar toggle and keyboard interactions', async () => {
+  it('30. selecting an upcoming lesson from sidebar automatically completes current lesson before navigating', async () => {
+    enrollmentService.updateProgress.mockResolvedValue({
+      _id: 'enr200',
+      status: 'in_progress',
+      progressPercentage: 67,
+      completedLessons: ['l1', 'l2'],
+    });
+
+    // Start on incomplete lesson l2
+    renderPlayer('/learn/c200/module/m1/lesson/l2');
+
+    await waitFor(() => {
+      expect(screen.getByRole('heading', { level: 2 })).toHaveTextContent('Mocking Dependencies');
+    });
+
+    // Click upcoming lesson l3 in sidebar
+    const l3Button = screen.getByRole('button', { name: /testing library best practices/i });
+    fireEvent.click(l3Button);
+
+    await waitFor(() => {
+      expect(enrollmentService.updateProgress).toHaveBeenCalledWith(
+        'enr200',
+        'l2',
+        true,
+        { moduleId: 'm1', courseId: 'c200' }
+      );
+    });
+
+    await waitFor(() => {
+      expect(screen.getByRole('heading', { level: 2 })).toHaveTextContent('Testing Library Best Practices');
+    });
+  });
+
+  it('31. on final lesson, Next Lesson is replaced with Complete Course and does not attempt to navigate past end', async () => {
+    renderPlayer('/learn/c200/module/m2/lesson/l3');
+
+    await waitFor(() => {
+      expect(screen.getByRole('heading', { level: 2 })).toHaveTextContent('Testing Library Best Practices');
+    });
+
+    expect(screen.queryByRole('button', { name: /^next lesson$/i })).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /complete course/i })).toBeInTheDocument();
+  });
+
+  it('32. completing final lesson marks course 100% and displays assessment unlock banner', async () => {
+    enrollmentService.updateProgress.mockResolvedValue({
+      _id: 'enr200',
+      status: 'completed',
+      progressPercentage: 100,
+      completedLessons: ['l1', 'l2', 'l3'],
+    });
+
+    assessmentService.getCourseAssessmentStatus.mockResolvedValue({
+      hasAssessment: true,
+      assessment: { id: 'asm-999', title: 'Full-Stack Testing Certification' },
+      isEligible: true,
+    });
+
+    renderPlayer('/learn/c200/module/m2/lesson/l3');
+
+    await waitFor(() => {
+      expect(screen.getByRole('heading', { level: 2 })).toHaveTextContent('Testing Library Best Practices');
+    });
+
+    const completeBtn = screen.getByRole('button', { name: /complete course/i });
+    fireEvent.click(completeBtn);
+
+    await waitFor(() => {
+      expect(enrollmentService.updateProgress).toHaveBeenCalledWith(
+        'enr200',
+        'l3',
+        true,
+        { moduleId: 'm2', courseId: 'c200' }
+      );
+    });
+
+    await waitFor(() => {
+      expect(screen.getByTestId('assessment-unlock-banner')).toBeInTheDocument();
+    });
+    expect(screen.getByRole('button', { name: /take certification exam/i })).toBeInTheDocument();
+  });
+
+  it('26-28. supports accessible sidebar toggle and mobile menu', async () => {
     renderPlayer('/learn/c200');
 
     await waitFor(() => {
@@ -264,11 +408,9 @@ describe('LearningPlayerPage (Scenarios 17-29)', () => {
     const mobileMenuBtn = screen.getByLabelText(/open curriculum sidebar/i);
     fireEvent.click(mobileMenuBtn);
 
-    // Sidebar open
     expect(screen.getAllByText('Unit Testing with Vitest').length).toBeGreaterThanOrEqual(1);
   });
 
-  // 29. No broken loading/error transitions
   it('29. handles unenrolled employee by redirecting to course details', async () => {
     enrollmentService.getCourseEnrollment.mockResolvedValue(null);
 

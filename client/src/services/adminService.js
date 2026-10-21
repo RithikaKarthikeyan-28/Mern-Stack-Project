@@ -176,6 +176,29 @@ export const adminService = {
     return res.data?.data || res.data;
   },
 
+  /**
+   * Assigns a course to an individual employee.
+   * @param {string} courseId
+   * @param {string} employeeId
+   * @returns {Promise<object>} Created enrollment
+   */
+  assignCourseToEmployee: async (courseId, employeeId) => {
+    const res = await api.post('/enrollments', { course: courseId, employee: employeeId });
+    return res.data?.data?.enrollment || res.data?.enrollment;
+  },
+
+  /**
+   * Assigns a course to an entire department.
+   * @param {string} courseId
+   * @param {string} departmentId
+   * @param {boolean} [isMandatory=true]
+   * @returns {Promise<object>} Assignment summary
+   */
+  assignCourseToDepartment: async (courseId, departmentId, isMandatory = true) => {
+    const res = await api.post('/enrollments/department', { courseId, departmentId, isMandatory });
+    return res.data?.data || res.data;
+  },
+
   // =========================================================================
   // ASSESSMENT OVERSIGHT
   // =========================================================================

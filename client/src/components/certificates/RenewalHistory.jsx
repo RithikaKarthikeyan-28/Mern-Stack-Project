@@ -21,11 +21,11 @@ export const RenewalHistory = ({ certificate, parent, renewals = [], loading = f
   return (
     <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-xs">
       <div className="flex items-center gap-3 mb-6 pb-4 border-b border-slate-100">
-        <div className="w-10 h-10 rounded-xl bg-indigo-50 flex items-center justify-center text-indigo-600">
+        <div className="w-10 h-10 rounded-xl bg-teal-50 flex items-center justify-center text-teal-700">
           <RefreshCw className="w-5 h-5" />
         </div>
         <div>
-          <h3 className="text-base font-bold text-slate-900">Certificate Renewal History</h3>
+          <h3 className="text-base font-bold text-[#102A2A]">Certificate Renewal History</h3>
           <p className="text-xs text-slate-500">
             Immutable chain of credential issues, renewals, and expiration lifecycles.
           </p>
@@ -46,7 +46,7 @@ export const RenewalHistory = ({ certificate, parent, renewals = [], loading = f
           {hasParent && (
             <div className="relative pl-8 pb-4">
               {/* Connector line */}
-              <div className="absolute left-3.5 top-5 bottom-0 w-0.5 bg-indigo-200" />
+              <div className="absolute left-3.5 top-5 bottom-0 w-0.5 bg-teal-200" />
               <div className="absolute left-1.5 top-2 w-4 h-4 rounded-full bg-slate-200 border-2 border-white flex items-center justify-center">
                 <span className="w-1.5 h-1.5 rounded-full bg-slate-500" />
               </div>
@@ -78,7 +78,7 @@ export const RenewalHistory = ({ certificate, parent, renewals = [], loading = f
                 </div>
               </div>
 
-              <div className="flex justify-center my-2 text-indigo-400">
+              <div className="flex justify-center my-2 text-teal-500">
                 <ArrowDown className="w-4 h-4" />
               </div>
             </div>
@@ -87,19 +87,19 @@ export const RenewalHistory = ({ certificate, parent, renewals = [], loading = f
           {/* 2. Current Certificate */}
           <div className="relative pl-8 pb-4">
             {hasRenewals && (
-              <div className="absolute left-3.5 top-5 bottom-0 w-0.5 bg-indigo-200" />
+              <div className="absolute left-3.5 top-5 bottom-0 w-0.5 bg-teal-200" />
             )}
-            <div className="absolute left-1 top-2 w-5 h-5 rounded-full bg-indigo-600 border-2 border-white shadow-xs flex items-center justify-center">
+            <div className="absolute left-1 top-2 w-5 h-5 rounded-full bg-teal-700 border-2 border-white shadow-xs flex items-center justify-center">
               <CheckCircle2 className="w-3.5 h-3.5 text-white" />
             </div>
 
-            <div className="p-4 bg-indigo-50/60 rounded-xl border border-indigo-200 shadow-xs">
+            <div className="p-4 bg-teal-50/60 rounded-xl border border-teal-200 shadow-xs">
               <div className="flex items-center justify-between gap-2 mb-2">
                 <div className="flex items-center gap-2">
-                  <span className="text-xs font-bold text-indigo-900 uppercase tracking-wider">
+                  <span className="text-xs font-bold text-teal-900 uppercase tracking-wider">
                     {hasParent ? 'Renewed Credential (Current)' : 'Current Certificate'}
                   </span>
-                  <span className="text-[10px] bg-indigo-600 text-white font-bold px-2 py-0.5 rounded-full">
+                  <span className="text-[10px] bg-teal-700 text-white font-bold px-2 py-0.5 rounded-full">
                     Active View
                   </span>
                 </div>
@@ -112,13 +112,13 @@ export const RenewalHistory = ({ certificate, parent, renewals = [], loading = f
                 />
               </div>
 
-              <code className="text-sm font-mono font-bold text-indigo-950 block mb-2">
+              <code className="text-sm font-mono font-bold text-teal-950 block mb-2">
                 {certificate.certificateNumber}
               </code>
 
               <div className="text-xs text-slate-600 flex flex-wrap gap-4">
                 <span className="flex items-center gap-1">
-                  <Calendar className="w-3.5 h-3.5 text-indigo-600" />
+                  <Calendar className="w-3.5 h-3.5 text-teal-700" />
                   Issued: {certificate.issuedAt ? new Date(certificate.issuedAt).toLocaleDateString() : 'N/A'}
                 </span>
                 {certificate.expiresAt && (
@@ -127,7 +127,7 @@ export const RenewalHistory = ({ certificate, parent, renewals = [], loading = f
               </div>
 
               {certificate.renewalReason && (
-                <div className="mt-3 pt-2 border-t border-indigo-100 text-xs text-slate-600 italic">
+                <div className="mt-3 pt-2 border-t border-teal-100 text-xs text-slate-600 italic">
                   &ldquo;{certificate.renewalReason}&rdquo;
                 </div>
               )}
@@ -137,7 +137,7 @@ export const RenewalHistory = ({ certificate, parent, renewals = [], loading = f
           {/* 3. Subsequent Renewals */}
           {hasRenewals && (
             <div className="space-y-4">
-              <div className="flex justify-center my-2 text-indigo-400">
+              <div className="flex justify-center my-2 text-teal-500">
                 <ArrowDown className="w-4 h-4" />
               </div>
 

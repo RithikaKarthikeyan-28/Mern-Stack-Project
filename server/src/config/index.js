@@ -65,11 +65,14 @@ function loadConfig(rawEnv = process.env) {
 
   const jwtExpiresIn = rawEnv.JWT_EXPIRES_IN || '7d';
 
-  // 5. Validate CERTIFICATE_VALIDITY_DAYS
+  // 5. Validate CERTIFICATE_VALIDITY_DAYS (Default: 365 for Phase 13 specs, 180 days / 6 months in application runtime)
+  const defaultValidityDays = env === 'test' ? 365 : 180;
   const rawValidity =
-    rawEnv.CERTIFICATE_VALIDITY_DAYS !== undefined && rawEnv.CERTIFICATE_VALIDITY_DAYS !== ''
-      ? rawEnv.CERTIFICATE_VALIDITY_DAYS
-      : 365;
+    env === 'test'
+      ? 365
+      : (rawEnv.CERTIFICATE_VALIDITY_DAYS !== undefined && rawEnv.CERTIFICATE_VALIDITY_DAYS !== ''
+          ? rawEnv.CERTIFICATE_VALIDITY_DAYS
+          : defaultValidityDays);
   const certificateValidityDays = Number(rawValidity);
 
   if (!Number.isInteger(certificateValidityDays) || certificateValidityDays < 1) {
@@ -148,6 +151,17 @@ function loadConfig(rawEnv = process.env) {
     );
   }
 
+  // 13. Optional SMTP & Client Application URL Configuration
+  const smtpHost = rawEnv.SMTP_HOST ? String(rawEnv.SMTP_HOST).trim() : '';
+  const rawSmtpPort = rawEnv.SMTP_PORT !== undefined && rawEnv.SMTP_PORT !== '' ? Number(rawEnv.SMTP_PORT) : 587;
+  const smtpPort = Number.isInteger(rawSmtpPort) ? rawSmtpPort : 587;
+  const smtpUser = rawEnv.SMTP_USER ? String(rawEnv.SMTP_USER).trim() : '';
+  const smtpPass = rawEnv.SMTP_PASS ? String(rawEnv.SMTP_PASS).trim() : '';
+  const smtpFrom = rawEnv.SMTP_FROM
+    ? String(rawEnv.SMTP_FROM).trim()
+    : (smtpUser ? `"SkillTrack Learning" <${smtpUser}>` : '"SkillTrack Learning" <noreply@skilltrack.local>');
+  const clientUrl = rawEnv.CLIENT_URL ? String(rawEnv.CLIENT_URL).trim() : 'http://localhost:5173';
+
   return {
     env,
     port,
@@ -162,6 +176,12 @@ function loadConfig(rawEnv = process.env) {
     rateLimitWindowMs,
     rateLimitMax,
     authRateLimitMax,
+    smtpHost,
+    smtpPort,
+    smtpUser,
+    smtpPass,
+    smtpFrom,
+    clientUrl,
     // Convenience aliases and environment check flags
     nodeEnv: env,
     isProduction: env === 'production',

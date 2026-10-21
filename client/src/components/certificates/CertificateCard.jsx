@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import { useNavigate } from 'react-router-dom';
-import { Award, Calendar, Copy, Check, ExternalLink, RefreshCw, ArrowUpRight } from 'lucide-react';
+import { Award, Calendar, Copy, Check, ExternalLink, RefreshCw, ArrowUpRight, Download } from 'lucide-react';
 import CertificateStatusBadge from './CertificateStatusBadge';
 import Button from '../ui/Button';
+import certificateService from '../../services/certificateService';
 
 export const CertificateCard = ({ certificate, onRenewClick }) => {
   const navigate = useNavigate();
@@ -57,13 +58,13 @@ export const CertificateCard = ({ certificate, onRenewClick }) => {
       data-testid={`certificate-card-${certId}`}
     >
       {/* Top Banner Accent */}
-      <div className="h-2 bg-linear-to-r from-indigo-500 via-purple-500 to-indigo-600 w-full" />
+      <div className="h-2 bg-gradient-to-r from-teal-700 via-teal-500 to-teal-800 w-full" />
 
       <div className="p-5 sm:p-6 flex-1 flex flex-col">
         {/* Header: Category & Lifecycle Status Badge */}
         <div className="flex items-center justify-between gap-3 mb-3">
           <div className="flex items-center gap-2">
-            <span className="text-[11px] font-semibold uppercase tracking-wider text-indigo-600 bg-indigo-50 px-2.5 py-0.5 rounded-full">
+            <span className="text-[11px] font-semibold uppercase tracking-wider text-teal-700 bg-teal-50 px-2.5 py-0.5 rounded-full">
               {courseCategory}
             </span>
             <span className="text-[11px] font-medium text-slate-500 bg-slate-100 px-2 py-0.5 rounded-full capitalize">
@@ -81,7 +82,7 @@ export const CertificateCard = ({ certificate, onRenewClick }) => {
         </div>
 
         {/* Course Title */}
-        <h3 className="text-base sm:text-lg font-bold text-slate-900 group-hover:text-indigo-600 transition-colors line-clamp-2 mb-2">
+        <h3 className="text-base sm:text-lg font-bold text-[#102A2A] group-hover:text-teal-700 transition-colors line-clamp-2 mb-2">
           {courseTitle}
         </h3>
 
@@ -129,8 +130,8 @@ export const CertificateCard = ({ certificate, onRenewClick }) => {
 
         {/* Renewal parent badge if this is a renewed certificate */}
         {certificate.renewedFrom && (
-          <div className="mt-3 pt-2 border-t border-slate-100 flex items-center gap-1.5 text-[11px] text-indigo-700 bg-indigo-50/60 px-2.5 py-1 rounded-lg">
-            <RefreshCw className="w-3 h-3 text-indigo-500" />
+          <div className="mt-3 pt-2 border-t border-slate-100 flex items-center gap-1.5 text-[11px] text-teal-800 bg-teal-50/60 px-2.5 py-1 rounded-lg">
+            <RefreshCw className="w-3 h-3 text-teal-600" />
             <span>Renewed Credential</span>
           </div>
         )}
@@ -147,6 +148,20 @@ export const CertificateCard = ({ certificate, onRenewClick }) => {
           >
             <span>Verify</span>
             <ExternalLink className="w-3.5 h-3.5 ml-1 opacity-70" />
+          </Button>
+
+          <Button
+            size="sm"
+            variant="ghost"
+            className="text-xs text-teal-700 hover:text-teal-800 hover:bg-teal-50"
+            title="Download PDF Certificate"
+            onClick={async (e) => {
+              e.stopPropagation();
+              await certificateService.downloadCertificatePDF(certId, certNumber);
+            }}
+          >
+            <Download className="w-3.5 h-3.5 mr-1" />
+            <span>PDF</span>
           </Button>
 
           {isRenewalEligible && (

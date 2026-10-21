@@ -49,7 +49,7 @@ export const RecommendedCourseCard = ({
               </span>
             )}
             <span
-              className="inline-flex items-center gap-1 text-xs font-bold px-2.5 py-1 rounded-full bg-gradient-to-r from-indigo-500 to-purple-600 text-white shadow-sm"
+              className="inline-flex items-center gap-1 text-xs font-bold px-2.5 py-1 rounded-full bg-gradient-to-r from-teal-700 to-teal-500 text-white shadow-sm"
               title="Calculated recommendation relevance score"
             >
               <Sparkles className="w-3.5 h-3.5 text-amber-300" />
@@ -59,7 +59,7 @@ export const RecommendedCourseCard = ({
         </div>
 
         {/* Title */}
-        <h3 className="text-lg font-bold text-slate-900 mb-2 leading-tight">
+        <h3 className="text-lg font-bold text-[#102A2A] mb-2 leading-tight">
           {title}
         </h3>
 
@@ -98,7 +98,7 @@ export const RecommendedCourseCard = ({
             </span>
             <Link
               to={`/learn/${_id}`}
-              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-semibold text-white bg-indigo-600 hover:bg-indigo-700 transition shadow-sm"
+              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-semibold text-white bg-teal-700 hover:bg-teal-800 transition shadow-sm"
             >
               <PlayCircle className="w-4 h-4" />
               <span>Continue Learning</span>
@@ -109,7 +109,7 @@ export const RecommendedCourseCard = ({
             <span className="text-xs text-slate-400">Not enrolled</span>
             <Link
               to={`/courses/${_id}`}
-              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-semibold text-indigo-700 bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 transition"
+              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-semibold text-teal-800 bg-teal-50 hover:bg-teal-100 border border-teal-200 transition"
             >
               <span>Explore Course</span>
               <ArrowRight className="w-4 h-4" />

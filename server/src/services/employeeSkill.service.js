@@ -99,25 +99,71 @@ async function getEmployeeSkills(currentUser, employeeId, query = {}) {
 
 /**
  * Retrieves the authenticated employee's own active skills.
+ * Filters and enriches skills relevant to the employee's department and job role.
  * Guarantees recipient isolation / anti-IDOR.
  */
 async function getMySkills(currentUser) {
   const userId = currentUser.id || currentUser.userId || currentUser._id;
-  const employee = await Employee.findOne({ user: userId, isActive: true });
+  const employee = await Employee.findOne({ user: userId, isActive: true })
+    .populate('department', 'name description');
   if (!employee) {
     throw new AppError('Employee profile not found', 404);
   }
 
-  const employeeSkills = await EmployeeSkill.find({
+  // 1. Fetch assessed employee skills
+  const storedSkills = await EmployeeSkill.find({
     employee: employee._id,
     isActive: true
   })
     .populate(POPULATE_OPTIONS)
     .sort({ createdAt: -1 });
 
+  const storedSkillMap = new Map();
+  storedSkills.forEach((es) => {
+    if (es.skill?._id) {
+      storedSkillMap.set(es.skill._id.toString(), es);
+    }
+  });
+
+  // 2. Fetch department competencies
+  let deptSkills = [];
+  if (employee.department) {
+    const deptId = employee.department._id || employee.department;
+    deptSkills = await Skill.find({
+      $or: [
+        { department: deptId },
+        { departments: deptId }
+      ],
+      isActive: true
+    }).select('name category description proficiencyLevels isActive');
+  }
+
+  // 3. Merge: ensure all department skills are represented
+  const mergedList = [...storedSkills];
+  const existingSkillIds = new Set(storedSkills.map((es) => es.skill?._id?.toString()).filter(Boolean));
+
+  for (const skillDoc of deptSkills) {
+    const sId = skillDoc._id.toString();
+    if (!existingSkillIds.has(sId)) {
+      mergedList.push({
+        _id: `dept_skill_${sId}`,
+        id: `dept_skill_${sId}`,
+        employee: employee._id,
+        skill: skillDoc,
+        proficiencyLevel: 'beginner',
+        isAssessed: false,
+        isActive: true,
+        createdAt: new Date(),
+        updatedAt: new Date()
+      });
+      existingSkillIds.add(sId);
+    }
+  }
+
   return {
-    employeeSkills,
-    total: employeeSkills.length
+    employeeSkills: mergedList,
+    total: mergedList.length,
+    department: employee.department
   };
 }
 

@@ -60,13 +60,13 @@ export const Modal = ({
           {/* Header */}
           <div className="flex items-center justify-between px-6 py-5 border-b border-slate-100">
             <div>
-              {title && <h3 id="modal-dialog-title" className="text-lg font-semibold text-slate-900">{title}</h3>}
+              {title && <h3 id="modal-dialog-title" className="text-lg font-semibold text-[#102A2A]">{title}</h3>}
               {description && <p id="modal-dialog-desc" className="text-sm text-slate-500 mt-0.5">{description}</p>}
             </div>
             <button
               type="button"
               onClick={onClose}
-              className="rounded-lg p-1.5 text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              className="rounded-lg p-1.5 text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors focus:outline-none focus:ring-2 focus:ring-teal-600"
               aria-label="Close dialog"
             >
               <X className="w-5 h-5" />

@@ -186,7 +186,7 @@ export const QuestionEditorModal = ({
         <div className="flex items-center justify-between pb-4 border-b border-slate-100 dark:border-slate-800">
           <h2
             id="question-modal-title"
-            className="text-xl font-bold text-slate-900 dark:text-white"
+            className="text-xl font-bold text-brand-ink-primary dark:text-white"
           >
             {isEditing ? 'Edit Question' : 'Add New Question'}
           </h2>
@@ -221,7 +221,7 @@ export const QuestionEditorModal = ({
               rows={3}
               value={formData.questionText}
               onChange={(e) => setFormData({ ...formData, questionText: e.target.value })}
-              className={`mt-1 block w-full rounded-lg border px-3 py-2 text-sm bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:outline-none ${
+              className={`mt-1 block w-full rounded-lg border px-3 py-2 text-sm bg-white dark:bg-slate-800 text-brand-ink-primary dark:text-white focus:ring-2 focus:ring-teal-600 focus:border-teal-600 focus:outline-none ${
                 errors.questionText
                   ? 'border-red-400 focus:border-red-400'
                   : 'border-slate-300 dark:border-slate-700'
@@ -246,7 +246,7 @@ export const QuestionEditorModal = ({
                 id="question-type"
                 value={formData.questionType}
                 onChange={(e) => handleTypeChange(e.target.value)}
-                className="mt-1 block w-full rounded-lg border border-slate-300 dark:border-slate-700 px-3 py-2 text-sm bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+                className="mt-1 block w-full rounded-lg border border-slate-300 dark:border-slate-700 px-3 py-2 text-sm bg-white dark:bg-slate-800 text-brand-ink-primary dark:text-white focus:ring-2 focus:ring-teal-600 focus:border-teal-600 focus:outline-none"
                 disabled={isLoading}
               >
                 <option value="single_choice">Single Choice</option>
@@ -267,7 +267,7 @@ export const QuestionEditorModal = ({
                 min={1}
                 value={formData.marks}
                 onChange={(e) => setFormData({ ...formData, marks: e.target.value })}
-                className="mt-1 block w-full rounded-lg border border-slate-300 dark:border-slate-700 px-3 py-2 text-sm bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+                className="mt-1 block w-full rounded-lg border border-slate-300 dark:border-slate-700 px-3 py-2 text-sm bg-white dark:bg-slate-800 text-brand-ink-primary dark:text-white focus:ring-2 focus:ring-teal-600 focus:border-teal-600 focus:outline-none"
                 disabled={isLoading}
               />
               {errors.marks && <p className="mt-1 text-xs text-red-600">{errors.marks}</p>}
@@ -286,7 +286,7 @@ export const QuestionEditorModal = ({
                 min={1}
                 value={formData.order}
                 onChange={(e) => setFormData({ ...formData, order: e.target.value })}
-                className="mt-1 block w-full rounded-lg border border-slate-300 dark:border-slate-700 px-3 py-2 text-sm bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+                className="mt-1 block w-full rounded-lg border border-slate-300 dark:border-slate-700 px-3 py-2 text-sm bg-white dark:bg-slate-800 text-brand-ink-primary dark:text-white focus:ring-2 focus:ring-teal-600 focus:border-teal-600 focus:outline-none"
                 disabled={isLoading}
               />
               {errors.order && <p className="mt-1 text-xs text-red-600">{errors.order}</p>}
@@ -303,7 +303,7 @@ export const QuestionEditorModal = ({
                 <button
                   type="button"
                   onClick={handleAddOption}
-                  className="text-xs text-indigo-600 hover:text-indigo-800 dark:text-indigo-400 font-medium flex items-center gap-1"
+                  className="text-xs text-teal-700 hover:text-teal-800 dark:text-teal-300 font-medium flex items-center gap-1"
                 >
                   <Plus className="w-3.5 h-3.5" />
                   Add Option
@@ -350,7 +350,7 @@ export const QuestionEditorModal = ({
                       type="text"
                       value={option.text}
                       onChange={(e) => handleOptionTextChange(idx, e.target.value)}
-                      className="flex-1 rounded-md border border-slate-300 dark:border-slate-600 px-3 py-1.5 text-sm bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-1 focus:ring-indigo-500 focus:outline-none"
+                      className="flex-1 rounded-md border border-slate-300 dark:border-slate-600 px-3 py-1.5 text-sm bg-white dark:bg-slate-800 text-brand-ink-primary dark:text-white focus:ring-1 focus:ring-teal-600 focus:border-teal-600 focus:outline-none"
                       placeholder={`Option ${option.key} description...`}
                       disabled={isLoading}
                     />

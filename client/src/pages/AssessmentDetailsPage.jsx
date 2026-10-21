@@ -141,7 +141,7 @@ export const AssessmentDetailsPage = () => {
       <div>
         <Link
           to={courseId ? `/courses/${courseId}` : '/assessments'}
-          className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-500 hover:text-indigo-600 transition-colors"
+          className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-500 hover:text-teal-700 transition-colors"
         >
           <ChevronLeft className="w-4 h-4" />
           <span>{courseId ? 'Back to Course' : 'Back to Assessments'}</span>
@@ -179,7 +179,7 @@ export const AssessmentDetailsPage = () => {
 
           {/* Title & Description */}
           <div className="space-y-2">
-            <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 leading-tight">
+            <h1 className="text-2xl sm:text-3xl font-extrabold text-[#102A2A] leading-tight">
               {assessment.title}
             </h1>
             {assessment.description && (
@@ -195,7 +195,7 @@ export const AssessmentDetailsPage = () => {
               <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-400 block">
                 Passing Score
               </span>
-              <span className="text-xl font-bold text-slate-900 mt-0.5 block">
+              <span className="text-xl font-bold text-[#102A2A] mt-0.5 block">
                 {passingPercentage}%
               </span>
             </div>
@@ -204,7 +204,7 @@ export const AssessmentDetailsPage = () => {
               <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-400 block">
                 Time Limit
               </span>
-              <span className="text-xl font-bold text-slate-900 mt-0.5 flex items-center gap-1.5">
+              <span className="text-xl font-bold text-[#102A2A] mt-0.5 flex items-center gap-1.5">
                 <Clock className="w-4 h-4 text-slate-400" />
                 {timeLimitMinutes ? `${timeLimitMinutes} min` : 'Untimed'}
               </span>
@@ -214,7 +214,7 @@ export const AssessmentDetailsPage = () => {
               <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-400 block">
                 Allowed Attempts
               </span>
-              <span className="text-xl font-bold text-slate-900 mt-0.5 block">
+              <span className="text-xl font-bold text-[#102A2A] mt-0.5 block">
                 {maxAttempts ? `${maxAttempts}` : 'Unlimited'}
               </span>
             </div>
@@ -223,7 +223,7 @@ export const AssessmentDetailsPage = () => {
               <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-400 block">
                 Attempts Used
               </span>
-              <span className="text-xl font-bold text-indigo-700 mt-0.5 block">
+              <span className="text-xl font-bold text-teal-700 mt-0.5 block">
                 {maxAttempts ? `${attemptsUsed} of ${maxAttempts}` : `${attemptsUsed}`}
               </span>
             </div>
@@ -271,7 +271,7 @@ export const AssessmentDetailsPage = () => {
                 onClick={handleStartAttempt}
                 isLoading={isStarting}
                 leftIcon={attemptsUsed > 0 ? <RotateCcw className="w-5 h-5" /> : <FileCheck className="w-5 h-5" />}
-                className="w-full sm:w-auto bg-indigo-600 hover:bg-indigo-700 font-bold px-8 shadow-md shadow-indigo-100"
+                className="w-full sm:w-auto font-bold px-8 shadow-md shadow-teal-900/10"
               >
                 {attemptsUsed > 0 ? 'Retake Assessment' : 'Start Assessment'}
               </Button>

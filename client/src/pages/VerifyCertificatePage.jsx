@@ -78,10 +78,10 @@ export const VerifyCertificatePage = () => {
     <div className="max-w-3xl mx-auto px-4 py-8 sm:py-12 space-y-8">
       {/* Header Banner */}
       <div className="text-center space-y-3">
-        <div className="w-16 h-16 rounded-2xl bg-indigo-600 shadow-lg shadow-indigo-600/30 flex items-center justify-center text-white mx-auto">
+        <div className="w-16 h-16 rounded-2xl bg-teal-700 shadow-lg shadow-teal-700/30 flex items-center justify-center text-white mx-auto">
           <ShieldCheck className="w-8 h-8" />
         </div>
-        <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
+        <h1 className="text-2xl sm:text-3xl font-black text-[#102A2A] tracking-tight">
           Verify Certificate Credential
         </h1>
         <p className="text-xs sm:text-sm text-slate-500 max-w-md mx-auto">
@@ -220,21 +220,21 @@ export const VerifyCertificatePage = () => {
                   <span className="text-[11px] uppercase tracking-wider font-semibold text-slate-400">
                     Recipient Learner
                   </span>
-                  <h4 className="text-base font-bold text-slate-900 mt-0.5">
+                  <h4 className="text-base font-bold text-[#102A2A] mt-0.5">
                     {verificationResult.employeeName}
                   </h4>
                 </div>
               </div>
 
               <div className="flex items-start gap-3">
-                <div className="w-10 h-10 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center shrink-0">
+                <div className="w-10 h-10 rounded-xl bg-teal-50 text-teal-700 flex items-center justify-center shrink-0">
                   <BookOpen className="w-5 h-5" />
                 </div>
                 <div>
                   <span className="text-[11px] uppercase tracking-wider font-semibold text-slate-400">
                     Certified Course
                   </span>
-                  <h4 className="text-base font-bold text-slate-900 mt-0.5">
+                  <h4 className="text-base font-bold text-[#102A2A] mt-0.5">
                     {verificationResult.courseTitle}
                   </h4>
                   <p className="text-xs text-slate-500 capitalize">
@@ -281,8 +281,8 @@ export const VerifyCertificatePage = () => {
 
             {/* Renewal Note if applicable */}
             {verificationResult.isRenewal && (
-              <div className="p-3 bg-indigo-50/60 rounded-xl text-xs text-indigo-800 flex items-center gap-2">
-                <Award className="w-4 h-4 text-indigo-600 shrink-0" />
+              <div className="p-3 bg-teal-50/60 rounded-xl text-xs text-teal-800 flex items-center gap-2">
+                <Award className="w-4 h-4 text-teal-700 shrink-0" />
                 <span>
                   This credential is a renewal of previous certificate{' '}
                   <strong className="font-mono">

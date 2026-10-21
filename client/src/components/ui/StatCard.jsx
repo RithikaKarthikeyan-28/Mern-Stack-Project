@@ -7,16 +7,18 @@ export const StatCard = ({
   value,
   icon,
   trend,
-  color = 'indigo',
+  color = 'teal',
   description,
   className = '',
 }) => {
   const iconColorStyles = {
-    indigo: 'bg-indigo-50 text-indigo-600 border-indigo-100',
+    teal: 'bg-teal-50 text-teal-700 border-teal-200/60',
+    indigo: 'bg-teal-50 text-teal-700 border-teal-200/60',
     emerald: 'bg-emerald-50 text-emerald-600 border-emerald-100',
     amber: 'bg-amber-50 text-amber-600 border-amber-100',
     rose: 'bg-rose-50 text-rose-600 border-rose-100',
     sky: 'bg-sky-50 text-sky-600 border-sky-100',
+    purple: 'bg-teal-50 text-teal-700 border-teal-200/60',
   };
 
   const trendIcon = () => {
@@ -42,7 +44,7 @@ export const StatCard = ({
         {icon && (
           <div
             className={`w-10 h-10 rounded-xl flex items-center justify-center border shrink-0 ${
-              iconColorStyles[color] || iconColorStyles.indigo
+              iconColorStyles[color] || iconColorStyles.teal
             }`}
           >
             {icon}
@@ -51,7 +53,7 @@ export const StatCard = ({
       </div>
 
       <div className="mt-3 flex items-baseline justify-between gap-2">
-        <div className="text-2xl font-bold tracking-tight text-slate-900">
+        <div className="text-2xl font-bold tracking-tight text-[#102A2A]">
           {value}
         </div>
         {trend && (

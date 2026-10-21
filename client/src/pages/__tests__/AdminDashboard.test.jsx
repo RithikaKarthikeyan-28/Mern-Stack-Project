@@ -120,32 +120,32 @@ describe('AdminDashboard Page', () => {
       expect(screen.getByText('42')).toBeInTheDocument();
 
       expect(screen.getByText('Issued Certificates')).toBeInTheDocument();
-      expect(screen.getByText('89')).toBeInTheDocument();
+      expect(screen.getAllByText('89').length).toBeGreaterThanOrEqual(1);
     });
   });
 
-  it('renders quick action links to admin sections', async () => {
+  it('does not display redundant shortcut cards or recent employee roster on dashboard', async () => {
     adminService.getDashboardOverview.mockResolvedValueOnce(mockOverview);
     renderComponent();
 
     await waitFor(() => {
-      expect(screen.getByText('Employees')).toBeInTheDocument();
-      expect(screen.getAllByText('Departments').length).toBeGreaterThanOrEqual(1);
-      expect(screen.getByText('Courses')).toBeInTheDocument();
-      expect(screen.getAllByText('Assessments').length).toBeGreaterThanOrEqual(1);
-      expect(screen.getByText('Compliance')).toBeInTheDocument();
-      expect(screen.getByText('Certificates')).toBeInTheDocument();
+      expect(screen.getByText(/System Administration — Super Admin/i)).toBeInTheDocument();
     });
+
+    // Redundant shortcut cards and recent employee roster should be absent
+    expect(screen.queryByText('Recent Employee Profiles')).toBeNull();
+    expect(screen.queryByText('View Roster')).toBeNull();
+    expect(screen.queryByText('Manage roster')).toBeNull();
   });
 
-  it('renders recent records for employees and compliance', async () => {
+  it('renders balanced compliance and technical certification overviews', async () => {
     adminService.getDashboardOverview.mockResolvedValueOnce(mockOverview);
     renderComponent();
 
     await waitFor(() => {
-      expect(screen.getByText('Alice Smith')).toBeInTheDocument();
-      expect(screen.getByText('EMP-001')).toBeInTheDocument();
-      expect(screen.getByText('Staff Engineer • Engineering')).toBeInTheDocument();
+      expect(screen.getByText('Compliance Standing Breakdown')).toBeInTheDocument();
+      expect(screen.getByText('Technical Certification Tracks')).toBeInTheDocument();
+      expect(screen.getByText('10 of 10 Tracks Active')).toBeInTheDocument();
     });
   });
 

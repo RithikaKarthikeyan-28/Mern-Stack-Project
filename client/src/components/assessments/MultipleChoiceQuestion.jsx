@@ -42,10 +42,10 @@ export const MultipleChoiceQuestion = ({
           </div>
         </div>
 
-        <h3 className="text-lg sm:text-xl font-semibold text-slate-900 leading-relaxed">
+        <h3 className="text-lg sm:text-xl font-semibold text-[#102A2A] leading-relaxed">
           {questionText}
         </h3>
-        <p className="text-xs text-indigo-600 font-medium">
+        <p className="text-xs text-teal-700 font-medium">
           Select all that apply. Multiple options may be correct.
         </p>
       </div>
@@ -62,7 +62,7 @@ export const MultipleChoiceQuestion = ({
               htmlFor={inputId}
               className={`flex items-start gap-3.5 p-4 sm:p-4.5 rounded-2xl border cursor-pointer transition-all duration-150 select-none ${
                 isSelected
-                  ? 'border-indigo-600 bg-indigo-50/70 shadow-sm ring-1 ring-indigo-600'
+                  ? 'border-teal-700 bg-teal-50/70 shadow-sm ring-1 ring-teal-700'
                   : 'border-slate-200/90 bg-white hover:bg-slate-50 hover:border-slate-300'
               }`}
             >
@@ -80,7 +80,7 @@ export const MultipleChoiceQuestion = ({
               <div
                 className={`w-7 h-7 rounded-xl flex items-center justify-center font-bold text-xs shrink-0 transition-colors ${
                   isSelected
-                    ? 'bg-indigo-600 text-white shadow-sm shadow-indigo-300'
+                    ? 'bg-teal-700 text-white shadow-sm shadow-teal-700/20'
                     : 'bg-slate-100 text-slate-600 border border-slate-200'
                 }`}
                 aria-hidden="true"
@@ -91,7 +91,7 @@ export const MultipleChoiceQuestion = ({
               {/* Option Text */}
               <div className="flex-1 min-w-0 pt-0.5">
                 <span className={`text-sm sm:text-base leading-relaxed ${
-                  isSelected ? 'font-medium text-indigo-950' : 'text-slate-700'
+                  isSelected ? 'font-medium text-[#102A2A]' : 'text-slate-700'
                 }`}>
                   {option.text}
                 </span>
@@ -101,7 +101,7 @@ export const MultipleChoiceQuestion = ({
               <div
                 className={`w-5 h-5 rounded-lg border flex items-center justify-center shrink-0 mt-0.5 transition-colors ${
                   isSelected
-                    ? 'border-indigo-600 bg-indigo-600 text-white'
+                    ? 'border-teal-700 bg-teal-700 text-white'
                     : 'border-slate-300 bg-white text-transparent'
                 }`}
                 aria-hidden="true"

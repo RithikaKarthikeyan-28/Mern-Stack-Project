@@ -4,7 +4,7 @@ export const ProgressCircle = ({
   value = 0,
   size = 56,
   strokeWidth = 5,
-  color = 'indigo',
+  color = 'teal',
   showValue = true,
   className = '',
 }) => {
@@ -14,7 +14,8 @@ export const ProgressCircle = ({
   const strokeDashoffset = circumference - (percentage / 100) * circumference;
 
   const colorClasses = {
-    indigo: 'text-indigo-600',
+    teal: 'text-teal-700',
+    indigo: 'text-teal-700',
     emerald: 'text-emerald-500',
     amber: 'text-amber-500',
     rose: 'text-rose-500',
@@ -46,12 +47,12 @@ export const ProgressCircle = ({
           strokeDashoffset={strokeDashoffset}
           strokeLinecap="round"
           className={`fill-transparent transition-all duration-500 ease-out ${
-            colorClasses[color] || colorClasses.indigo
+            colorClasses[color] || colorClasses.teal
           }`}
         />
       </svg>
       {showValue && (
-        <span className="absolute text-xs font-semibold text-slate-800">
+        <span className="absolute text-xs font-semibold text-[#102A2A]">
           {percentage}%
         </span>
       )}

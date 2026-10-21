@@ -16,7 +16,7 @@ vi.mock('react-router-dom', async () => {
   };
 });
 
-const renderLoginPage = (authOverrides = {}) => {
+const renderLoginPage = (authOverrides = {}, routerOptions = {}) => {
   const defaultAuth = {
     login: vi.fn(),
     user: null,
@@ -25,9 +25,11 @@ const renderLoginPage = (authOverrides = {}) => {
     ...authOverrides,
   };
 
+  const initialEntries = routerOptions.initialEntries || ['/login'];
+
   return {
     ...render(
-      <MemoryRouter>
+      <MemoryRouter initialEntries={initialEntries}>
         <ToastProvider>
           <AuthContext.Provider value={defaultAuth}>
             <LoginPage />
@@ -52,6 +54,53 @@ describe('LoginPage (Scenarios 10-16)', () => {
     expect(screen.getByLabelText(/^password/i)).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /sign in/i })).toBeInTheDocument();
     expect(screen.getByRole('link', { name: /create account/i })).toBeInTheDocument();
+  });
+
+  it('10b. renders with empty email and password inputs and no demo buttons or demo suggestions', () => {
+    renderLoginPage();
+
+    const emailInput = screen.getByLabelText(/email address/i);
+    const passwordInput = screen.getByLabelText(/^password/i);
+
+    expect(emailInput).toHaveValue('');
+    expect(passwordInput).toHaveValue('');
+
+    // Ensure no demo emails, credentials, or demo login buttons are present
+    expect(screen.queryByText(/admin@skilltrack\.demo/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/trainer@skilltrack\.demo/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/employee@skilltrack\.demo/i)).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /demo/i })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /quick login/i })).not.toBeInTheDocument();
+  });
+
+  it('10c. prefills only email when navigated with location.state.email while password remains strictly empty', () => {
+    renderLoginPage(
+      {},
+      {
+        initialEntries: [
+          { pathname: '/login', state: { email: 'registered.user@example.com' } },
+        ],
+      }
+    );
+
+    const emailInput = screen.getByLabelText(/email address/i);
+    const passwordInput = screen.getByLabelText(/^password/i);
+
+    expect(emailInput).toHaveValue('registered.user@example.com');
+    expect(passwordInput).toHaveValue('');
+  });
+
+  it('10d. inputs remain fully editable by the user', () => {
+    renderLoginPage();
+
+    const emailInput = screen.getByLabelText(/email address/i);
+    const passwordInput = screen.getByLabelText(/^password/i);
+
+    fireEvent.change(emailInput, { target: { value: 'custom.user@example.com' } });
+    fireEvent.change(passwordInput, { target: { value: 'password123' } });
+
+    expect(emailInput).toHaveValue('custom.user@example.com');
+    expect(passwordInput).toHaveValue('password123');
   });
 
   // 11. Email validation
@@ -117,6 +166,23 @@ describe('LoginPage (Scenarios 10-16)', () => {
 
     expect(await screen.findByText(/email or password is incorrect/i)).toBeInTheDocument();
     expect(mockNavigate).not.toHaveBeenCalled();
+  });
+
+  // 14b. Unregistered account helpful guidance
+  it('14b. displays helpful account creation guidance when email is unregistered', async () => {
+    const mockLogin = vi.fn().mockRejectedValue({
+      response: { data: { message: 'Account not found. Please create an account first.' } },
+      normalizedMessage: 'Account not found. Please create an account first.',
+    });
+
+    renderLoginPage({ login: mockLogin });
+
+    fireEvent.change(screen.getByLabelText(/email address/i), { target: { value: 'unregistered@corp.com' } });
+    fireEvent.change(screen.getByLabelText(/^password/i), { target: { value: 'Secret123!' } });
+    fireEvent.click(screen.getByRole('button', { name: /sign in/i }));
+
+    expect(await screen.findByText(/account not found\. please create an account first\./i)).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: /click here to create an account/i })).toHaveAttribute('href', '/register');
   });
 
   // 15. Submit loading state

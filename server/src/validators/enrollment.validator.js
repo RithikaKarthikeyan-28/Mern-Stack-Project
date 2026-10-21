@@ -81,7 +81,17 @@ function validateUpdateEnrollmentStatus(data) {
  */
 function validateProgressUpdate(data) {
   const errors = [];
-  const { lessonId, completed, progressPercentage, completedLessons } = data || {};
+  const {
+    lessonId,
+    completed: rawCompleted,
+    isCompleted: rawIsCompleted,
+    moduleId,
+    courseId,
+    progressPercentage,
+    completedLessons
+  } = data || {};
+
+  const completed = rawCompleted !== undefined ? rawCompleted : rawIsCompleted;
 
   // Reject direct tampering with progress
   if (progressPercentage !== undefined || completedLessons !== undefined) {
@@ -98,6 +108,14 @@ function validateProgressUpdate(data) {
     errors.push('Completed status is required');
   } else if (typeof completed !== 'boolean') {
     errors.push('Completed status must be a boolean');
+  }
+
+  if (moduleId !== undefined && moduleId !== null && !mongoose.Types.ObjectId.isValid(moduleId)) {
+    errors.push('Invalid Module ID format');
+  }
+
+  if (courseId !== undefined && courseId !== null && !mongoose.Types.ObjectId.isValid(courseId)) {
+    errors.push('Invalid Course ID format');
   }
 
   if (errors.length > 0) {

@@ -51,7 +51,7 @@ export const ComplianceTab = ({ data }) => {
     { label: 'Compliant', value: compliant, color: '#10b981', colorClass: 'bg-emerald-500' },
     { label: 'Due Soon', value: dueSoon, color: '#f59e0b', colorClass: 'bg-amber-500' },
     { label: 'Overdue', value: overdue, color: '#ef4444', colorClass: 'bg-rose-500' },
-    { label: 'In Progress', value: inProgress, color: '#6366f1', colorClass: 'bg-indigo-500' },
+    { label: 'In Progress', value: inProgress, color: '#0F766E', colorClass: 'bg-teal-600' },
     { label: 'Not Started', value: notStarted, color: '#94a3b8', colorClass: 'bg-slate-400' },
   ];
 
@@ -118,7 +118,7 @@ export const ComplianceTab = ({ data }) => {
       <div className="bg-white rounded-xl border border-slate-200/80 shadow-sm overflow-hidden">
         <div className="p-4 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-slate-50/50">
           <div>
-            <h3 className="text-sm font-semibold text-slate-800">Compliance Requirement Breakdown</h3>
+            <h3 className="text-sm font-semibold text-brand-ink-primary dark:text-white">Compliance Requirement Breakdown</h3>
             <p className="text-xs text-slate-500">Adherence, due soon warnings, and overdue breaches per regulation</p>
           </div>
           <div className="relative w-full sm:w-64">
@@ -128,7 +128,7 @@ export const ComplianceTab = ({ data }) => {
               placeholder="Search requirements..."
               value={reqSearch}
               onChange={(e) => setReqSearch(e.target.value)}
-              className="w-full pl-9 pr-3 py-1.5 text-xs rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 bg-white"
+              className="w-full pl-9 pr-3 py-1.5 text-xs rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-teal-600/20 focus:border-teal-600 bg-white"
             />
           </div>
         </div>
@@ -155,7 +155,7 @@ export const ComplianceTab = ({ data }) => {
               ) : (
                 filteredRequirements.map((r) => (
                   <tr key={r.requirementId} className="hover:bg-slate-50/80 transition-colors">
-                    <td className="py-3 px-4 font-medium text-slate-900">{r.title}</td>
+                    <td className="py-3 px-4 font-medium text-brand-ink-primary dark:text-white">{r.title}</td>
                     <td className="py-3 px-4 text-center font-semibold">{r.assignedEmployees}</td>
                     <td className="py-3 px-4 text-center text-emerald-600 font-semibold">{r.compliant}</td>
                     <td className="py-3 px-4 text-center text-amber-600 font-semibold">{r.dueSoon}</td>
@@ -193,7 +193,7 @@ export const ComplianceTab = ({ data }) => {
       <div className="bg-white rounded-xl border border-slate-200/80 shadow-sm overflow-hidden">
         <div className="p-4 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-slate-50/50">
           <div>
-            <h3 className="text-sm font-semibold text-slate-800">Department Compliance Matrix</h3>
+            <h3 className="text-sm font-semibold text-brand-ink-primary dark:text-white">Department Compliance Matrix</h3>
             <p className="text-xs text-slate-500">Regulatory adherence and risk exposure categorized by business department</p>
           </div>
           <div className="relative w-full sm:w-64">
@@ -203,7 +203,7 @@ export const ComplianceTab = ({ data }) => {
               placeholder="Search departments..."
               value={deptSearch}
               onChange={(e) => setDeptSearch(e.target.value)}
-              className="w-full pl-9 pr-3 py-1.5 text-xs rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 bg-white"
+              className="w-full pl-9 pr-3 py-1.5 text-xs rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-teal-600/20 focus:border-teal-600 bg-white"
             />
           </div>
         </div>
@@ -230,7 +230,7 @@ export const ComplianceTab = ({ data }) => {
               ) : (
                 filteredDepartments.map((d) => (
                   <tr key={d.departmentId} className="hover:bg-slate-50/80 transition-colors">
-                    <td className="py-3 px-4 font-medium text-slate-900 flex items-center gap-2">
+                    <td className="py-3 px-4 font-medium text-brand-ink-primary dark:text-white flex items-center gap-2">
                       <Building2 className="w-3.5 h-3.5 text-slate-400" />
                       {d.departmentName}
                     </td>

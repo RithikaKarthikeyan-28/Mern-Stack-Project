@@ -6,6 +6,8 @@ import {
   Menu,
   CheckCircle2,
   Circle,
+  Award,
+  ArrowRight,
 } from 'lucide-react';
 import { useToast } from '../context/ToastContext';
 import Button from '../components/ui/Button';
@@ -16,6 +18,7 @@ import LearningSidebar from '../components/player/LearningSidebar';
 import LessonContentRenderer from '../components/player/LessonContentRenderer';
 import courseService from '../services/courseService';
 import enrollmentService from '../services/enrollmentService';
+import assessmentService from '../services/assessmentService';
 
 export const LearningPlayerPage = () => {
   const { courseId, lessonId } = useParams();
@@ -26,6 +29,7 @@ export const LearningPlayerPage = () => {
   const [course, setCourse] = useState(null);
   const [curriculum, setCurriculum] = useState([]);
   const [enrollment, setEnrollment] = useState(null);
+  const [assessmentId, setAssessmentId] = useState(null);
   const [error, setError] = useState(null);
 
   // Active module and lesson states
@@ -76,6 +80,16 @@ export const LearningPlayerPage = () => {
           allLessonsWithModule.push({ module: mod, lesson: les });
         });
       });
+
+      // Fetch assessment status to get assessment ID if available
+      try {
+        const asmStatus = await assessmentService.getCourseAssessmentStatus(courseId);
+        if (asmStatus?.assessment?.id) {
+          setAssessmentId(asmStatus.assessment.id);
+        }
+      } catch (e) {
+        // graceful fallback
+      }
 
       if (allLessonsWithModule.length === 0) {
         return;
@@ -159,7 +173,8 @@ export const LearningPlayerPage = () => {
     ? completedSet.has(currentLesson._id || currentLesson.id)
     : false;
 
-  const handleSelectLesson = (mod, les) => {
+  // Direct navigation without completion action
+  const navigateToLesson = (mod, les) => {
     setCurrentModule(mod);
     setCurrentLesson(les);
     const lesId = les._id || les.id;
@@ -167,16 +182,175 @@ export const LearningPlayerPage = () => {
     navigate(`/learn/${courseId}/module/${modId}/lesson/${lesId}`, { replace: true });
   };
 
-  const handleNavigateLesson = (item) => {
-    if (!item) return;
-    handleSelectLesson(item.module, item.lesson);
+  // Automatic Lesson Completion on "Next Lesson"
+  const handleNextLesson = async () => {
+    if (updatingProgress || !nextItem || !currentLesson) return;
+
+    // If current lesson is already completed, advance immediately without duplicate API call
+    if (isCurrentCompleted) {
+      navigateToLesson(nextItem.module, nextItem.lesson);
+      return;
+    }
+
+    try {
+      setUpdatingProgress(true);
+      const currentLesId = currentLesson._id || currentLesson.id;
+      const currentModId = currentModule?._id || currentModule?.id;
+
+      const updatedEnrollment = await enrollmentService.updateProgress(
+        enrollment._id || enrollment.id,
+        currentLesId,
+        true,
+        { moduleId: currentModId, courseId }
+      );
+
+      setEnrollment(updatedEnrollment);
+
+      const isCourseNowComplete =
+        updatedEnrollment.progressPercentage === 100 ||
+        updatedEnrollment.status === 'completed';
+
+      if (isCourseNowComplete) {
+        showSuccess('Congratulations! Course completed. Certification assessment unlocked!');
+        try {
+          const asmStatus = await assessmentService.getCourseAssessmentStatus(courseId);
+          if (asmStatus?.assessment?.id) {
+            setAssessmentId(asmStatus.assessment.id);
+          }
+        } catch (_) {}
+      } else {
+        showSuccess('Lesson completed!');
+      }
+
+      // Navigate to next lesson only AFTER successful persistence
+      navigateToLesson(nextItem.module, nextItem.lesson);
+    } catch (err) {
+      showError(
+        err?.response?.data?.message ||
+        err?.message ||
+        'Failed to save lesson completion. Please retry.'
+      );
+      // Stay on the current lesson
+    } finally {
+      setUpdatingProgress(false);
+    }
   };
 
-  // Toggle Lesson Completion
+  // Completion on final lesson
+  const handleCompleteFinalLesson = async () => {
+    if (updatingProgress || !currentLesson || !enrollment) return;
+
+    if (isCurrentCompleted) {
+      if (assessmentId) {
+        navigate(`/assessments/${assessmentId}`);
+      } else {
+        navigate(`/courses/${courseId}`);
+      }
+      return;
+    }
+
+    try {
+      setUpdatingProgress(true);
+      const currentLesId = currentLesson._id || currentLesson.id;
+      const currentModId = currentModule?._id || currentModule?.id;
+
+      const updatedEnrollment = await enrollmentService.updateProgress(
+        enrollment._id || enrollment.id,
+        currentLesId,
+        true,
+        { moduleId: currentModId, courseId }
+      );
+
+      setEnrollment(updatedEnrollment);
+      showSuccess('Congratulations! Course completed. Certification assessment unlocked!');
+
+      try {
+        const asmStatus = await assessmentService.getCourseAssessmentStatus(courseId);
+        if (asmStatus?.assessment?.id) {
+          setAssessmentId(asmStatus.assessment.id);
+        }
+      } catch (_) {}
+    } catch (err) {
+      showError(
+        err?.response?.data?.message ||
+        err?.message ||
+        'Failed to save final lesson completion.'
+      );
+    } finally {
+      setUpdatingProgress(false);
+    }
+  };
+
+  // Navigate Previous
+  const handlePrevLesson = () => {
+    if (!prevItem || updatingProgress) return;
+    navigateToLesson(prevItem.module, prevItem.lesson);
+  };
+
+  // Select lesson from sidebar: if jumping forward, automatically completes current lesson
+  const handleSelectLesson = async (targetMod, targetLes) => {
+    if (updatingProgress || !targetLes) return;
+
+    const targetId = targetLes._id || targetLes.id;
+    const curId = currentLesson ? currentLesson._id || currentLesson.id : null;
+    if (targetId === curId) return;
+
+    const targetIndex = flattenedLessons.findIndex(
+      (item) => (item.lesson._id || item.lesson.id) === targetId
+    );
+
+    // If navigating forward to an upcoming section and current lesson is incomplete
+    if (targetIndex > currentIndex && !isCurrentCompleted && currentLesson && enrollment) {
+      try {
+        setUpdatingProgress(true);
+        const currentModId = currentModule?._id || currentModule?.id;
+
+        const updatedEnrollment = await enrollmentService.updateProgress(
+          enrollment._id || enrollment.id,
+          curId,
+          true,
+          { moduleId: currentModId, courseId }
+        );
+
+        setEnrollment(updatedEnrollment);
+
+        if (
+          updatedEnrollment.progressPercentage === 100 ||
+          updatedEnrollment.status === 'completed'
+        ) {
+          showSuccess('Congratulations! Course completed. Certification assessment unlocked!');
+          try {
+            const asmStatus = await assessmentService.getCourseAssessmentStatus(courseId);
+            if (asmStatus?.assessment?.id) {
+              setAssessmentId(asmStatus.assessment.id);
+            }
+          } catch (_) {}
+        } else {
+          showSuccess('Lesson completed!');
+        }
+
+        navigateToLesson(targetMod, targetLes);
+      } catch (err) {
+        showError(
+          err?.response?.data?.message ||
+          err?.message ||
+          'Failed to complete lesson before advancing.'
+        );
+      } finally {
+        setUpdatingProgress(false);
+      }
+    } else {
+      // Navigating backwards or current lesson is already complete
+      navigateToLesson(targetMod, targetLes);
+    }
+  };
+
+  // Retain manual toggle completion button
   const handleToggleCompletion = async () => {
-    if (!currentLesson || !enrollment) return;
+    if (!currentLesson || !enrollment || updatingProgress) return;
 
     const lessonIdToUpdate = currentLesson._id || currentLesson.id;
+    const currentModId = currentModule?._id || currentModule?.id;
     const nextState = !isCurrentCompleted;
 
     try {
@@ -184,18 +358,32 @@ export const LearningPlayerPage = () => {
       const updatedEnrollment = await enrollmentService.updateProgress(
         enrollment._id || enrollment.id,
         lessonIdToUpdate,
-        nextState
+        nextState,
+        { moduleId: currentModId, courseId }
       );
 
       setEnrollment(updatedEnrollment);
 
       if (nextState) {
-        showSuccess('Lesson marked as completed!');
+        if (
+          updatedEnrollment.progressPercentage === 100 ||
+          updatedEnrollment.status === 'completed'
+        ) {
+          showSuccess('Congratulations! Course completed. Certification assessment unlocked!');
+          try {
+            const asmStatus = await assessmentService.getCourseAssessmentStatus(courseId);
+            if (asmStatus?.assessment?.id) {
+              setAssessmentId(asmStatus.assessment.id);
+            }
+          } catch (_) {}
+        } else {
+          showSuccess('Lesson marked as completed!');
+        }
       } else {
         showSuccess('Lesson marked as incomplete.');
       }
     } catch (err) {
-      showError(err.message || 'Failed to update lesson progress.');
+      showError(err?.response?.data?.message || err.message || 'Failed to update lesson progress.');
     } finally {
       setUpdatingProgress(false);
     }
@@ -265,7 +453,7 @@ export const LearningPlayerPage = () => {
 
             <Link
               to={`/courses/${courseId}`}
-              className="hidden sm:inline-flex items-center gap-1.5 text-xs font-semibold text-slate-500 hover:text-indigo-600 transition-colors"
+              className="hidden sm:inline-flex items-center gap-1.5 text-xs font-semibold text-slate-500 hover:text-teal-700 transition-colors"
             >
               <ChevronLeft className="w-4 h-4" />
               <span>Back to Course</span>
@@ -298,6 +486,43 @@ export const LearningPlayerPage = () => {
 
         {/* Scrollable Lesson Body */}
         <div className="flex-1 overflow-y-auto p-4 sm:p-8 max-w-4xl mx-auto w-full">
+          {/* Assessment Unlock Banner on 100% Course Completion */}
+          {(enrollment?.progressPercentage === 100 || enrollment?.status === 'completed') && (
+            <div
+              className="mb-6 p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-teal-900 via-teal-800 to-slate-900 text-white shadow-lg shadow-teal-950/20 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 animate-in fade-in"
+              data-testid="assessment-unlock-banner"
+            >
+              <div className="flex items-center gap-3.5">
+                <div className="w-11 h-11 rounded-xl bg-teal-600/50 border border-teal-400/40 text-teal-200 flex items-center justify-center shrink-0">
+                  <Award className="w-6 h-6" />
+                </div>
+                <div>
+                  <h4 className="text-sm sm:text-base font-bold text-white tracking-tight">
+                    Course Complete! Assessment Unlocked
+                  </h4>
+                  <p className="text-xs text-teal-100/90 mt-0.5 leading-relaxed">
+                    You have finished 100% of the lessons. You are now eligible to take the certification exam.
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                className="shrink-0 px-4 py-2.5 rounded-xl bg-white hover:bg-teal-50 text-teal-950 font-bold text-xs sm:text-sm shadow-md transition-all duration-150 inline-flex items-center gap-2 border border-white focus:outline-none focus:ring-2 focus:ring-white/50 cursor-pointer"
+                style={{ color: '#042f2e', backgroundColor: '#ffffff' }}
+                onClick={() =>
+                  navigate(
+                    assessmentId ? `/assessments/${assessmentId}` : `/courses/${courseId}`
+                  )
+                }
+              >
+                <span className="font-bold text-teal-950" style={{ color: '#042f2e' }}>
+                  Take Certification Exam
+                </span>
+                <ArrowRight className="w-4 h-4 text-teal-950 shrink-0" style={{ color: '#042f2e' }} />
+              </button>
+            </div>
+          )}
+
           {currentLesson ? (
             <LessonContentRenderer
               lesson={currentLesson}
@@ -315,26 +540,53 @@ export const LearningPlayerPage = () => {
           <Button
             variant="ghost"
             size="sm"
-            onClick={() => handleNavigateLesson(prevItem)}
-            disabled={!prevItem}
+            onClick={handlePrevLesson}
+            disabled={!prevItem || updatingProgress}
             leftIcon={<ChevronLeft className="w-4 h-4" />}
           >
             Previous Lesson
           </Button>
 
-          <span className="text-xs text-slate-400 font-medium">
-            {currentIndex >= 0 ? `${currentIndex + 1} of ${flattenedLessons.length}` : ''}
-          </span>
+          <div className="text-center hidden sm:block">
+            <span className="text-xs text-slate-500 font-medium">
+              {currentIndex >= 0
+                ? `Lesson ${currentIndex + 1} of ${flattenedLessons.length} • ${completedSet.size} completed (${enrollment?.progressPercentage ?? 0}%)`
+                : ''}
+            </span>
+          </div>
 
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => handleNavigateLesson(nextItem)}
-            disabled={!nextItem}
-            rightIcon={<ChevronRight className="w-4 h-4" />}
-          >
-            Next Lesson
-          </Button>
+          {nextItem ? (
+            <Button
+              variant="primary"
+              size="sm"
+              onClick={handleNextLesson}
+              isLoading={updatingProgress}
+              disabled={updatingProgress}
+              rightIcon={<ChevronRight className="w-4 h-4" />}
+            >
+              Next Lesson
+            </Button>
+          ) : (
+            <Button
+              variant="primary"
+              size="sm"
+              className={
+                isCurrentCompleted
+                  ? 'bg-emerald-600 hover:bg-emerald-700 text-white'
+                  : 'bg-teal-600 hover:bg-teal-700 text-white'
+              }
+              onClick={handleCompleteFinalLesson}
+              isLoading={updatingProgress}
+              disabled={updatingProgress}
+              leftIcon={<CheckCircle2 className="w-4 h-4" />}
+            >
+              {isCurrentCompleted
+                ? assessmentId
+                  ? 'Take Certification Assessment'
+                  : 'Course Completed'
+                : 'Complete Course'}
+            </Button>
+          )}
         </div>
       </div>
     </div>

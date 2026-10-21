@@ -78,6 +78,42 @@ const certificateSchema = new mongoose.Schema(
       type: String,
       maxlength: [500, 'Renewal reason cannot exceed 500 characters'],
       default: null
+    },
+    assessment: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Assessment',
+      default: null
+    },
+    assessmentAttempt: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'AssessmentAttempt',
+      default: null
+    },
+    score: {
+      type: Number,
+      default: null
+    },
+    emailStatus: {
+      type: String,
+      enum: {
+        values: ['pending', 'sent', 'failed', 'not_configured'],
+        message: 'emailStatus must be pending, sent, failed, or not_configured'
+      },
+      default: 'pending',
+      index: true
+    },
+    emailSentAt: {
+      type: Date,
+      default: null
+    },
+    emailError: {
+      type: String,
+      maxlength: [500, 'Email error cannot exceed 500 characters'],
+      default: null
+    },
+    emailPreviewUrl: {
+      type: String,
+      default: null
     }
   },
   {
@@ -88,9 +124,9 @@ const certificateSchema = new mongoose.Schema(
         delete ret._id;
         delete ret.__v;
 
-        // Derive expiresAt for legacy certificates if not persisted
+        // Derive expiresAt for legacy certificates if not persisted (6 months / 180 days default)
         if (!ret.expiresAt && ret.issuedAt) {
-          const validityDays = config.certificateValidityDays || 365;
+          const validityDays = config.certificateValidityDays || 180;
           ret.expiresAt = new Date(
             new Date(ret.issuedAt).getTime() + validityDays * 24 * 60 * 60 * 1000
           );
@@ -119,7 +155,7 @@ const certificateSchema = new mongoose.Schema(
         delete ret.__v;
 
         if (!ret.expiresAt && ret.issuedAt) {
-          const validityDays = config.certificateValidityDays || 365;
+          const validityDays = config.certificateValidityDays || 180;
           ret.expiresAt = new Date(
             new Date(ret.issuedAt).getTime() + validityDays * 24 * 60 * 60 * 1000
           );

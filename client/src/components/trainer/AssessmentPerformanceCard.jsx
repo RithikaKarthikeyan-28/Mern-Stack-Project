@@ -21,8 +21,8 @@ export const AssessmentPerformanceCard = ({ performance }) => {
       data-testid="assessment-performance-card"
     >
       <div className="flex items-center justify-between">
-        <h3 className="text-base font-semibold text-slate-900 dark:text-white flex items-center gap-2">
-          <TrendingUp className="w-4 h-4 text-indigo-600" />
+        <h3 className="text-base font-semibold text-[#102A2A] dark:text-white flex items-center gap-2">
+          <TrendingUp className="w-4 h-4 text-teal-700" />
           Authoritative Cohort Performance
         </h3>
         <span className="text-xs text-slate-500">
@@ -33,7 +33,7 @@ export const AssessmentPerformanceCard = ({ performance }) => {
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         <div className="p-3 bg-slate-50 dark:bg-slate-800/60 rounded-lg border border-slate-200/60 dark:border-slate-700/60 text-center">
           <p className="text-xs text-slate-500 dark:text-slate-400">Total Attempts</p>
-          <p className="mt-1 text-xl font-bold text-slate-900 dark:text-white">
+          <p className="mt-1 text-xl font-bold text-[#102A2A] dark:text-white">
             {totalAttempts}
           </p>
         </div>
@@ -45,9 +45,9 @@ export const AssessmentPerformanceCard = ({ performance }) => {
           </p>
         </div>
 
-        <div className="p-3 bg-indigo-50/60 dark:bg-indigo-950/30 rounded-lg border border-indigo-200/60 dark:border-indigo-800/60 text-center">
-          <p className="text-xs text-indigo-700 dark:text-indigo-300 font-medium">Average Score</p>
-          <p className="mt-1 text-xl font-bold text-indigo-700 dark:text-indigo-300">
+        <div className="p-3 bg-teal-50/60 dark:bg-teal-950/30 rounded-lg border border-teal-200/60 dark:border-teal-800/60 text-center">
+          <p className="text-xs text-teal-800 dark:text-teal-300 font-medium">Average Score</p>
+          <p className="mt-1 text-xl font-bold text-teal-800 dark:text-teal-300">
             {averagePercentage}%
           </p>
         </div>

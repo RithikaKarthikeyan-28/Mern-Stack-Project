@@ -23,6 +23,7 @@ vi.mock('../../services/assessmentService', () => ({
     startAttempt: vi.fn(),
     getAttemptById: vi.fn(),
     submitAttempt: vi.fn(),
+    saveDraftAnswers: vi.fn(),
   },
 }));
 
@@ -363,5 +364,38 @@ describe('AssessmentPlayerPage', () => {
     await waitFor(() => {
       expect(screen.getAllByText(/Which of the following are built-in hooks/i).length).toBeGreaterThanOrEqual(1);
     });
+  });
+
+  it('autosaves draft answer in real-time when selecting an option', async () => {
+    assessmentService.saveDraftAnswers.mockResolvedValue({});
+    renderComponent();
+
+    await waitFor(() => {
+      expect(screen.getByText('useEffect')).toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByText('useEffect'));
+
+    await waitFor(() => {
+      expect(assessmentService.saveDraftAnswers).toHaveBeenCalledWith('att100', {
+        answers: [{ question: 'q1', selectedAnswers: ['B'] }],
+      });
+    });
+  });
+
+  it('restores draft answers from previous in-progress attempt on mount', async () => {
+    assessmentService.getAttemptById.mockResolvedValue({
+      ...mockAttempt,
+      answers: [{ question: 'q1', selectedAnswers: ['B'] }],
+    });
+
+    renderComponent();
+
+    await waitFor(() => {
+      expect(screen.getByText('useEffect')).toBeInTheDocument();
+    });
+
+    const radioB = screen.getByRole('radio', { name: /useEffect/i });
+    expect(radioB).toBeChecked();
   });
 });

@@ -78,6 +78,36 @@ export const certificateService = {
       isExisting: Boolean(res.data?.data?.isExisting ?? res.data?.isExisting),
     };
   },
+
+  /**
+   * Downloads the official vector PDF certificate file.
+   * @param {string} certificateId
+   * @param {string} [certificateNumber='certificate']
+   */
+  downloadCertificatePDF: async (certificateId, certificateNumber = 'certificate') => {
+    const res = await api.get(`/certificates/${certificateId}/download`, {
+      responseType: 'blob'
+    });
+    const blob = new Blob([res.data], { type: 'application/pdf' });
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', `SkillTrack-Certificate-${certificateNumber}.pdf`);
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    window.URL.revokeObjectURL(url);
+  },
+
+  /**
+   * Triggers a resend of the certificate congratulations email.
+   * @param {string} certificateId
+   * @returns {Promise<object>}
+   */
+  resendCertificateEmail: async (certificateId) => {
+    const res = await api.post(`/certificates/${certificateId}/resend-email`);
+    return res.data?.data?.certificate || res.data?.certificate;
+  },
 };
 
 export default certificateService;

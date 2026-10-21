@@ -16,10 +16,12 @@ export const Button = React.forwardRef(({
   const baseStyles = 'inline-flex items-center justify-center font-medium rounded-xl transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed select-none';
 
   const variantStyles = {
-    primary: 'bg-indigo-600 text-white hover:bg-indigo-700 active:bg-indigo-800 focus:ring-indigo-500 shadow-sm shadow-indigo-200',
-    secondary: 'bg-slate-100 text-slate-700 hover:bg-slate-200 active:bg-slate-300 focus:ring-slate-400',
-    outline: 'border border-slate-300 bg-white text-slate-700 hover:bg-slate-50 active:bg-slate-100 focus:ring-indigo-500 shadow-sm',
-    ghost: 'text-slate-600 hover:bg-slate-100 active:bg-slate-200 focus:ring-slate-400',
+    primary: 'bg-teal-700 text-white hover:bg-teal-800 active:bg-teal-900 focus:ring-teal-600 shadow-sm shadow-teal-900/20',
+    secondary: 'bg-slate-100 text-slate-700 hover:bg-slate-200 active:bg-slate-300 focus:ring-teal-600',
+    outline: 'border border-slate-300 bg-white text-slate-700 hover:bg-teal-50/50 hover:text-teal-900 active:bg-teal-100/60 focus:ring-teal-600 shadow-sm',
+    'outline-light': 'border border-white/25 bg-white/10 text-white hover:bg-white/20 active:bg-white/30 focus:ring-white/40 shadow-sm backdrop-blur-sm',
+    'outline-inverse': 'border border-white/25 bg-white/10 text-white hover:bg-white/20 active:bg-white/30 focus:ring-white/40 shadow-sm backdrop-blur-sm',
+    ghost: 'text-slate-600 hover:bg-teal-50/60 hover:text-teal-900 active:bg-teal-100/80 focus:ring-teal-600',
     danger: 'bg-rose-600 text-white hover:bg-rose-700 active:bg-rose-800 focus:ring-rose-500 shadow-sm shadow-rose-200',
     success: 'bg-emerald-600 text-white hover:bg-emerald-700 active:bg-emerald-800 focus:ring-emerald-500 shadow-sm shadow-emerald-200',
   };

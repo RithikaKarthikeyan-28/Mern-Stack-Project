@@ -3,7 +3,7 @@ import { Loader2 } from 'lucide-react';
 
 export const LoadingSpinner = ({
   size = 'md',
-  color = 'indigo',
+  color = 'teal',
   label,
   fullScreen = false,
   className = '',
@@ -16,7 +16,8 @@ export const LoadingSpinner = ({
   };
 
   const colorClasses = {
-    indigo: 'text-indigo-600',
+    teal: 'text-teal-700',
+    indigo: 'text-teal-700',
     white: 'text-white',
     slate: 'text-slate-500',
   };
@@ -25,7 +26,7 @@ export const LoadingSpinner = ({
     <div className={`flex flex-col items-center justify-center gap-3 ${className}`}>
       <Loader2
         className={`animate-spin ${sizeClasses[size] || sizeClasses.md} ${
-          colorClasses[color] || colorClasses.indigo
+          colorClasses[color] || colorClasses.teal
         }`}
       />
       {label && <p className="text-sm font-medium text-slate-500">{label}</p>}

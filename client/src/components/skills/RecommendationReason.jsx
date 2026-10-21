@@ -7,7 +7,7 @@ export const RecommendationReason = ({ matchedSkills = [], className = '' }) => 
   return (
     <div data-testid="recommendation-reasons" className={`space-y-1.5 ${className}`}>
       <div className="flex items-center gap-1.5 text-xs font-semibold text-slate-700">
-        <Sparkles className="w-3.5 h-3.5 text-indigo-500" />
+        <Sparkles className="w-3.5 h-3.5 text-teal-600" />
         <span>Skills Targeted ({matchedSkills.length})</span>
       </div>
 

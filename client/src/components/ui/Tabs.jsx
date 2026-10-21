@@ -18,7 +18,7 @@ export const Tabs = ({
               onClick={() => onChange(tab.id)}
               className={`whitespace-nowrap py-3 px-1 border-b-2 font-medium text-sm flex items-center gap-2 transition-colors focus:outline-none ${
                 isActive
-                  ? 'border-indigo-600 text-indigo-600'
+                  ? 'border-teal-700 text-teal-800 font-semibold'
                   : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300'
               }`}
               aria-current={isActive ? 'page' : undefined}
@@ -29,7 +29,7 @@ export const Tabs = ({
                 <span
                   className={`ml-1.5 py-0.5 px-2 rounded-full text-xs font-semibold ${
                     isActive
-                      ? 'bg-indigo-100 text-indigo-700'
+                      ? 'bg-teal-50 text-teal-800'
                       : 'bg-slate-100 text-slate-600'
                   }`}
                 >

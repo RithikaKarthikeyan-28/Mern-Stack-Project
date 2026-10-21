@@ -132,7 +132,7 @@ export const AssessmentCard = ({
             <Button
               variant="primary"
               size="sm"
-              className="w-full justify-between bg-indigo-600 hover:bg-indigo-700"
+              className="w-full justify-between bg-teal-700 hover:bg-teal-800 shadow-sm shadow-teal-700/20"
               rightIcon={<RotateCcw className="w-4 h-4" />}
             >
               <span>Retake Quiz</span>
@@ -141,7 +141,7 @@ export const AssessmentCard = ({
             <Button
               variant="primary"
               size="sm"
-              className="w-full justify-between bg-indigo-600 hover:bg-indigo-700"
+              className="w-full justify-between bg-teal-700 hover:bg-teal-800 shadow-sm shadow-teal-700/20"
               rightIcon={<FileCheck className="w-4 h-4" />}
             >
               <span>Start Assessment</span>

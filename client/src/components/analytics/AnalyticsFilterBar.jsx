@@ -76,7 +76,7 @@ export const AnalyticsFilterBar = ({
                 }}
                 className={`px-2.5 py-1 text-xs font-medium rounded-lg transition-colors ${
                   isActive
-                    ? 'bg-indigo-600 text-white shadow-sm'
+                    ? 'bg-teal-700 text-white shadow-sm'
                     : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
                 }`}
                 aria-pressed={isActive}
@@ -136,7 +136,7 @@ export const AnalyticsFilterBar = ({
               onChange={(e) =>
                 onFilterChange({ from: e.target.value, datePreset: 'custom' })
               }
-              className="w-full text-xs rounded-lg border border-slate-200 px-2.5 py-1.5 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500"
+              className="w-full text-xs rounded-lg border border-slate-200 px-2.5 py-1.5 focus:outline-none focus:ring-2 focus:ring-teal-600/20 focus:border-teal-600"
             />
           </div>
 
@@ -152,7 +152,7 @@ export const AnalyticsFilterBar = ({
               onChange={(e) =>
                 onFilterChange({ to: e.target.value, datePreset: 'custom' })
               }
-              className="w-full text-xs rounded-lg border border-slate-200 px-2.5 py-1.5 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500"
+              className="w-full text-xs rounded-lg border border-slate-200 px-2.5 py-1.5 focus:outline-none focus:ring-2 focus:ring-teal-600/20 focus:border-teal-600"
             />
           </div>
 
@@ -165,7 +165,7 @@ export const AnalyticsFilterBar = ({
               id="filter-department"
               value={filters.departmentId || ''}
               onChange={(e) => onFilterChange({ departmentId: e.target.value })}
-              className="w-full text-xs rounded-lg border border-slate-200 px-2.5 py-1.5 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 bg-white"
+              className="w-full text-xs rounded-lg border border-slate-200 px-2.5 py-1.5 focus:outline-none focus:ring-2 focus:ring-teal-600/20 focus:border-teal-600 bg-white"
             >
               <option value="">All Departments</option>
               {departments.map((dept) => (
@@ -185,7 +185,7 @@ export const AnalyticsFilterBar = ({
               id="filter-course"
               value={filters.courseId || ''}
               onChange={(e) => onFilterChange({ courseId: e.target.value })}
-              className="w-full text-xs rounded-lg border border-slate-200 px-2.5 py-1.5 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 bg-white"
+              className="w-full text-xs rounded-lg border border-slate-200 px-2.5 py-1.5 focus:outline-none focus:ring-2 focus:ring-teal-600/20 focus:border-teal-600 bg-white"
             >
               <option value="">All Courses</option>
               {courses.map((c) => (
@@ -203,7 +203,7 @@ export const AnalyticsFilterBar = ({
         <div className="flex flex-wrap items-center gap-1.5 pt-1 text-xs text-slate-500">
           <span className="font-medium text-slate-600">Active filters:</span>
           {filters.from && filters.to && (
-            <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] bg-indigo-50 text-indigo-700 font-medium">
+            <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] bg-teal-50 text-teal-800 font-medium">
               {filters.from} to {filters.to}
             </span>
           )}

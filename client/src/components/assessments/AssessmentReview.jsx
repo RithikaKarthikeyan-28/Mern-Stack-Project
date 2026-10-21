@@ -47,7 +47,7 @@ export const AssessmentReview = ({
         onClick={onSubmit}
         isLoading={isSubmitting}
         leftIcon={<CheckCircle2 className="w-4 h-4" />}
-        className="bg-indigo-600 hover:bg-indigo-700"
+        className="bg-teal-700 hover:bg-teal-800"
       >
         Confirm & Submit
       </Button>

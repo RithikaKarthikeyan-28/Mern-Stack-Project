@@ -10,8 +10,8 @@ const PROFICIENCY_CONFIG = {
   intermediate: {
     label: 'Intermediate',
     rank: 2,
-    bg: 'bg-indigo-50 text-indigo-700 border-indigo-200',
-    dot: 'bg-indigo-500',
+    bg: 'bg-teal-50 text-teal-800 border-teal-200',
+    dot: 'bg-teal-600',
   },
   advanced: {
     label: 'Advanced',

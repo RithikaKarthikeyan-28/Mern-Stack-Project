@@ -7,6 +7,7 @@ import {
   Edit2,
   Trash2,
   Users,
+  BookOpen,
 } from 'lucide-react';
 import adminService from '../services/adminService';
 import { useToast } from '../context/ToastContext';
@@ -23,6 +24,7 @@ export const AdminDepartmentsPage = () => {
 
   const [departments, setDepartments] = useState([]);
   const [employees, setEmployees] = useState([]);
+  const [courses, setCourses] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -40,12 +42,14 @@ export const AdminDepartmentsPage = () => {
     setLoading(true);
     setError(null);
     try {
-      const [deptData, empData] = await Promise.all([
+      const [deptData, empData, courseData] = await Promise.all([
         adminService.getDepartments(),
         adminService.getEmployees(),
+        adminService.getCourses(),
       ]);
       setDepartments(deptData);
       setEmployees(empData);
+      setCourses(courseData);
     } catch (err) {
       setError(err.normalizedMessage || err.message || 'Failed to load department records.');
     } finally {
@@ -68,6 +72,19 @@ export const AdminDepartmentsPage = () => {
     });
     return map;
   }, [employees]);
+
+  // Compute mapped courses per department
+  const courseMap = useMemo(() => {
+    const map = {};
+    courses.forEach((c) => {
+      const deptId = c.department?._id || c.department?.id || c.department;
+      if (deptId) {
+        if (!map[deptId]) map[deptId] = [];
+        map[deptId].push(c);
+      }
+    });
+    return map;
+  }, [courses]);
 
   const filteredDepartments = useMemo(() => {
     return departments.filter((d) => {
@@ -138,7 +155,7 @@ export const AdminDepartmentsPage = () => {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-white flex items-center gap-2">
+          <h1 className="text-2xl font-bold tracking-tight text-brand-ink-primary dark:text-white flex items-center gap-2">
             <Building2 className="w-7 h-7 text-sky-600" />
             Departments
           </h1>
@@ -178,7 +195,7 @@ export const AdminDepartmentsPage = () => {
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             placeholder="Search by department name or description..."
-            className="w-full pl-9 pr-3 py-2 text-sm bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            className="w-full pl-9 pr-3 py-2 text-sm bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg text-brand-ink-primary dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-teal-600 focus:border-teal-600"
             aria-label="Search departments"
           />
         </div>
@@ -187,7 +204,7 @@ export const AdminDepartmentsPage = () => {
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
-            className="w-full px-3 py-2 text-sm bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            className="w-full px-3 py-2 text-sm bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg text-brand-ink-primary dark:text-white focus:outline-none focus:ring-2 focus:ring-teal-600 focus:border-teal-600"
             aria-label="Filter by status"
           >
             <option value="all">All Statuses</option>
@@ -241,6 +258,12 @@ export const AdminDepartmentsPage = () => {
                   <p className="text-xs text-slate-500 dark:text-slate-400 line-clamp-3 min-h-[36px]">
                     {dept.description || 'No description provided.'}
                   </p>
+                  {courseMap[id]?.length > 0 && (
+                    <div className="mt-2.5 flex items-center gap-1.5 text-[11px] text-teal-700 font-medium bg-teal-50 px-2.5 py-1 rounded-md border border-teal-100/80">
+                      <BookOpen className="w-3.5 h-3.5 shrink-0" />
+                      <span className="truncate">Mapped Course: {courseMap[id][0].title}</span>
+                    </div>
+                  )}
                 </div>
 
                 <div className="pt-4 border-t border-slate-100 dark:border-slate-800 mt-4 flex items-center justify-between">

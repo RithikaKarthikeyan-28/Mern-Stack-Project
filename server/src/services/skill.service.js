@@ -59,6 +59,14 @@ async function getSkills(currentUser, query = {}) {
     filter.category = query.category.trim();
   }
 
+  if (query.department) {
+    filter.$or = [
+      { department: query.department },
+      { departments: query.department },
+      { isGlobal: true }
+    ];
+  }
+
   const page = parseInt(query.page, 10) || 1;
   let limit = parseInt(query.limit, 10) || 20;
   if (limit > 100) limit = 100;

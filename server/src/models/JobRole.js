@@ -23,6 +23,21 @@ const jobRoleSchema = new mongoose.Schema(
       default: '',
       maxlength: [1000, 'Description cannot exceed 1000 characters']
     },
+    department: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Department',
+      required: false
+    },
+    departments: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Department'
+      }
+    ],
+    isGlobal: {
+      type: Boolean,
+      default: false
+    },
     isActive: {
       type: Boolean,
       default: true
@@ -52,6 +67,8 @@ const jobRoleSchema = new mongoose.Schema(
 // Indexes for unique constraints and active state queries
 jobRoleSchema.index({ name: 1 }, { unique: true, collation: { locale: 'en', strength: 2 } });
 jobRoleSchema.index({ code: 1 }, { unique: true });
+jobRoleSchema.index({ department: 1 });
+jobRoleSchema.index({ isGlobal: 1 });
 jobRoleSchema.index({ isActive: 1 });
 
 const JobRole = mongoose.model('JobRole', jobRoleSchema);

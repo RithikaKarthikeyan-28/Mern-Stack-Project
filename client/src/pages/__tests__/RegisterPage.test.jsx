@@ -8,6 +8,21 @@ import { ToastProvider } from '../../context/ToastContext';
 
 const mockNavigate = vi.fn();
 
+vi.mock('../../services/api', () => ({
+  default: {
+    get: vi.fn().mockResolvedValue({
+      data: {
+        success: true,
+        data: [
+          { _id: 'dept-1', name: 'Frontend Engineering' },
+          { _id: 'dept-2', name: 'Backend Engineering' },
+        ],
+      },
+    }),
+    post: vi.fn(),
+  },
+}));
+
 vi.mock('react-router-dom', async () => {
   const actual = await vi.importActual('react-router-dom');
   return {
@@ -114,7 +129,7 @@ describe('RegisterPage (Scenarios 17-23)', () => {
         email: 'jane@corp.com',
         password: 'Password123!',
       });
-      expect(mockNavigate).toHaveBeenCalledWith('/login');
+      expect(mockNavigate).toHaveBeenCalledWith('/login', { state: { email: 'jane@corp.com' } });
     });
   });
 
@@ -136,13 +151,31 @@ describe('RegisterPage (Scenarios 17-23)', () => {
     expect(mockNavigate).not.toHaveBeenCalled();
   });
 
-  // 23. Does not expose role selector
-  it('23. strictly DOES NOT provide or expose any role selection input or dropdown', () => {
+  // 23. Does not expose user privilege role selector (prevents admin/trainer privilege escalation)
+  it('23. strictly DOES NOT provide or expose account privilege role selector (admin/trainer)', () => {
     renderRegisterPage();
 
-    expect(screen.queryByLabelText(/role/i)).not.toBeInTheDocument();
-    expect(screen.queryByRole('combobox')).not.toBeInTheDocument();
-    expect(screen.queryByText(/admin/i)).not.toBeInTheDocument();
-    expect(screen.queryByText(/trainer/i)).not.toBeInTheDocument();
+    expect(screen.queryByLabelText(/user role|privilege role|account type/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/choose role/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/select role/i)).not.toBeInTheDocument();
+  });
+
+  it('24. displays department selector, career track / role selector, and employee role indicator', () => {
+    renderRegisterPage();
+
+    expect(screen.getByLabelText(/department/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/career track/i)).toBeInTheDocument();
+    expect(screen.getByText(/Role: Employee/i)).toBeInTheDocument();
+  });
+
+  it('25. provides password123 demo suggestion and fills password fields when clicked', () => {
+    renderRegisterPage();
+
+    expect(screen.getByText('password123')).toBeInTheDocument();
+    const useSuggestionBtn = screen.getByRole('button', { name: /use suggestion/i });
+    fireEvent.click(useSuggestionBtn);
+
+    expect(screen.getByLabelText(/^password/i)).toHaveValue('password123');
+    expect(screen.getByLabelText(/confirm password/i)).toHaveValue('password123');
   });
 });

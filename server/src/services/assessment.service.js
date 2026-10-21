@@ -4,6 +4,9 @@ const Module = require('../models/Module');
 const Question = require('../models/Question');
 const Employee = require('../models/Employee');
 const Enrollment = require('../models/Enrollment');
+const Lesson = require('../models/Lesson');
+const Certificate = require('../models/Certificate');
+const AssessmentAttempt = require('../models/AssessmentAttempt');
 const User = require('../models/User');
 const AppError = require('../utils/AppError');
 const {
@@ -116,7 +119,7 @@ async function getAssessments(filters = {}, currentUser) {
   const currentUserId = (currentUser.id || currentUser.userId || currentUser._id).toString();
 
   if (currentUser.role === 'trainer') {
-    // Scoped exclusively to courses owned by this trainer
+    // Scoped to courses owned by this trainer or authored directly by this trainer
     const trainerCourses = await Course.find({ trainer: currentUserId }).select('_id');
     const trainerCourseIds = trainerCourses.map((c) => c._id.toString());
 
@@ -127,7 +130,10 @@ async function getAssessments(filters = {}, currentUser) {
       }
       query.course = filters.course;
     } else {
-      query.course = { $in: trainerCourses.map((c) => c._id) };
+      query.$or = [
+        { trainer: currentUserId },
+        { course: { $in: trainerCourses.map((c) => c._id) } }
+      ];
     }
   } else if (currentUser.role === 'admin') {
     if (filters.course) {
@@ -159,9 +165,148 @@ async function getAssessments(filters = {}, currentUser) {
     query.isActive = filters.isActive === 'true' || filters.isActive === true;
   }
 
-  return await Assessment.find(query)
+  // Guard against obsolete demo assessments
+  if (!query.title) {
+    query.title = { $nin: ['Test', 'Test1'] };
+  }
+
+  const assessments = await Assessment.find(query)
     .populate(POPULATE_OPTIONS)
     .sort({ createdAt: -1 });
+
+  if (currentUser.role === 'employee') {
+    const currentUserId = (currentUser.id || currentUser.userId || currentUser._id).toString();
+    const employee = await Employee.findOne({ user: currentUserId });
+    if (!employee) {
+      return assessments;
+    }
+
+    // Fetch employee's enrollments, attempts, and certificates in parallel
+    const [enrollments, attempts, certificates] = await Promise.all([
+      Enrollment.find({
+        employee: employee._id,
+        isActive: true,
+        status: { $ne: 'dropped' }
+      }),
+      AssessmentAttempt.find({ employee: employee._id }).sort({ createdAt: -1 }),
+      Certificate.find({ employee: employee._id, status: 'active' })
+    ]);
+
+    const enrollmentMap = new Map();
+    enrollments.forEach((e) => {
+      enrollmentMap.set(e.course.toString(), e);
+    });
+
+    const attemptsMap = new Map();
+    attempts.forEach((a) => {
+      const asmId = a.assessment.toString();
+      if (!attemptsMap.has(asmId)) {
+        attemptsMap.set(asmId, []);
+      }
+      attemptsMap.get(asmId).push(a);
+    });
+
+    const certificateMap = new Map();
+    certificates.forEach((c) => {
+      certificateMap.set(c.course.toString(), c);
+    });
+
+    // Check active lessons for each course
+    const courseIds = assessments
+      .map((a) => (a.course?._id ? a.course._id : a.course))
+      .filter(Boolean);
+    const activeModules = await Module.find({ course: { $in: courseIds }, isActive: true }).select('_id course');
+    const activeLessons = await Lesson.find({
+      module: { $in: activeModules.map((m) => m._id) },
+      isActive: true
+    }).select('_id module');
+
+    const moduleToCourse = new Map();
+    activeModules.forEach((m) => moduleToCourse.set(m._id.toString(), m.course.toString()));
+
+    const courseActiveLessonsCount = new Map();
+    activeLessons.forEach((l) => {
+      const cId = moduleToCourse.get(l.module.toString());
+      if (cId) {
+        courseActiveLessonsCount.set(cId, (courseActiveLessonsCount.get(cId) || 0) + 1);
+      }
+    });
+
+    return assessments.map((asm) => {
+      const asmObj = asm.toObject ? asm.toObject() : { ...asm };
+      const courseIdStr = (asm.course?._id || asm.course)?.toString();
+      const enrollment = courseIdStr ? enrollmentMap.get(courseIdStr) : null;
+      const isEnrolled = !!enrollment;
+      const progress = enrollment?.progressPercentage || 0;
+      const totalLessons = courseIdStr ? (courseActiveLessonsCount.get(courseIdStr) || 0) : 0;
+      const isCourseCompleted = isEnrolled && (enrollment.status === 'completed' || progress === 100);
+
+      let isUnlocked = false;
+      let lockReason = null;
+      if (!isEnrolled) {
+        isUnlocked = false;
+        lockReason = 'Enroll in the course to unlock the assessment.';
+      } else if (asm.requiresCourseCompletion && totalLessons > 0 && !isCourseCompleted) {
+        isUnlocked = false;
+        lockReason = 'Complete all course lessons to unlock the assessment.';
+      } else {
+        isUnlocked = true;
+      }
+
+      const asmVAttempts = attemptsMap.get(asm._id.toString()) || [];
+      const hasPassed = asmVAttempts.some((a) => a.result === 'passed');
+      const latestAttempt = asmVAttempts.length > 0 ? asmVAttempts[0] : null;
+      const activeAttempt = asmVAttempts.find((a) => a.status === 'in_progress') || null;
+      const cert = courseIdStr ? certificateMap.get(courseIdStr) : null;
+
+      let statusBadge = 'Not Started';
+      if (hasPassed) {
+        statusBadge = 'Passed';
+      } else if (activeAttempt) {
+        statusBadge = 'In Progress';
+      } else if (latestAttempt && latestAttempt.result === 'failed') {
+        statusBadge = isUnlocked ? 'Failed' : 'Not Started';
+      } else if (isUnlocked) {
+        statusBadge = 'Assessment Available';
+      } else if (isEnrolled) {
+        statusBadge = 'In Progress';
+      } else {
+        statusBadge = 'Not Started';
+      }
+
+      asmObj.learnerStatus = {
+        isEnrolled,
+        isCourseCompleted,
+        courseProgress: progress,
+        isUnlocked,
+        lockReason,
+        attemptsCount: asmVAttempts.length,
+        hasPassed,
+        statusBadge,
+        latestAttempt: latestAttempt
+          ? {
+              id: latestAttempt._id.toString(),
+              percentage: latestAttempt.percentage,
+              result: latestAttempt.result,
+              obtainedMarks: latestAttempt.obtainedMarks,
+              totalMarks: latestAttempt.totalMarks,
+              submittedAt: latestAttempt.submittedAt
+            }
+          : null,
+        certificate: cert
+          ? {
+              id: cert._id.toString(),
+              certificateNumber: cert.certificateNumber,
+              issuedAt: cert.issuedAt
+            }
+          : null
+      };
+
+      return asmObj;
+    });
+  }
+
+  return assessments;
 }
 
 /**
@@ -371,6 +516,28 @@ async function getAttemptData(assessmentId, currentUser) {
     throw new AppError('You must have an active enrollment in this course to access the assessment', 403);
   }
 
+  // Enforce course completion prerequisite if required by assessment
+  if (assessment.requiresCourseCompletion) {
+    const activeModules = await Module.find({ course: course._id, isActive: true }).select('_id');
+    const totalActiveLessons = await Lesson.countDocuments({
+      module: { $in: activeModules.map((m) => m._id) },
+      isActive: true
+    });
+
+    if (totalActiveLessons === 0) {
+      throw new AppError('Assessment is not available because the course has no active lessons', 400);
+    }
+
+    const completedCount = Array.isArray(enrollment.completedLessons) ? enrollment.completedLessons.length : 0;
+    if (
+      enrollment.progressPercentage < 100 ||
+      enrollment.status !== 'completed' ||
+      completedCount < totalActiveLessons
+    ) {
+      throw new AppError('You must complete all course lessons before starting the assessment', 403);
+    }
+  }
+
   // Retrieve active questions
   const questions = await Question.find({ assessment: assessment._id, isActive: true }).sort({ order: 1 });
 
@@ -412,6 +579,167 @@ async function getAttemptData(assessmentId, currentUser) {
   };
 }
 
+/**
+ * Retrieves the matching assessment and learner status for a course.
+ *
+ * @param {string} courseId - Course ID
+ * @param {object} currentUser - Authenticated user object
+ * @returns {Promise<object>} Assessment course status
+ */
+async function getCourseAssessmentStatus(courseId, currentUser) {
+  validateObjectId(courseId, 'Course ID');
+
+  const course = await Course.findById(courseId);
+  if (!course) {
+    throw new AppError('Course not found', 404);
+  }
+
+  const assessment = await Assessment.findOne({
+    course: course._id,
+    status: 'published',
+    isActive: true
+  });
+
+  if (!assessment) {
+    return {
+      hasAssessment: false,
+      assessment: null
+    };
+  }
+
+  const activeQuestions = await Question.find({
+    assessment: assessment._id,
+    isActive: true
+  }).sort({ order: 1 });
+
+  const totalQuestions = activeQuestions.length;
+  const totalMarks = activeQuestions.reduce((sum, q) => sum + (q.marks || 0), 0);
+
+  const statusData = {
+    hasAssessment: true,
+    assessment: {
+      id: assessment._id.toString(),
+      title: assessment.title,
+      description: assessment.description,
+      passingPercentage: assessment.passingPercentage,
+      timeLimitMinutes: assessment.timeLimitMinutes,
+      maxAttempts: assessment.maxAttempts,
+      totalQuestions,
+      totalMarks
+    },
+    isEnrolled: false,
+    isCourseCompleted: false,
+    courseProgress: 0,
+    isUnlocked: true,
+    lockReason: null,
+    attemptsCount: 0,
+    hasPassed: false,
+    latestAttempt: null,
+    activeAttempt: null,
+    certificate: null
+  };
+
+  if (currentUser.role === 'employee') {
+    const currentUserId = (currentUser.id || currentUser.userId || currentUser._id).toString();
+    const employee = await Employee.findOne({ user: currentUserId });
+
+    if (employee) {
+      const enrollment = await Enrollment.findOne({
+        employee: employee._id,
+        course: course._id,
+        isActive: true,
+        status: { $ne: 'dropped' }
+      });
+
+      const Certificate = require('../models/Certificate');
+      const AssessmentAttempt = require('../models/AssessmentAttempt');
+
+      // Check course lessons
+      const activeModules = await Module.find({ course: course._id, isActive: true }).select('_id');
+      const totalActiveLessons = await Lesson.countDocuments({
+        module: { $in: activeModules.map((m) => m._id) },
+        isActive: true
+      });
+
+      const isEnrolled = !!enrollment;
+      const progress = enrollment?.progressPercentage || 0;
+      const isCourseCompleted =
+        isEnrolled && (enrollment.status === 'completed' || progress === 100);
+
+      let isUnlocked = false;
+      let lockReason = null;
+
+      if (!isEnrolled) {
+        isUnlocked = false;
+        lockReason = 'Enroll in the course to unlock the assessment.';
+      } else if (assessment.requiresCourseCompletion && totalActiveLessons === 0) {
+        isUnlocked = false;
+        lockReason = 'Course curriculum has no active lessons. Complete lessons once available.';
+      } else if (assessment.requiresCourseCompletion && (!isCourseCompleted || (Array.isArray(enrollment.completedLessons) && enrollment.completedLessons.length < totalActiveLessons))) {
+        isUnlocked = false;
+        lockReason = 'Complete all course lessons to unlock the assessment.';
+      } else {
+        isUnlocked = true;
+      }
+
+      // Check assessment attempts
+      const attempts = await AssessmentAttempt.find({
+        employee: employee._id,
+        assessment: assessment._id
+      }).sort({ createdAt: -1 });
+
+      const hasPassed = attempts.some((a) => a.result === 'passed');
+      const latestAttempt = attempts.length > 0 ? attempts[0] : null;
+      const activeAttempt = attempts.find((a) => a.status === 'in_progress') || null;
+
+      // Check certificate
+      const certificate = await Certificate.findOne({
+        employee: employee._id,
+        course: course._id,
+        status: 'active'
+      });
+
+      statusData.isEnrolled = isEnrolled;
+      statusData.isCourseCompleted = isCourseCompleted;
+      statusData.courseProgress = progress;
+      statusData.isUnlocked = isUnlocked;
+      statusData.isEligible = isUnlocked;
+      statusData.lockReason = lockReason;
+      statusData.reason = lockReason;
+      statusData.attemptsCount = attempts.length;
+      statusData.hasPassed = hasPassed;
+      statusData.latestAttempt = latestAttempt
+        ? {
+            id: latestAttempt._id.toString(),
+            attemptNumber: latestAttempt.attemptNumber,
+            status: latestAttempt.status,
+            percentage: latestAttempt.percentage,
+            obtainedMarks: latestAttempt.obtainedMarks,
+            totalMarks: latestAttempt.totalMarks,
+            result: latestAttempt.result,
+            submittedAt: latestAttempt.submittedAt
+          }
+        : null;
+      statusData.activeAttempt = activeAttempt
+        ? {
+            id: activeAttempt._id.toString(),
+            attemptNumber: activeAttempt.attemptNumber,
+            startedAt: activeAttempt.startedAt
+          }
+        : null;
+      statusData.certificate = certificate
+        ? {
+            id: certificate._id.toString(),
+            certificateNumber: certificate.certificateNumber,
+            issuedAt: certificate.issuedAt
+          }
+        : null;
+    }
+  }
+
+  return statusData;
+}
+
 module.exports = {
   createAssessment,
   getAssessments,
@@ -420,5 +748,7 @@ module.exports = {
   publishAssessment,
   archiveAssessment,
   deleteAssessment,
-  getAttemptData
+  getAttemptData,
+  getCourseAssessmentStatus
 };
+

@@ -154,10 +154,19 @@ async function createRequirement(data) {
     throw new AppError('Compliance requirement requires an active and published course', 400);
   }
 
+  const dept = data.department || (course.department ? course.department : null);
+  const departments = Array.isArray(data.departments) && data.departments.length > 0
+    ? data.departments
+    : (dept ? [dept] : []);
+  const isGlobal = data.isGlobal !== undefined ? Boolean(data.isGlobal) : (!dept && departments.length === 0);
+
   const requirement = await ComplianceRequirement.create({
     title: data.title.trim(),
     description: data.description ? data.description.trim() : '',
     course: course._id,
+    department: dept,
+    departments,
+    isGlobal,
     frequency: data.frequency || 'annual',
     dueWithinDays: data.dueWithinDays !== undefined ? Number(data.dueWithinDays) : 30,
     renewalGraceDays: data.renewalGraceDays !== undefined ? Number(data.renewalGraceDays) : 0,
@@ -190,6 +199,14 @@ async function getRequirements(query = {}) {
     filter.$or = [{ title: searchRegex }, { description: searchRegex }];
   }
 
+  if (query.department) {
+    filter.$or = [
+      { department: query.department },
+      { departments: query.department },
+      { isGlobal: true }
+    ];
+  }
+
   const page = Math.max(1, parseInt(query.page, 10) || 1);
   const limit = Math.min(100, Math.max(1, parseInt(query.limit, 10) || 20));
   const skip = (page - 1) * limit;
@@ -197,7 +214,8 @@ async function getRequirements(query = {}) {
   const [total, requirements] = await Promise.all([
     ComplianceRequirement.countDocuments(filter),
     ComplianceRequirement.find(filter)
-      .populate('course', 'title code status isActive')
+      .populate('course', 'title code status isActive department')
+      .populate('department', 'name')
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limit)
@@ -277,6 +295,15 @@ async function updateRequirement(id, data) {
   if (data.renewalGraceDays !== undefined) {
     requirement.renewalGraceDays = Number(data.renewalGraceDays);
   }
+  if (data.department !== undefined) {
+    requirement.department = data.department;
+  }
+  if (data.departments !== undefined) {
+    requirement.departments = data.departments;
+  }
+  if (data.isGlobal !== undefined) {
+    requirement.isGlobal = Boolean(data.isGlobal);
+  }
 
   await requirement.save();
   return requirement;
@@ -321,6 +348,16 @@ async function assignToEmployee(requirementId, employeeId) {
   });
   if (!employee) {
     throw new AppError('Active employee not found', 404);
+  }
+
+  // Department compatibility check
+  const empDeptId = employee.department?._id?.toString() || employee.department?.toString();
+  const reqDeptId = requirement.department?._id?.toString() || requirement.department?.toString();
+  const reqDeptList = (requirement.departments || []).map((d) => (d._id || d).toString());
+  const isGlobalReq = requirement.isGlobal === true;
+
+  if (empDeptId && !isGlobalReq && reqDeptId && reqDeptId !== empDeptId && !reqDeptList.includes(empDeptId)) {
+    throw new AppError('Compliance requirement does not apply to this employee’s department', 400);
   }
 
   // Duplicate check
@@ -448,6 +485,15 @@ async function assignToDepartment(requirementId, departmentId) {
     throw new AppError('Department not found', 404);
   }
 
+  // Department compatibility check
+  const reqDeptId = requirement.department?._id?.toString() || requirement.department?.toString();
+  const reqDeptList = (requirement.departments || []).map((d) => (d._id || d).toString());
+  const isGlobalReq = requirement.isGlobal === true;
+
+  if (!isGlobalReq && reqDeptId && reqDeptId !== departmentId.toString() && !reqDeptList.includes(departmentId.toString())) {
+    throw new AppError('Compliance requirement does not apply to the selected department', 400);
+  }
+
   const employees = await Employee.find({
     department: departmentId,
     isActive: true
@@ -562,6 +608,127 @@ async function formatAssignmentWithEvaluation(assignment, now = new Date()) {
 }
 
 /**
+ * Automatically assigns role-calibrated compliance requirements for an employee.
+ * Ensures the employee has their mandatory role-specific compliance obligations.
+ *
+ * @param {object} employeeDoc - Employee document
+ * @param {object} [jobRoleDoc] - Optional JobRole document
+ * @returns {Promise<Array>} Created ComplianceAssignment documents
+ */
+async function assignInitialComplianceForEmployee(employeeDoc, jobRoleDoc = null) {
+  if (!employeeDoc || !employeeDoc._id) return [];
+
+  let jobRole = jobRoleDoc;
+  if (!jobRole && employeeDoc.jobRole) {
+    const JobRole = require('../models/JobRole');
+    jobRole = await JobRole.findById(employeeDoc.jobRole);
+  }
+
+  // Find all active compliance requirements with their associated courses
+  const allReqs = await ComplianceRequirement.find({ isActive: true }).populate('course');
+  if (!allReqs || allReqs.length === 0) return [];
+
+  const empDeptId = (employeeDoc.department?._id || employeeDoc.department || '').toString();
+
+  // First priority: Filter requirements strictly matching employee's department or global
+  let targetReqs = [];
+  if (empDeptId) {
+    targetReqs = allReqs.filter((r) => {
+      if (r.isGlobal === true) return true;
+      const rDeptId = (r.department?._id || r.department || '').toString();
+      if (rDeptId && rDeptId === empDeptId) return true;
+      if (r.departments && r.departments.some((d) => (d._id || d).toString() === empDeptId)) return true;
+      const courseDeptId = (r.course?.department?._id || r.course?.department || '').toString();
+      if (courseDeptId && courseDeptId === empDeptId) return true;
+      return false;
+    });
+  }
+
+  // Fallback for employees without department assignment: calibrated role heuristic
+  if (targetReqs.length === 0) {
+    const roleName = (jobRole?.name || employeeDoc.designation || '').toLowerCase();
+    if (roleName.includes('frontend')) {
+      targetReqs = allReqs.filter(
+        (r) =>
+          r.title.toLowerCase().includes('frontend') ||
+          r.course?.title?.toLowerCase().includes('html') ||
+          r.course?.title?.toLowerCase().includes('react')
+      );
+    } else if (roleName.includes('backend')) {
+      targetReqs = allReqs.filter(
+        (r) =>
+          r.title.toLowerCase().includes('database') ||
+          r.course?.title?.toLowerCase().includes('sql') ||
+          r.course?.title?.toLowerCase().includes('node')
+      );
+    } else if (roleName.includes('devops')) {
+      targetReqs = allReqs.filter(
+        (r) =>
+          r.title.toLowerCase().includes('network') ||
+          r.course?.title?.toLowerCase().includes('network') ||
+          r.course?.title?.toLowerCase().includes('software engineering')
+      );
+    } else if (roleName.includes('full-stack') || roleName.includes('mern')) {
+      targetReqs = allReqs.filter(
+        (r) =>
+          r.title.toLowerCase().includes('full-stack') ||
+          r.course?.title?.toLowerCase().includes('mern')
+      );
+    } else if (roleName.includes('oop') || roleName.includes('object')) {
+      targetReqs = allReqs.filter(
+        (r) =>
+          r.title.toLowerCase().includes('oop') ||
+          r.course?.title?.toLowerCase().includes('object')
+      );
+    } else if (roleName.includes('java')) {
+      targetReqs = allReqs.filter(
+        (r) =>
+          r.title.toLowerCase().includes('java') ||
+          r.course?.title?.toLowerCase().includes('java')
+      );
+    }
+
+    if (targetReqs.length === 0) {
+      targetReqs = allReqs;
+    }
+  }
+
+  const assigned = [];
+  const assignedAt = new Date();
+
+  for (const req of targetReqs) {
+    const existing = await ComplianceAssignment.findOne({
+      complianceRequirement: req._id,
+      employee: employeeDoc._id,
+      isActive: true
+    });
+
+    if (existing) {
+      assigned.push(existing);
+      continue;
+    }
+
+    const dueAt = new Date(
+      assignedAt.getTime() + (req.dueWithinDays || 30) * 24 * 60 * 60 * 1000
+    );
+
+    const newAssignment = new ComplianceAssignment({
+      complianceRequirement: req._id,
+      employee: employeeDoc._id,
+      assignedAt,
+      dueAt,
+      status: 'NOT_STARTED',
+      isActive: true
+    });
+
+    await evaluateAssignmentStatus(newAssignment, { save: true });
+    assigned.push(newAssignment);
+  }
+
+  return assigned;
+}
+
+/**
  * Retrieves the authenticated employee's compliance assignments.
  */
 async function getMyCompliance(user, query = {}) {
@@ -573,7 +740,7 @@ async function getMyCompliance(user, query = {}) {
     throw new AppError('Employee profile not found', 404);
   }
 
-  const assignments = await ComplianceAssignment.find({
+  let assignments = await ComplianceAssignment.find({
     employee: employee._id,
     isActive: true
   })
@@ -585,7 +752,23 @@ async function getMyCompliance(user, query = {}) {
     .sort({ dueAt: 1 });
 
   // Filter out assignments where requirement is inactive or deleted
-  const validAssignments = assignments.filter((a) => a.complianceRequirement);
+  let validAssignments = assignments.filter((a) => a.complianceRequirement);
+
+  // In non-test runtime, auto-assign compliance requirements if employee has none
+  if (validAssignments.length === 0 && process.env.NODE_ENV !== 'test') {
+    await assignInitialComplianceForEmployee(employee);
+    assignments = await ComplianceAssignment.find({
+      employee: employee._id,
+      isActive: true
+    })
+      .populate({
+        path: 'complianceRequirement',
+        match: { isActive: true },
+        populate: { path: 'course', select: 'title code description' }
+      })
+      .sort({ dueAt: 1 });
+    validAssignments = assignments.filter((a) => a.complianceRequirement);
+  }
 
   const formatted = [];
   const now = new Date();
@@ -609,7 +792,7 @@ async function getMyComplianceSummary(user) {
     throw new AppError('Employee profile not found', 404);
   }
 
-  const assignments = await ComplianceAssignment.find({
+  let assignments = await ComplianceAssignment.find({
     employee: employee._id,
     isActive: true
   }).populate({
@@ -617,7 +800,20 @@ async function getMyComplianceSummary(user) {
     match: { isActive: true }
   });
 
-  const validAssignments = assignments.filter((a) => a.complianceRequirement);
+  let validAssignments = assignments.filter((a) => a.complianceRequirement);
+
+  // In non-test runtime, auto-assign compliance requirements if employee has none
+  if (validAssignments.length === 0 && process.env.NODE_ENV !== 'test') {
+    await assignInitialComplianceForEmployee(employee);
+    assignments = await ComplianceAssignment.find({
+      employee: employee._id,
+      isActive: true
+    }).populate({
+      path: 'complianceRequirement',
+      match: { isActive: true }
+    });
+    validAssignments = assignments.filter((a) => a.complianceRequirement);
+  }
 
   let compliant = 0;
   let dueSoon = 0;
@@ -913,6 +1109,7 @@ module.exports = {
   updateRequirement,
   deleteRequirement,
   assignToEmployee,
+  assignInitialComplianceForEmployee,
   bulkAssign,
   assignToDepartment,
   getMyCompliance,

@@ -152,12 +152,16 @@ async function getCourseRecommendations(employeeId, jobRoleId, query = {}) {
     .populate({
       path: 'course',
       match: { isActive: true, status: 'published' },
-      select: 'title description category level duration status isActive'
+      select: 'title description category level duration status isActive department isGlobal'
     })
     .populate('skill', 'name category description isActive');
 
   // 5. Group by course, evaluating each matched skill
   const courseMap = new Map();
+  const empDeptId =
+    gapReport.employee?.department?._id?.toString() ||
+    gapReport.employee?.department?.toString() ||
+    null;
 
   for (const mapping of mappings) {
     // Only published, active courses with active skills
@@ -172,6 +176,19 @@ async function getCourseRecommendations(employeeId, jobRoleId, query = {}) {
       continue;
     }
 
+    // Department filtering:
+    // If course belongs to a specific department and employee belongs to a department,
+    // only recommend course if it belongs to employee's department (or course is explicitly global)
+    const courseDeptId =
+      mapping.course.department?._id?.toString() ||
+      mapping.course.department?.toString() ||
+      null;
+    const isGlobalCourse = mapping.course.isGlobal === true || !courseDeptId;
+
+    if (empDeptId && courseDeptId && !isGlobalCourse && empDeptId !== courseDeptId) {
+      continue;
+    }
+
     const gapItem = gapItems.find((g) => g.skill._id.toString() === mapping.skill._id.toString());
     if (!gapItem) {
       continue;
@@ -182,6 +199,7 @@ async function getCourseRecommendations(employeeId, jobRoleId, query = {}) {
     if (!courseMap.has(courseIdStr)) {
       courseMap.set(courseIdStr, {
         course: mapping.course,
+        isDeptMatch: Boolean(empDeptId && courseDeptId && empDeptId === courseDeptId),
         matchedSkills: [matchedSkillData],
         skillScores: [score]
       });
@@ -208,9 +226,12 @@ async function getCourseRecommendations(employeeId, jobRoleId, query = {}) {
     // Mandatory bonus: +5 if covering at least 1 mandatory gap
     const mandatoryBonus = mandatoryGapCount >= 1 ? 5 : 0;
 
+    // Department match bonus: +5 if explicitly matching employee's department
+    const deptBonus = entry.isDeptMatch ? 5 : 0;
+
     const finalScore = Math.min(
       100,
-      Number((avgScore + breadthBonus + mandatoryBonus).toFixed(2))
+      Number((avgScore + breadthBonus + mandatoryBonus + deptBonus).toFixed(2))
     );
 
     candidateRecommendations.push({

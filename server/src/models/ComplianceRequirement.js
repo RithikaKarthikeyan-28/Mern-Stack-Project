@@ -23,6 +23,21 @@ const complianceRequirementSchema = new mongoose.Schema(
       required: [true, 'Course reference is required'],
       index: true
     },
+    department: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Department',
+      required: false
+    },
+    departments: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Department'
+      }
+    ],
+    isGlobal: {
+      type: Boolean,
+      default: false
+    },
     frequency: {
       type: String,
       enum: {
@@ -74,6 +89,8 @@ const complianceRequirementSchema = new mongoose.Schema(
 
 // Indexes
 complianceRequirementSchema.index({ isActive: 1, course: 1 });
+complianceRequirementSchema.index({ department: 1 });
+complianceRequirementSchema.index({ isGlobal: 1 });
 complianceRequirementSchema.index({ title: 1 });
 
 const ComplianceRequirement = mongoose.model(

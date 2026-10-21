@@ -6,7 +6,7 @@ export const ProgressBar = ({
   showLabel = false,
   label,
   size = 'md',
-  color = 'indigo',
+  color = 'teal',
   className = '',
 }) => {
   const percentage = Math.min(100, Math.max(0, Math.round((value / max) * 100)));
@@ -18,8 +18,9 @@ export const ProgressBar = ({
   };
 
   const colorClasses = {
-    indigo: 'bg-indigo-600',
-    emerald: 'bg-emerald-500',
+    teal: 'bg-teal-700',
+    indigo: 'bg-teal-700',
+    emerald: 'bg-emerald-600',
     amber: 'bg-amber-500',
     rose: 'bg-rose-500',
     sky: 'bg-sky-500',
@@ -42,7 +43,7 @@ export const ProgressBar = ({
       >
         <div
           className={`h-full rounded-full transition-all duration-500 ease-out ${
-            colorClasses[color] || colorClasses.indigo
+            colorClasses[color] || colorClasses.teal
           }`}
           style={{ width: `${percentage}%` }}
         />

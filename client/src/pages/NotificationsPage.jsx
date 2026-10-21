@@ -154,6 +154,7 @@ export const NotificationsPage = () => {
 
   const typeOptions = [
     { value: 'all', label: 'All Categories' },
+    { value: 'certificate_issued', label: 'Certificate Earned' },
     { value: 'certificate_expiring', label: 'Certificate Expiring' },
     { value: 'certificate_expired', label: 'Certificate Expired' },
     { value: 'certificate_renewed', label: 'Certificate Renewed' },
@@ -166,16 +167,16 @@ export const NotificationsPage = () => {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-slate-200">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center shrink-0">
+          <div className="w-10 h-10 rounded-xl bg-teal-50 text-teal-700 flex items-center justify-center shrink-0">
             <Bell className="w-5 h-5" />
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <h1 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
+              <h1 className="text-xl sm:text-2xl font-black text-[#102A2A] tracking-tight">
                 Notifications
               </h1>
               {unreadCount > 0 && (
-                <span className="bg-indigo-600 text-white text-xs font-bold px-2 py-0.5 rounded-full">
+                <span className="bg-teal-700 text-white text-xs font-bold px-2 py-0.5 rounded-full">
                   {unreadCount} new
                 </span>
               )}
@@ -194,7 +195,7 @@ export const NotificationsPage = () => {
               onClick={handleMarkAllRead}
               isLoading={markingAll}
             >
-              <CheckCheck className="w-4 h-4 mr-1.5 text-indigo-600" />
+              <CheckCheck className="w-4 h-4 mr-1.5 text-teal-700" />
               <span>Mark all as read</span>
             </Button>
           )}

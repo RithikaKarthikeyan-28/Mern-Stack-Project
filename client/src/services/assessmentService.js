@@ -2,6 +2,15 @@ import api from './api';
 
 export const assessmentService = {
   /**
+   * Retrieves assessments list (with learner progression if authenticated as employee).
+   * @param {object} params
+   * @returns {Promise<Array>}
+   */
+  getAssessments: async (params = {}) => {
+    const res = await api.get('/assessments', { params });
+    return res.data?.data?.assessments || res.data?.assessments || [];
+  },
+  /**
    * Retrieves assessment details by ID.
    * Backend enforces published/active checks for employees.
    * @param {string} assessmentId
@@ -57,6 +66,18 @@ export const assessmentService = {
   },
 
   /**
+   * Saves draft answers in real-time for an in-progress attempt.
+   * Payload: { answers: [{ question: string, selectedAnswers: string[] }] }
+   * @param {string} attemptId
+   * @param {{ answers: Array }} answersPayload
+   * @returns {Promise<object>}
+   */
+  saveDraftAnswers: async (attemptId, answersPayload) => {
+    const res = await api.patch(`/assessments/attempts/${attemptId}/answers`, answersPayload);
+    return res.data?.data?.attempt || res.data?.attempt;
+  },
+
+  /**
    * Retrieves the authoritative evaluated result for an attempt.
    * @param {string} attemptId
    * @returns {Promise<object>}
@@ -73,6 +94,16 @@ export const assessmentService = {
   getMyAssessmentHistory: async () => {
     const res = await api.get('/assessments/results/me');
     return res.data?.data?.history || res.data?.history || [];
+  },
+
+  /**
+   * Retrieves matching assessment status, lock status, course progress, and history for a course.
+   * @param {string} courseId
+   * @returns {Promise<object>}
+   */
+  getCourseAssessmentStatus: async (courseId) => {
+    const res = await api.get(`/assessments/course/${courseId}`);
+    return res.data?.data || res.data;
   },
 };
 

@@ -201,7 +201,7 @@ export const AdminAssessmentsPage = () => {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-white flex items-center gap-2">
+          <h1 className="text-2xl font-bold tracking-tight text-brand-ink-primary dark:text-white flex items-center gap-2">
             <FileCheck className="w-7 h-7 text-purple-600" />
             Assessment Oversight
           </h1>
@@ -241,7 +241,7 @@ export const AdminAssessmentsPage = () => {
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             placeholder="Search by title or associated course..."
-            className="w-full pl-9 pr-3 py-2 text-sm bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            className="w-full pl-9 pr-3 py-2 text-sm bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg text-brand-ink-primary dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-teal-600 focus:border-teal-600"
             aria-label="Search assessments"
           />
         </div>
@@ -251,7 +251,7 @@ export const AdminAssessmentsPage = () => {
             <select
               value={courseFilter}
               onChange={(e) => setCourseFilter(e.target.value)}
-              className="w-full px-3 py-2 text-sm bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              className="w-full px-3 py-2 text-sm bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg text-brand-ink-primary dark:text-white focus:outline-none focus:ring-2 focus:ring-teal-600 focus:border-teal-600"
               aria-label="Filter by course"
             >
               <option value="all">All Courses</option>
@@ -268,7 +268,7 @@ export const AdminAssessmentsPage = () => {
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
-            className="w-full px-3 py-2 text-sm bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            className="w-full px-3 py-2 text-sm bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg text-brand-ink-primary dark:text-white focus:outline-none focus:ring-2 focus:ring-teal-600 focus:border-teal-600"
             aria-label="Filter by status"
           >
             <option value="all">All Statuses</option>
@@ -295,7 +295,7 @@ export const AdminAssessmentsPage = () => {
       ) : filteredAssessments.length === 0 ? (
         <div className="p-12 text-center rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800">
           <FileCheck className="w-12 h-12 text-slate-400 mx-auto mb-3" />
-          <h3 className="text-base font-semibold text-slate-900 dark:text-white">
+          <h3 className="text-base font-semibold text-brand-ink-primary dark:text-white">
             No assessments found
           </h3>
           <p className="text-xs text-slate-500 max-w-sm mx-auto mt-1">
@@ -312,13 +312,13 @@ export const AdminAssessmentsPage = () => {
               <Card key={id} className="flex flex-col justify-between">
                 <div>
                   <div className="flex items-start justify-between gap-2 mb-2">
-                    <span className="text-[11px] font-semibold text-indigo-600 dark:text-indigo-400 truncate max-w-[180px]">
+                    <span className="text-[11px] font-semibold text-teal-700 dark:text-teal-400 truncate max-w-[180px]">
                       {a.course?.title || 'Standalone Assessment'}
                     </span>
                     <AdminStatusBadge status={a.status} />
                   </div>
 
-                  <h3 className="text-base font-bold text-slate-900 dark:text-white line-clamp-1">
+                  <h3 className="text-base font-bold text-brand-ink-primary dark:text-white line-clamp-1">
                     {a.title}
                   </h3>
 

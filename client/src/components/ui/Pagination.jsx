@@ -62,8 +62,8 @@ export const Pagination = ({
             onClick={() => onPageChange(pg)}
             className={`min-w-[32px] h-8 px-2 text-xs font-medium rounded-lg transition-colors ${
               currentPage === pg
-                ? 'bg-indigo-600 text-white shadow-sm'
-                : 'text-slate-600 hover:bg-slate-100'
+                ? 'bg-teal-700 text-white shadow-sm shadow-teal-700/20'
+                : 'text-slate-600 hover:bg-teal-50/60 hover:text-teal-900'
             }`}
           >
             {pg}

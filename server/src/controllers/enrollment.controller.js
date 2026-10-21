@@ -176,8 +176,34 @@ async function dropEnrollment(req, res, next) {
   }
 }
 
+/**
+ * Controller to assign course to an entire department.
+ * Admin and Trainer.
+ */
+async function assignDepartment(req, res, next) {
+  try {
+    const result = await enrollmentService.assignCourseToDepartment(
+      {
+        courseId: req.body.course || req.body.courseId,
+        departmentId: req.body.department || req.body.departmentId,
+        isMandatory: req.body.isMandatory !== undefined ? Boolean(req.body.isMandatory) : true
+      },
+      req.user
+    );
+
+    return sendSuccess(res, {
+      statusCode: 200,
+      message: 'Course successfully assigned to department',
+      data: result
+    });
+  } catch (err) {
+    next(err);
+  }
+}
+
 module.exports = {
   createEnrollment,
+  assignDepartment,
   selfEnroll,
   adminCreateEnrollment,
   getMyEnrollments,

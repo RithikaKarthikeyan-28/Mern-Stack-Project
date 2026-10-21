@@ -161,7 +161,7 @@ export const AssessmentModal = ({
               type="text"
               value={formData.title}
               onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-              className={`mt-1 block w-full rounded-lg border px-3 py-2 text-sm bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:outline-none ${
+              className={`mt-1 block w-full rounded-lg border px-3 py-2 text-sm bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-teal-600 focus:border-teal-600 focus:outline-none ${
                 errors.title
                   ? 'border-red-400 focus:border-red-400'
                   : 'border-slate-300 dark:border-slate-700'
@@ -183,7 +183,7 @@ export const AssessmentModal = ({
               id="assessment-course"
               value={formData.course}
               onChange={(e) => handleCourseSelect(e.target.value)}
-              className="mt-1 block w-full rounded-lg border border-slate-300 dark:border-slate-700 px-3 py-2 text-sm bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+              className="mt-1 block w-full rounded-lg border border-slate-300 dark:border-slate-700 px-3 py-2 text-sm bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-teal-600 focus:border-teal-600 focus:outline-none"
               disabled={isLoading || isEditing}
             >
               <option value="">Select Course</option>
@@ -208,7 +208,7 @@ export const AssessmentModal = ({
                 id="assessment-module"
                 value={formData.module}
                 onChange={(e) => setFormData({ ...formData, module: e.target.value })}
-                className="mt-1 block w-full rounded-lg border border-slate-300 dark:border-slate-700 px-3 py-2 text-sm bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+                className="mt-1 block w-full rounded-lg border border-slate-300 dark:border-slate-700 px-3 py-2 text-sm bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-teal-600 focus:border-teal-600 focus:outline-none"
                 disabled={isLoading}
               >
                 <option value="">Course Level (Entire Course)</option>
@@ -236,7 +236,7 @@ export const AssessmentModal = ({
                 max={100}
                 value={formData.passingPercentage}
                 onChange={(e) => setFormData({ ...formData, passingPercentage: e.target.value })}
-                className="mt-1 block w-full rounded-lg border border-slate-300 dark:border-slate-700 px-3 py-2 text-sm bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+                className="mt-1 block w-full rounded-lg border border-slate-300 dark:border-slate-700 px-3 py-2 text-sm bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-teal-600 focus:border-teal-600 focus:outline-none"
                 disabled={isLoading}
               />
               {errors.passingPercentage && (
@@ -257,7 +257,7 @@ export const AssessmentModal = ({
                 min={1}
                 value={formData.timeLimitMinutes}
                 onChange={(e) => setFormData({ ...formData, timeLimitMinutes: e.target.value })}
-                className="mt-1 block w-full rounded-lg border border-slate-300 dark:border-slate-700 px-3 py-2 text-sm bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+                className="mt-1 block w-full rounded-lg border border-slate-300 dark:border-slate-700 px-3 py-2 text-sm bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-teal-600 focus:border-teal-600 focus:outline-none"
                 placeholder="Optional"
                 disabled={isLoading}
               />
@@ -276,7 +276,7 @@ export const AssessmentModal = ({
                 min={1}
                 value={formData.maxAttempts}
                 onChange={(e) => setFormData({ ...formData, maxAttempts: e.target.value })}
-                className="mt-1 block w-full rounded-lg border border-slate-300 dark:border-slate-700 px-3 py-2 text-sm bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+                className="mt-1 block w-full rounded-lg border border-slate-300 dark:border-slate-700 px-3 py-2 text-sm bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-teal-600 focus:border-teal-600 focus:outline-none"
                 placeholder="Unlimited"
                 disabled={isLoading}
               />
@@ -294,7 +294,7 @@ export const AssessmentModal = ({
               id="assessment-status"
               value={formData.status}
               onChange={(e) => setFormData({ ...formData, status: e.target.value })}
-              className="mt-1 block w-full rounded-lg border border-slate-300 dark:border-slate-700 px-3 py-2 text-sm bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+              className="mt-1 block w-full rounded-lg border border-slate-300 dark:border-slate-700 px-3 py-2 text-sm bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-teal-600 focus:border-teal-600 focus:outline-none"
               disabled={isLoading}
             >
               <option value="draft">Draft (Private)</option>
@@ -315,7 +315,7 @@ export const AssessmentModal = ({
               rows={2}
               value={formData.description}
               onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-              className="mt-1 block w-full rounded-lg border border-slate-300 dark:border-slate-700 px-3 py-2 text-sm bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+              className="mt-1 block w-full rounded-lg border border-slate-300 dark:border-slate-700 px-3 py-2 text-sm bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-teal-600 focus:border-teal-600 focus:outline-none"
               placeholder="Guidelines for students prior to starting the quiz..."
               disabled={isLoading}
             />

@@ -99,7 +99,7 @@ export const AdminCertificatesPage = () => {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-white flex items-center gap-2">
+          <h1 className="text-2xl font-bold tracking-tight text-brand-ink-primary dark:text-white flex items-center gap-2">
             <Award className="w-7 h-7 text-amber-600" />
             Certificates Oversight
           </h1>
@@ -125,7 +125,7 @@ export const AdminCertificatesPage = () => {
           onClick={() => setActiveTab('all')}
           className={`pb-3 px-3 text-sm font-semibold border-b-2 transition-all flex items-center gap-1.5 ${
             activeTab === 'all'
-              ? 'border-indigo-600 text-indigo-600 dark:text-indigo-400'
+              ? 'border-teal-700 text-teal-800 dark:text-teal-300'
               : 'border-transparent text-slate-500 hover:text-slate-900'
           }`}
         >
@@ -135,7 +135,7 @@ export const AdminCertificatesPage = () => {
           onClick={() => setActiveTab('expiring')}
           className={`pb-3 px-3 text-sm font-semibold border-b-2 transition-all flex items-center gap-1.5 ${
             activeTab === 'expiring'
-              ? 'border-indigo-600 text-indigo-600 dark:text-indigo-400'
+              ? 'border-teal-700 text-teal-800 dark:text-teal-300'
               : 'border-transparent text-slate-500 hover:text-slate-900'
           }`}
         >
@@ -146,7 +146,7 @@ export const AdminCertificatesPage = () => {
           onClick={() => setActiveTab('expired')}
           className={`pb-3 px-3 text-sm font-semibold border-b-2 transition-all flex items-center gap-1.5 ${
             activeTab === 'expired'
-              ? 'border-indigo-600 text-indigo-600 dark:text-indigo-400'
+              ? 'border-teal-700 text-teal-800 dark:text-teal-300'
               : 'border-transparent text-slate-500 hover:text-slate-900'
           }`}
         >
@@ -163,7 +163,7 @@ export const AdminCertificatesPage = () => {
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             placeholder="Search by certificate number, recipient name, or course..."
-            className="w-full pl-9 pr-3 py-2 text-sm bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            className="w-full pl-9 pr-3 py-2 text-sm bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg text-brand-ink-primary dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-teal-600 focus:border-teal-600"
             aria-label="Search certificates"
           />
         </div>
@@ -173,7 +173,7 @@ export const AdminCertificatesPage = () => {
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
-              className="w-full px-3 py-2 text-sm bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              className="w-full px-3 py-2 text-sm bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg text-brand-ink-primary dark:text-white focus:outline-none focus:ring-2 focus:ring-teal-600 focus:border-teal-600"
               aria-label="Filter certificates by status"
             >
               <option value="all">All Statuses</option>
@@ -239,7 +239,7 @@ export const AdminCertificatesPage = () => {
                         to={`/verify-certificate/${c.certificateNumber}`}
                         target="_blank"
                         rel="noreferrer"
-                        className="text-[11px] text-indigo-600 hover:text-indigo-700 flex items-center gap-1 mt-0.5"
+                        className="text-[11px] text-teal-700 hover:text-teal-800 dark:text-teal-400 flex items-center gap-1 mt-0.5"
                       >
                         Public Verify <ExternalLink className="w-2.5 h-2.5" />
                       </Link>

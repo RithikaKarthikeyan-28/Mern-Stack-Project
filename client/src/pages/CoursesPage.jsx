@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import { Compass, BookOpen, Sparkles } from 'lucide-react';
+import { Compass, BookOpen, Sparkles, RefreshCw } from 'lucide-react';
 import CourseCard from '../components/courses/CourseCard';
 import CourseFilters from '../components/courses/CourseFilters';
 import Skeleton from '../components/ui/Skeleton';
@@ -125,19 +125,34 @@ export const CoursesPage = () => {
   return (
     <div className="space-y-8" data-testid="courses-page">
       {/* 1. Page Header Banner */}
-      <div className="relative overflow-hidden bg-gradient-to-r from-indigo-700 via-indigo-800 to-slate-900 rounded-3xl p-6 sm:p-8 text-white shadow-xl shadow-indigo-950/20">
+      <div className="relative overflow-hidden bg-gradient-to-r from-teal-800 via-teal-900 to-slate-950 rounded-3xl p-6 sm:p-8 text-white shadow-xl shadow-teal-950/20">
         <div className="absolute top-0 right-0 w-80 h-80 bg-white/5 rounded-full blur-3xl pointer-events-none" />
-        <div className="relative z-10 max-w-2xl">
-          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-white/10 backdrop-blur-md text-indigo-100 border border-white/10 mb-4">
-            <Sparkles className="w-3.5 h-3.5 text-indigo-300" />
-            Course Catalog
-          </span>
-          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight">
-            Explore Courses
-          </h1>
-          <p className="mt-2 text-indigo-100/90 text-sm sm:text-base leading-relaxed">
-            Discover courses that help you build skills, complete required training, and grow in your role.
-          </p>
+        <div className="relative z-10 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+          <div className="max-w-2xl">
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-white/10 backdrop-blur-md text-teal-100 border border-white/10 mb-4">
+              <Sparkles className="w-3.5 h-3.5 text-teal-300" />
+              Course Catalog
+            </span>
+            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight">
+              Explore Courses
+            </h1>
+            <p className="mt-2 text-teal-100/90 text-sm sm:text-base leading-relaxed">
+              Discover courses that help you build skills, complete required training, and grow in your role.
+            </p>
+          </div>
+          <div className="shrink-0 flex items-center gap-2">
+            <Button
+              variant="outline-light"
+              size="sm"
+              onClick={loadData}
+              disabled={loading}
+              className="flex items-center gap-1.5"
+              aria-label="Refresh course catalog"
+            >
+              <RefreshCw className={`w-4 h-4 mr-1.5 ${loading ? 'animate-spin' : ''}`} />
+              Refresh
+            </Button>
+          </div>
         </div>
       </div>
 
@@ -183,7 +198,7 @@ export const CoursesPage = () => {
       ) : filteredCourses.length === 0 ? (
         hasActiveFilters ? (
           <EmptyState
-            icon={<Compass className="w-8 h-8 text-indigo-600" />}
+            icon={<Compass className="w-8 h-8 text-teal-700" />}
             title="No courses found"
             description="No courses match your current search and filter criteria. Try adjusting your keywords or clearing filters."
             action={
@@ -194,7 +209,7 @@ export const CoursesPage = () => {
           />
         ) : (
           <EmptyState
-            icon={<BookOpen className="w-8 h-8 text-indigo-600" />}
+            icon={<BookOpen className="w-8 h-8 text-teal-700" />}
             title="No published courses available"
             description="There are currently no active published courses available for enrollment. Please check back later."
           />

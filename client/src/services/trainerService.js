@@ -350,6 +350,16 @@ export const trainerService = {
     return res.data?.data?.enrollments || res.data?.enrollments || [];
   },
 
+  /**
+   * Retrieves employee directory accessible to trainers and admins.
+   * @param {object} [params={}] - Optional filters: { department, isActive }
+   * @returns {Promise<Array>} List of employees
+   */
+  getEmployees: async (params = {}) => {
+    const res = await api.get('/employees', { params });
+    return res.data?.data?.employees || res.data?.employees || [];
+  },
+
   // =========================================================================
   // TRAINER DASHBOARD OVERVIEW (COMPOSITE)
   // =========================================================================

@@ -122,13 +122,13 @@ export const AdminAnalyticsPage = () => {
   return (
     <div className="space-y-6" data-testid="admin-analytics-page">
       {/* Header Banner */}
-      <div className="bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 rounded-2xl p-6 sm:p-8 text-white shadow-md flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+      <div className="bg-gradient-to-r from-teal-900 via-teal-950 to-slate-950 rounded-2xl p-6 sm:p-8 text-white shadow-md flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
-          <span className="inline-block px-2.5 py-0.5 rounded-full text-xs font-semibold bg-indigo-500/20 text-indigo-300 border border-indigo-400/30 mb-2">
+          <span className="inline-block px-2.5 py-0.5 rounded-full text-xs font-semibold bg-teal-500/20 text-teal-300 border border-teal-400/30 mb-2">
             Enterprise Intelligence
           </span>
           <h1 className="text-2xl sm:text-3xl font-bold tracking-tight flex items-center gap-2.5">
-            <BarChart3 className="w-7 h-7 text-indigo-400" />
+            <BarChart3 className="w-7 h-7 text-teal-300" />
             Analytics & Reports
           </h1>
           <p className="mt-1 text-slate-300 text-sm max-w-xl">
@@ -145,11 +145,11 @@ export const AdminAnalyticsPage = () => {
           )}
 
           <Button
-            variant="outline"
+            variant="outline-light"
             size="sm"
             onClick={() => loadAnalytics(true)}
             disabled={loading || refreshing}
-            className="text-white border-white/20 hover:bg-white/10"
+            className="flex items-center gap-1.5 shrink-0"
             aria-label="Refresh analytics data"
           >
             <RefreshCw className={`w-4 h-4 mr-1.5 ${refreshing ? 'animate-spin' : ''}`} />
@@ -161,7 +161,7 @@ export const AdminAnalyticsPage = () => {
             size="sm"
             onClick={() => setIsExportOpen(true)}
             disabled={loading}
-            className="flex items-center gap-1.5 shadow-md shadow-indigo-950"
+            className="flex items-center gap-1.5 shadow-md shadow-teal-950/20 shrink-0"
             aria-label="Export report"
           >
             <Download className="w-4 h-4" />
@@ -216,11 +216,11 @@ export const AdminAnalyticsPage = () => {
                 onClick={() => setActiveTab(tab.id)}
                 className={`flex items-center gap-2 py-3 px-3.5 text-xs sm:text-sm font-semibold rounded-t-lg transition-all shrink-0 border-b-2 ${
                   isActive
-                    ? 'border-indigo-600 text-indigo-600 bg-indigo-50/50'
+                    ? 'border-teal-700 text-teal-800 bg-teal-50/60'
                     : 'border-transparent text-slate-500 hover:text-slate-800 hover:bg-slate-50'
                 }`}
               >
-                <Icon className={`w-4 h-4 ${isActive ? 'text-indigo-600' : 'text-slate-400'}`} />
+                <Icon className={`w-4 h-4 ${isActive ? 'text-teal-700' : 'text-slate-400'}`} />
                 <span>{tab.label}</span>
               </button>
             );

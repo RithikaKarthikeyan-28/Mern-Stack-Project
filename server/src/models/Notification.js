@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 
 const NOTIFICATION_TYPES = [
+  'certificate_issued',
   'certificate_expiring',
   'certificate_expired',
   'certificate_renewed',
@@ -20,7 +21,7 @@ const notificationSchema = new mongoose.Schema(
       type: String,
       enum: {
         values: NOTIFICATION_TYPES,
-        message: 'Notification type must be one of: certificate_expiring, certificate_expired, certificate_renewed, compliance_due_soon, compliance_overdue'
+        message: 'Notification type must be one of: certificate_issued, certificate_expiring, certificate_expired, certificate_renewed, compliance_due_soon, compliance_overdue'
       },
       required: [true, 'Notification type is required'],
       index: true

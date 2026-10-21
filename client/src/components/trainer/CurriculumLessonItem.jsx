@@ -47,7 +47,7 @@ export const CurriculumLessonItem = ({ lesson, onEdit, onDelete }) => {
               href={lesson.resourceUrl}
               target="_blank"
               rel="noreferrer"
-              className="text-xs text-indigo-600 hover:underline truncate block max-w-xs"
+              className="text-xs text-teal-700 hover:underline truncate block max-w-xs"
             >
               {lesson.resourceUrl}
             </a>
